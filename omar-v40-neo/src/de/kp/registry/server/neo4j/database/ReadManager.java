@@ -8,22 +8,22 @@ import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 
-public class CipherQueryManager {
+public class ReadManager {
 
-	private static CipherQueryManager instance = new CipherQueryManager();
+	private static ReadManager instance = new ReadManager();
 	
 	// reference to the Cipher execution engine
 	ExecutionEngine engine;
 	
-	private CipherQueryManager() {
+	private ReadManager() {
 		
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		engine = new ExecutionEngine(graphDB);
 		
 	}
 
-	public static CipherQueryManager getInstance() {
-		if (instance == null) instance = new CipherQueryManager();
+	public static ReadManager getInstance() {
+		if (instance == null) instance = new ReadManager();
 		return instance;
 	}
 

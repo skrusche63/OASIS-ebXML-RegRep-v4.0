@@ -10,7 +10,7 @@ import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
-import de.kp.registry.server.neo4j.database.CipherQueryManager;
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 
@@ -46,7 +46,7 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 		// retrieve CipherQueryManager to determine already existing
 		// nodes by their respective OASIS ebRIM id
 		
-		CipherQueryManager cqm = CipherQueryManager.getInstance();
+		ReadManager cqm = ReadManager.getInstance();
 
 		// - AFFECTED-OBJECT (0..1)
 		if (affectedObjects != null) {
