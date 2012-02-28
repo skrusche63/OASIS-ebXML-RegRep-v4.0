@@ -1,5 +1,10 @@
 package de.kp.mike2.test;
 
+/**
+ * 
+ * @author peter
+ *
+ */
 public class testMike {
 
 	/**
