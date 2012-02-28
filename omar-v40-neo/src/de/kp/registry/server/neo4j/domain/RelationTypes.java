@@ -7,8 +7,10 @@ public enum RelationTypes implements RelationshipType {
 	hasAction,
 	hasAffectedObject,
 	hasAffectedObjectRef,
+	hasAuditableEvent,
 	hasChild,
 	hasClassification,
+	hasDeliveryInfo,
 	hasDescription,
 	hasEmailAddress,
 	hasIdentifier,
@@ -16,6 +18,7 @@ public enum RelationTypes implements RelationshipType {
 	hasLocaleString,
 	hasName,
 	hasPostalAddress,
+	hasSelector,
 	hasSlot,
 	hasTelephoneNumber,
 	hasVersion

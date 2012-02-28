@@ -1,5 +1,7 @@
 package de.kp.registry.server.neo4j.domain.access;
 
-public class RoleTypeNEO {
+import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+
+public class RoleTypeNEO extends RegistryObjectTypeNEO {
 
 }

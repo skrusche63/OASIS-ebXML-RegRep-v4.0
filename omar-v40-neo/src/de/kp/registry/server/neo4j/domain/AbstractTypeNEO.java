@@ -130,11 +130,12 @@ public class AbstractTypeNEO {
 	public static String OASIS_RIM_NOTIFICATION_OPTION = "notificationOption";
 
 	// the following parameters represent the property types
-	// associated with a SubscriptionType
+	// associated with a SubscriptionType and NotificationType
 	
 	public static String OASIS_RIM_ENDTIME   			 = "endtime";
 	public static String OASIS_RIM_STARTTIME 			 = "starttime";
 	public static String OASIS_RIM_NOTIFICATION_INTERVAL = "notificationInterval";
+	public static String OASIS_RIM_SUBSCRIPTION 		 = "subscription";
 
 	// properties to describe a certain node uniquely within
 	// neo4j
