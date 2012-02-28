@@ -9,7 +9,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
 		ExternalLinkType externalLinkType = (ExternalLinkType)binding;
 		

@@ -8,7 +8,7 @@ import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 
 public class PersonNameTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
 		PersonNameType personNameType = (PersonNameType)binding;
 		

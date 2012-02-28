@@ -10,7 +10,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class FederationTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
 		FederationType federationType = (FederationType)binding;
 		

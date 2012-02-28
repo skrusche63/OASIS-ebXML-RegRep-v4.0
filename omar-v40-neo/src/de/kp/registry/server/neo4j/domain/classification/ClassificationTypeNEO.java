@@ -11,7 +11,7 @@ public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 	// TODO: in case of provided nodes and schemes, make sure
 	// that these nodes exist
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
 		ClassificationType classificationType = (ClassificationType)binding;
 		

@@ -4,6 +4,9 @@ import org.neo4j.graphdb.RelationshipType;
 
 public enum RelationTypes implements RelationshipType {
 
+	hasAction,
+	hasAffectedObject,
+	hasAffectedObjectRef,
 	hasChild,
 	hasClassification,
 	hasDescription,

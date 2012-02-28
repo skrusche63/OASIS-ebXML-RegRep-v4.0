@@ -19,7 +19,7 @@ public class ExtensibleObjectTypeNEO extends AbstractTypeNEO {
 	// to potential slots; it is embedded (due to transaction
 	// handling) into another superior method
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 				
 		ExtensibleObjectType extensibleObjectType = (ExtensibleObjectType)binding;
 		

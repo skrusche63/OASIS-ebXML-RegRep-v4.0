@@ -7,7 +7,7 @@ import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
 
 public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
 		ClassificationNodeType classificationNodeType = (ClassificationNodeType)binding;
 		

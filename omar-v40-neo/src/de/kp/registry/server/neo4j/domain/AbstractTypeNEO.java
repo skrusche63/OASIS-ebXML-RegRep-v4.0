@@ -116,6 +116,26 @@ public class AbstractTypeNEO {
 
 	public static String OASIS_RIM_EVENT_TYPE = "eventType";
 
+	// the following parameters represent the property types
+	// associated with an AuditableEventType
+	
+	public static String OASIS_RIM_TIMESTAMP  = "timestamp";
+	public static String OASIS_RIM_REQUEST_ID = "requestId";
+	public static String OASIS_RIM_USER       = "user";
+
+	// the following parameters represent the property types
+	// associated with a DeliveryInfoType
+
+	public static String OASIS_RIM_NOTIFY_TO           = "notifyTo";
+	public static String OASIS_RIM_NOTIFICATION_OPTION = "notificationOption";
+
+	// the following parameters represent the property types
+	// associated with a SubscriptionType
+	
+	public static String OASIS_RIM_ENDTIME   			 = "endtime";
+	public static String OASIS_RIM_STARTTIME 			 = "starttime";
+	public static String OASIS_RIM_NOTIFICATION_INTERVAL = "notificationInterval";
+
 	// properties to describe a certain node uniquely within
 	// neo4j
 	

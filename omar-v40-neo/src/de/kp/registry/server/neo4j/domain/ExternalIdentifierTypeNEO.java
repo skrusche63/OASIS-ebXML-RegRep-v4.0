@@ -8,7 +8,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ExternalIdentifierTypeNEO extends RegistryObjectTypeNEO {
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
 		ExternalIdentifierType externalIdentifierType = (ExternalIdentifierType)binding;
 		

@@ -7,7 +7,7 @@ import org.oasis.ebxml.registry.bindings.rim.IdentifiableType;
 
 public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
 		// an IdentifiableType is also an ExtensibleObjectType
 		IdentifiableType identifiableType = (IdentifiableType)binding;
