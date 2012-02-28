@@ -111,6 +111,11 @@ public class AbstractTypeNEO {
 	public static String OASIS_RIM_REPL_SYNC_LATENCY 	= "replicationSyncLatency";
 	public static String OASIS_RIM_OPERATOR				= "operator";
 
+	// the following parameters represent the property types
+	// associated with an ActionType
+
+	public static String OASIS_RIM_EVENT_TYPE = "eventType";
+
 	// properties to describe a certain node uniquely within
 	// neo4j
 	
