@@ -11,7 +11,7 @@ import de.kp.registry.server.neo4j.database.Database;
 // between JAXB binding of the OASIS ebRIM and the
 // respective node representation within Neo4J
 
-public class AbstractTypeNEO {
+public class NEOBase {
 
 	// reference to OASIS ebRIM object factory
 	public static ObjectFactory factory = new ObjectFactory();
@@ -140,7 +140,18 @@ public class AbstractTypeNEO {
 	// the following parameters represent the property types
 	// associated with a ServiceType and related
 
-	public static String OASIS_RIM_SERVICE_INTERFACE 	 = "serviceInterface";
+	public static String OASIS_RIM_ADDRESS 	         = "address";
+	public static String OASIS_RIM_SERVICE_BINDING 	 = "serviceBinding";
+	public static String OASIS_RIM_SERVICE_INTERFACE = "serviceInterface";
+
+	// the following parameters represent the property types
+	// associated with a ParameterType
+
+	public static String OASIS_RIM_MIN_OCCURS     = "minOccurs";
+	public static String OASIS_RIM_MAX_OCCURS     = "maxOccurs";
+	public static String OASIS_RIM_DATA_TYPE      = "dataType";
+	public static String OASIS_RIM_DEFAULT_VALUE  = "defaultValue";
+	public static String OASIS_RIM_PARAMETER_NAME = "parameterName";
 
 	// properties to describe a certain node uniquely within
 	// neo4j

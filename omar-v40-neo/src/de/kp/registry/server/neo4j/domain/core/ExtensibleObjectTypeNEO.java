@@ -7,13 +7,13 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ExtensibleObjectType;
 import org.oasis.ebxml.registry.bindings.rim.SlotType;
 
-import de.kp.registry.server.neo4j.domain.AbstractTypeNEO;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 // starting from the OASIS ebRIM v4.0 information model, this is
 // the basic class for all other data structures
 
-public class ExtensibleObjectTypeNEO extends AbstractTypeNEO {
+public class ExtensibleObjectTypeNEO extends NEOBase {
 
 	// this method creates a node and respective relationships
 	// to potential slots; it is embedded (due to transaction

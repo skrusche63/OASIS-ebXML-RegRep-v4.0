@@ -11,8 +11,6 @@ import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
-import de.kp.registry.server.neo4j.domain.ExternalIdentifierTypeNEO;
-import de.kp.registry.server.neo4j.domain.ExternalLinkTypeNEO;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.classification.ClassificationTypeNEO;
 
@@ -62,8 +60,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 				
 		// TODO: here we have to determine whether we retrieve the respective node
 		// from the database (if it exists) or through creation
-		
-		
+				
 		// create node from underlying IdentifiableType
 		Node registryObjectTypeNode = IdentifiableTypeNEO.toNode(graphDB, binding);
 		

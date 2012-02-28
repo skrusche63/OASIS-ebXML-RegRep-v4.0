@@ -1,12 +1,13 @@
 package de.kp.registry.server.neo4j.database;
 
-
 import java.util.Iterator;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+
+import de.kp.registry.server.neo4j.domain.NEOBase;
 
 public class ReadManager {
 
@@ -33,6 +34,7 @@ public class ReadManager {
 	// note, that 'id' refers to the OASIS
  	public Node findNodeByID(String id) {
 		
+ 		/*
  		StringBuffer sb = new StringBuffer(); 		
  		sb.append("START ro=node:node_auto_index(id='" + id + "' RETURN ro");
 		
@@ -46,6 +48,11 @@ public class ReadManager {
  		}
  		
  		return match;
-		
+
+ 		*/
+ 		
+ 		// the node index is built from the OASIS ebRIM 'id'
+ 		return Database.getInstance().getNodeIndex().get(NEOBase.OASIS_RIM_ID, id).getSingle();
+ 		
 	}
 }

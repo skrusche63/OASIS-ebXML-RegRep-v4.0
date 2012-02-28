@@ -4,9 +4,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
-import de.kp.registry.server.neo4j.domain.AbstractTypeNEO;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 
-public class VersionInfoTypeNEO extends AbstractTypeNEO {
+public class VersionInfoTypeNEO extends NEOBase {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
 		

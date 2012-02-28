@@ -1,10 +1,9 @@
-package de.kp.registry.server.neo4j.domain;
+package de.kp.registry.server.neo4j.domain.core;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ExternalIdentifierType;
 
-import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ExternalIdentifierTypeNEO extends RegistryObjectTypeNEO {
 	

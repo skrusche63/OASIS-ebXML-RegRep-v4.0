@@ -4,6 +4,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.IdentifiableType;
 
+import de.kp.registry.server.neo4j.database.Database;
+
 
 public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 
@@ -23,6 +25,10 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 		
 		// - IDENTIFIER (1..1)
 		identifiableTypeNode.setProperty(OASIS_RIM_ID, identifiableTypeId);
+		
+		// add node to node index 
+		Database.getInstance().getNodeIndex().add(identifiableTypeNode, OASIS_RIM_ID, identifiableTypeId);
+		
 		return identifiableTypeNode;
 	}
 	

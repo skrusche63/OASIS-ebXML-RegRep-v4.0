@@ -1,17 +1,15 @@
-package de.kp.registry.server.neo4j.domain.association;
+package de.kp.registry.server.neo4j.domain.query;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 
-import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
-
-public class AssociationTypeNEO extends RegistryObjectTypeNEO {
+public class StringQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		return null;
 	}
 
 	public static String getNType() {
-		return "AssociationType";
+		return "StringQueryExpressionType";
 	}
 }

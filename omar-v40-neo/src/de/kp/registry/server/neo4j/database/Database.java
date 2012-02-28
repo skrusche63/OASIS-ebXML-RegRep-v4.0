@@ -1,6 +1,9 @@
 package de.kp.registry.server.neo4j.database;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 
 public class Database {
@@ -10,10 +13,13 @@ public class Database {
 	
 	// reference to neo4j
 	EmbeddedGraphDatabase graphDB;
+	IndexManager indexManager;
 
 	private Database() {
 		graphDB = new EmbeddedGraphDatabase(DB_PATH);
 		registerShutdownHook(graphDB);
+		
+		indexManager = graphDB.index();
 		
 	}
 	
@@ -25,6 +31,10 @@ public class Database {
 	
 	public EmbeddedGraphDatabase getGraphDB() {
 		return this.getGraphDB();
+	}
+	
+	public Index<Node> getNodeIndex() {
+		return indexManager.forNodes("nodes");
 	}
 	
 	public void shutdown() {

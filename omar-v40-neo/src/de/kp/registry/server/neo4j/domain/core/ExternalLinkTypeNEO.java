@@ -1,11 +1,10 @@
-package de.kp.registry.server.neo4j.domain;
+package de.kp.registry.server.neo4j.domain.core;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ExternalLinkType;
 import org.oasis.ebxml.registry.bindings.rim.SimpleLinkType;
 
-import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 

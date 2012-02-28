@@ -7,10 +7,10 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
 import org.oasis.ebxml.registry.bindings.rim.LocalizedStringType;
 
-import de.kp.registry.server.neo4j.domain.AbstractTypeNEO;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 
-public class InternationalStringTypeNEO extends AbstractTypeNEO {
+public class InternationalStringTypeNEO extends NEOBase {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) {
 		
