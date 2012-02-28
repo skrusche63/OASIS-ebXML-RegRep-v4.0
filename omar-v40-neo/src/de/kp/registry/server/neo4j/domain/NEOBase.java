@@ -1,5 +1,7 @@
 package de.kp.registry.server.neo4j.domain;
 
+import java.util.UUID;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
@@ -185,7 +187,8 @@ public class NEOBase {
 	// to uniquely identify a certain node with the Neo4J database
 	
 	public static String getNID() {
-		return null;
+		
+		return UUID.randomUUID().toString();
 	}
 	
 	public static String getNType() {

@@ -8,7 +8,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 
 public class Database {
 
-	private static String DB_PATH = "";
+	private static String DB_PATH = "testdb.neo4j";
 	private static Database instance = new Database();
 	
 	// reference to neo4j
@@ -30,7 +30,7 @@ public class Database {
 	}
 	
 	public EmbeddedGraphDatabase getGraphDB() {
-		return this.getGraphDB();
+		return this.graphDB;
 	}
 	
 	public Index<Node> getNodeIndex() {
