@@ -19,6 +19,7 @@ public enum RelationTypes implements RelationshipType {
 	hasName,
 	hasPostalAddress,
 	hasSelector,
+	hasServiceEndpoint,
 	hasSlot,
 	hasTelephoneNumber,
 	hasVersion

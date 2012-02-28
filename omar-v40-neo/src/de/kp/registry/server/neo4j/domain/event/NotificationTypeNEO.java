@@ -7,6 +7,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.NotificationType;
 
+import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class NotificationTypeNEO extends RegistryObjectTypeNEO {
@@ -28,6 +29,12 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		notificationTypeNode.setProperty(NEO4J_TYPE, getNType());
 
 		// - EVENT (1..*)
+		for (AuditableEventType event:events) {
+
+			Node auditableEventTypeNode = AuditableEventTypeNEO.toNode(graphDB, event);
+			notificationTypeNode.createRelationshipTo(auditableEventTypeNode, RelationTypes.hasAuditableEvent);
+
+		}
 		
 		// - SUBSCRIPTION 1..1)
 		notificationTypeNode.setProperty(OASIS_RIM_SUBSCRIPTION, subscription);
