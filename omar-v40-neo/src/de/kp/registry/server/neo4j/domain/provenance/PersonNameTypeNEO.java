@@ -46,16 +46,13 @@ public class PersonNameTypeNEO extends ExtensibleObjectTypeNEO {
 		binding = (PersonNameType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
 		
 		// - FIRST-NAME (0..1)
-		String firstName = (String)node.getProperty(OASIS_RIM_FIRST_NAME);
-		if (firstName != null) binding.setFirstName(firstName);
+		if (node.hasProperty(OASIS_RIM_FIRST_NAME)) binding.setFirstName((String)node.getProperty(OASIS_RIM_FIRST_NAME));
 
 		// - LAST-NAME (0..1)
-		String lastName = (String)node.getProperty(OASIS_RIM_LAST_NAME);
-		if (lastName != null) binding.setLastName(lastName);
+		if (node.hasProperty(OASIS_RIM_LAST_NAME)) binding.setLastName((String)node.getProperty(OASIS_RIM_LAST_NAME));
 
 		// - MIDDLE-NAME (0..1)
-		String middleName = (String)node.getProperty(OASIS_RIM_MIDDLE_NAME);
-		if (middleName != null) binding.setLastName(middleName);
+		if (node.hasProperty(OASIS_RIM_MIDDLE_NAME) ) binding.setLastName((String)node.getProperty(OASIS_RIM_MIDDLE_NAME));
 		
 		return binding;
 		

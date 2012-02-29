@@ -37,12 +37,10 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 		binding = (ClassificationSchemeType)TaxonomyElementTypeNEO.fillBinding(node, binding);
 
 		// - IS-INTERNAL (1..1)
-		Boolean isInternal = (Boolean)node.getProperty(OASIS_RIM_IS_INTERNAL);
-		binding.setIsInternal(isInternal);
+		binding.setIsInternal((Boolean)node.getProperty(OASIS_RIM_IS_INTERNAL));
 
 		// - NODE-TYPE (1..1)
-		String nodeType = (String)node.getProperty(OASIS_RIM_NODE_TYPE);
-		binding.setNodeType(nodeType);
+		binding.setNodeType((String)node.getProperty(OASIS_RIM_NODE_TYPE));
 
 		return binding;
 		

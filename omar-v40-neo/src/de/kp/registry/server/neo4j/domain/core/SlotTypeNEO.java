@@ -53,6 +53,30 @@ public class SlotTypeNEO extends ExtensibleObjectTypeNEO {
 		
 	}
 	
+	public static Object toBinding(Node node) {
+		
+		SlotType binding = factory.createSlotType();
+
+		// - NAME (1..1)
+		binding.setName((String)node.getProperty(OASIS_RIM_SLOT_NAME));
+
+		// - TYPE (0..1)
+		if (node.hasProperty(OASIS_RIM_SLOT_TYPE)) binding.setType((String)node.getProperty(OASIS_RIM_SLOT_TYPE));
+		
+		// - VALUE (0..1)
+		if (node.hasProperty(OASIS_RIM_SLOT_VALU)) {
+			
+			AnyValueType valueType = factory.createAnyValueType();
+			valueType.setAny(node.getProperty(OASIS_RIM_SLOT_VALU));
+			
+			binding.setSlotValue(valueType);
+			
+		}
+		
+		return binding;
+
+	}
+	
 	public static String getNType() {
 		return "SlotType";
 	}

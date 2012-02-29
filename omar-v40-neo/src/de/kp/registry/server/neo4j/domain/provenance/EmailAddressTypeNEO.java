@@ -3,7 +3,6 @@ package de.kp.registry.server.neo4j.domain.provenance;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.EmailAddressType;
-
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 
 public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
@@ -33,6 +32,21 @@ public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
 		return emailAddressTypeNode;
 		
 	}
+	
+	public static Object toBinding(Node node) {
+		
+		EmailAddressType binding = factory.createEmailAddressType();
+		binding = (EmailAddressType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+
+		// - ADDRESS (1..1)
+		binding.setAddress((String)node.getProperty(OASIS_RIM_EMAIL_ADDRESS));
+		
+		// - TYPE (0..1)
+		if (node.hasProperty(OASIS_RIM_TYPE)) binding.setType((String)node.getProperty(OASIS_RIM_TYPE));
+		
+		return binding;
+		
+	}	
 
 	public static String getNType() {
 		return "EmailAddressType";

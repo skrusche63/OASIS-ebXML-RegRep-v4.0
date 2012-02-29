@@ -1,6 +1,9 @@
 package de.kp.registry.server.neo4j.domain.provenance;
 
+import java.util.Iterator;
+
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.PersonNameType;
 import org.oasis.ebxml.registry.bindings.rim.PersonType;
@@ -26,13 +29,37 @@ public class PersonTypeNEO extends PartyTypeNEO {
 		if (personName != null) {
 
 			Node personNameTypeNode = PersonNameTypeNEO.toNode(graphDB, personName);
-			personTypeNode.createRelationshipTo(personNameTypeNode, RelationTypes.hasName);
+			personTypeNode.createRelationshipTo(personNameTypeNode, RelationTypes.hasPersonName);
 
 		}
 		
 		return personTypeNode;
 	}
 
+	public static Object toBinding(Node node) {
+		
+		PersonType binding = factory.createPersonType();
+		binding = (PersonType)PartyTypeNEO.fillBinding(node, binding);
+		
+		// retrieve personName based relationships
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasPersonName);
+		if (relationships == null) return binding;
+		
+		Iterator<Relationship> iterator = relationships.iterator();
+		while (iterator.hasNext()) {
+		
+			Relationship relationship = iterator.next();
+			Node personNameTypeNode = relationship.getStartNode();
+			
+			PersonNameType personNameType = (PersonNameType)PersonNameTypeNEO.toBinding(personNameTypeNode);
+			binding.setPersonName(personNameType);
+			
+		}
+		
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "PersonType";
 	}

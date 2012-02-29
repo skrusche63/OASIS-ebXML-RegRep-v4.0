@@ -1,8 +1,10 @@
 package de.kp.registry.server.neo4j.domain.core;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ExtensibleObjectType;
 import org.oasis.ebxml.registry.bindings.rim.SlotType;
@@ -59,8 +61,26 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	
 	public static Object fillBinding(Node node, Object binding) {
 		
-		// get slots from node
-		return binding;
+		ExtensibleObjectType extensibleObjectType = (ExtensibleObjectType)binding;
+		
+		// - SLOTS (0..*)
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasSlot);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node slotTypeNode = relationship.getStartNode();
+				
+				SlotType slotType = (SlotType)SlotTypeNEO.toBinding(slotTypeNode);				
+				extensibleObjectType.getSlot().add(slotType);
+
+			}
+			
+		}
+
+		return extensibleObjectType;
 		
 	}
 	

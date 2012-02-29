@@ -35,6 +35,20 @@ public class LocalizedStringTypeNEO extends NEOBase {
 		
 	}
 
+	public static Object toBinding(Node node) {
+		
+		LocalizedStringType binding = factory.createLocalizedStringType();
+		
+		// - LANGUAGE (0..1)
+		if (node.hasProperty(OASIS_RIM_LOCALE_LANG)) binding.setLang((String)node.getProperty(OASIS_RIM_LOCALE_LANG));
+		
+		// - VALUE (1..1)
+		binding.setValue((String)node.getProperty(OASIS_RIM_LOCALE_VALU));
+		
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "LocalizedStringType";
 	}

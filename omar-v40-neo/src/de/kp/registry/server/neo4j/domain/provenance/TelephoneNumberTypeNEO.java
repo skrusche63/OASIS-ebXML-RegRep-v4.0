@@ -58,24 +58,19 @@ public class TelephoneNumberTypeNEO extends ExtensibleObjectTypeNEO {
 		binding = (TelephoneNumberType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
 
 		// - AREA-CODE (0..1)
-		String areaCode = (String)node.getProperty(OASIS_RIM_AREA_CODE);
-		if (areaCode != null) binding.setAreaCode(areaCode);
+		if (node.hasProperty(OASIS_RIM_AREA_CODE)) binding.setAreaCode((String)node.getProperty(OASIS_RIM_AREA_CODE));
 
 		// - COUNTRY-CODE (0..1)
-		String countryCode = (String)node.getProperty(OASIS_RIM_COUNTRY_CODE);
-		if (countryCode != null) binding.setCountryCode(countryCode);
+		if (node.hasProperty(OASIS_RIM_COUNTRY_CODE)) binding.setCountryCode((String)node.getProperty(OASIS_RIM_COUNTRY_CODE));
 
 		// - EXTENSION (0..1)
-		String extension = (String)node.getProperty(OASIS_RIM_EXTENSION);
-		if (extension != null) binding.setExtension(extension);
+		if (node.hasProperty(OASIS_RIM_EXTENSION)) binding.setExtension((String)node.getProperty(OASIS_RIM_EXTENSION));
 		
 		// - NUMBER (0..1)
-		String number = (String)node.getProperty(OASIS_RIM_NUMBER);
-		if (number != null) binding.setNumber(number);
+		if (node.hasProperty(OASIS_RIM_NUMBER)) binding.setNumber((String)node.getProperty(OASIS_RIM_NUMBER));
 
 		// - TYPE (0..1)
-		String type = (String)node.getProperty(OASIS_RIM_TYPE);
-		if (type != null) binding.setType(type);
+		if (node.hasProperty(OASIS_RIM_TYPE)) binding.setType((String)node.getProperty(OASIS_RIM_TYPE));
 
 		return binding;
 		

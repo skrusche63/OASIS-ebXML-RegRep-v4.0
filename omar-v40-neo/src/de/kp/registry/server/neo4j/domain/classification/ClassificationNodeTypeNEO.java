@@ -45,16 +45,13 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 		binding = (ClassificationNodeType)TaxonomyElementTypeNEO.fillBinding(node, binding);
 
 		// - CODE (1..1)
-		String code = (String)node.getProperty(OASIS_RIM_CODE);
-		binding.setCode(code);
+		binding.setCode((String)node.getProperty(OASIS_RIM_CODE));
 
 		// - PARENT (0..1)
-		String parent = (String)node.getProperty(OASIS_RIM_PARENT);
-		if (parent != null) binding.setParent(parent);
+		if (node.hasProperty(OASIS_RIM_PARENT)) binding.setParent((String)node.getProperty(OASIS_RIM_PARENT));
 
 		// - PATH (0..1)
-		String path = (String)node.getProperty(OASIS_RIM_PATH);
-		if (path != null) binding.setPath(path);
+		if (node.hasProperty(OASIS_RIM_PATH)) binding.setPath((String)node.getProperty(OASIS_RIM_PATH));
 
 		return binding;
 		

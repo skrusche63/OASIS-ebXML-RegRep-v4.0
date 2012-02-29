@@ -46,16 +46,13 @@ public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 		binding = (AssociationType)RegistryObjectTypeNEO.fillBinding(node, binding);
 
 		// - SOURCE-OBJECT (1..1)
-		String sourceObject = (String)node.getProperty(OASIS_RIM_SOURCE);
-		binding.setSourceObject(sourceObject);
+		binding.setSourceObject((String)node.getProperty(OASIS_RIM_SOURCE));
 		
 		// - TARGET-OBJECT (1..1)
-		String targetObject = (String)node.getProperty(OASIS_RIM_TARGET);
-		binding.setTargetObject(targetObject);
+		binding.setTargetObject((String)node.getProperty(OASIS_RIM_TARGET));
 		
 		// - TYPE (1..1)
-		String type = (String)node.getProperty(OASIS_RIM_TYPE);
-		binding.setType(type);
+		binding.setType((String)node.getProperty(OASIS_RIM_TYPE));
 		
 		return binding;		
 		
