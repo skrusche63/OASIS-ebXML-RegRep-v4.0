@@ -82,8 +82,6 @@ public class NEOMapper {
 	}
 	
 	public Class<?> get(String clazzName) {
-		
-		System.out.println(clazzName);
 		return mapper.get(clazzName);
 	}
 }

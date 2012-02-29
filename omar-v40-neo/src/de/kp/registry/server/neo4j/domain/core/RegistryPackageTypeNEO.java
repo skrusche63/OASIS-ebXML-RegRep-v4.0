@@ -36,7 +36,7 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 				Class<?> clazz = getClassNEO(registryObject);
 			    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
 
-			    Node registryObjectTypeNode = (Node)method.invoke(null, graphDB, binding);
+			    Node registryObjectTypeNode = (Node)method.invoke(null, graphDB, registryObject);
 				registryPackageTypeNode.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasMember);
 
 			}
