@@ -19,6 +19,7 @@ public enum RelationTypes implements RelationshipType {
 	hasName,
 	hasParameter,
 	hasPostalAddress,
+	hasQuery,
 	hasQueryExpression,
 	hasSelector,
 	hasServiceEndpoint,

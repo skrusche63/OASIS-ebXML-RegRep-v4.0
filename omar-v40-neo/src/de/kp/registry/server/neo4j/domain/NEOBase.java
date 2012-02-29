@@ -153,6 +153,18 @@ public class NEOBase {
 	public static String OASIS_RIM_DEFAULT_VALUE  = "defaultValue";
 	public static String OASIS_RIM_PARAMETER_NAME = "parameterName";
 
+	// the following parameters represent the property types
+	// associated with a QueryExpressionType
+
+	public static String OASIS_RIM_QUERY_LANGUAGE = "queryLanguage";
+	public static String OASIS_RIM_QUERY_VALUE    = "value";
+
+	// the following parameters represent the property types
+	// associated with an AssociationType
+
+	public static String OASIS_RIM_SOURCE = "sourceObject";
+	public static String OASIS_RIM_TARGET = "targetObject";
+
 	// properties to describe a certain node uniquely within
 	// neo4j
 	
