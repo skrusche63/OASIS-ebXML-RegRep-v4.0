@@ -2,6 +2,7 @@ package de.kp.registry.server.neo4j.test;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -51,9 +52,8 @@ public class TestJAXB2Node extends TestCase {
 		}
 
 	}
-
 	
-	public void testWritePersonNameType() throws Exception {
+	public void __testWritePersonNameType() throws Exception {
 		WriteManager wm = WriteManager.getInstance();
 
 		List<Object> bindings = new ArrayList<Object>(); 
@@ -77,6 +77,22 @@ public class TestJAXB2Node extends TestCase {
 
 		String id = "de.kp.test.persontype1";
 		Node node = rm.findNodeByID(id);
+		
+	}
+	
+	public void testGetNodes() {
+		
+		Iterator<Node> nodes = Database.getInstance().getGraphDB().getAllNodes().iterator();
+		while (nodes.hasNext()) {
+			
+			Node node = nodes.next();
+			
+			System.out.println(node.getId());
+			if (node.hasProperty("_type")) System.out.println(node.getProperty("_type"));
+			
+			System.out.println(node.hasRelationship());
+			
+		}
 		
 	}
 

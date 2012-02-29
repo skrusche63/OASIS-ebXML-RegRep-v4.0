@@ -5,6 +5,8 @@ import java.util.List;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
+
 public class WriteManager {
 
 	private static WriteManager instance = new WriteManager();
@@ -54,10 +56,7 @@ public class WriteManager {
 	
 	private void writeInternal(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
-		String bindingName = binding.getClass().getName();
-		int pos = bindingName.lastIndexOf(".");
-		
-		Class<?> clazz = Database.getInstance().getMapper().get(bindingName.substring(0, pos));
+		Class<?> clazz = NEOBase.getClassNEO(binding);
 
 		System.out.println("--> writeInternal: neoBinding class: " + clazz.getName());
 

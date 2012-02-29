@@ -176,7 +176,7 @@ public class NEOBase {
 		String bindingName = binding.getClass().getName();
 		int pos = bindingName.lastIndexOf(".");
 		
-		return Database.getInstance().getMapper().get(bindingName.substring(0, pos));
+		return Database.getInstance().getMapper().get(bindingName.substring(pos+1));
 
 	}
 
