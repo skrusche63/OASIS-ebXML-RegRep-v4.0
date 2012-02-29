@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.test;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +59,7 @@ public class TestJAXB2Node extends TestCase {
 		suite.addTest(new TestJAXB2Node("testDumpNodes"));
 
 		// write two nodes with relation
-		suite.addTest(new TestJAXB2Node("testWriteMultiplePersonNameType"));
+		suite.addTest(new TestJAXB2Node("testWriteRegistryPackageWithMultipleObjects"));
 		// count all nodes of database
 		suite.addTest(new TestJAXB2Node("testCountNodes"));
 		// delete all nodes with "_type" property and their relations of database
@@ -117,7 +118,7 @@ public class TestJAXB2Node extends TestCase {
 
 	}
 	
-	public void testWriteMultiplePersonNameType() throws Exception {
+	public void testWriteRegistryPackageWithMultipleObjects() throws Exception {
 		int multiple = 1000;
         long startTime = System.currentTimeMillis();
 
@@ -134,8 +135,9 @@ public class TestJAXB2Node extends TestCase {
 		ebPersonNameType.setFirstName("Peter");
 		ebPersonNameType.setLastName("Arwanitis");
 
+		PersonType ebPersonType;
 	    for (int i=0; i<multiple; i++) {
-			PersonType ebPersonType = factory.createPersonType();
+			ebPersonType = factory.createPersonType();
 			// counted identifier
 			ebPersonType.setId("de.kp.test.persontype" + i);
 			ebPersonType.setPersonName(ebPersonNameType);
@@ -165,7 +167,21 @@ public class TestJAXB2Node extends TestCase {
 		String id = "de.kp.test.persontype1";
 		Node node = rm.findNodeByID(id);
 		assertTrue("Cannot find node", node.hasProperty(NEOBase.NEO4J_TYPE));
+		
+		/*
+		 * test if node has correct id
+		 */
+		assertTrue("Node id doesn't fit", node.getProperty(NEOBase.OASIS_RIM_ID).equals(id));
 
+		/*
+		 * test node can be converted back to rim binding
+		 */
+		// get NEO wrapper class from node type
+		// call toBinding()
+		PersonType ebPersonType = (PersonType) NEOBase.toBinding(node);
+		assertTrue("Cannot getLastName() from binding: " + node.getProperty(NEOBase.NEO4J_TYPE), 
+				ebPersonType.getPersonName().getLastName().equals("Arwanitis"));
+		
 		/*
 		 * test if query for nonexistent node fails
 		 */
@@ -177,7 +193,7 @@ public class TestJAXB2Node extends TestCase {
 		 * test that query for nodes with duplicated IDs fails with getSingle()
 		 */
 	    for (int i=0; i<2; i++) {
-	    	PersonType ebPersonType = factory.createPersonType();
+	    	ebPersonType = factory.createPersonType();
 	    	ebPersonType.setId("de.kp.test.persontype.same");
 	    	wm.write(ebPersonType);
 	    }

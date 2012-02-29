@@ -8,6 +8,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.PersonNameType;
 import org.oasis.ebxml.registry.bindings.rim.PersonType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 public class PersonTypeNEO extends PartyTypeNEO {
@@ -47,10 +48,10 @@ public class PersonTypeNEO extends PartyTypeNEO {
 		
 		Iterator<Relationship> iterator = relationships.iterator();
 		while (iterator.hasNext()) {
-		
+			// START (PersonType)--[hasPersonName]-->(PersonNameType) END
 			Relationship relationship = iterator.next();
-			Node personNameTypeNode = relationship.getStartNode();
-			
+			Node personNameTypeNode = relationship.getEndNode();
+						
 			PersonNameType personNameType = (PersonNameType)PersonNameTypeNEO.toBinding(personNameTypeNode);
 			binding.setPersonName(personNameType);
 			

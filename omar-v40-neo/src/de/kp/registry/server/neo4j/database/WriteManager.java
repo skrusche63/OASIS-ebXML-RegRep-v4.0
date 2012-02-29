@@ -56,10 +56,7 @@ public class WriteManager {
 	
 	private void writeInternal(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
 		
-		Class<?> clazz = NEOBase.getClassNEO(binding);
-
-	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
-	    method.invoke(null, graphDB, binding);
-		
+		NEOBase.toNode(graphDB, binding);
+				
 	}
 }
