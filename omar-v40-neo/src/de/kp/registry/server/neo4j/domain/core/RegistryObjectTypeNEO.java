@@ -158,6 +158,11 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		
 	}
 	
+	public static Object toBinding(Node node) {
+		RegistryObjectType binding = factory.createRegistryObjectType();
+		return binding;
+	}
+
 	public static Object fillBinding(Node node, Object binding) {
 		return binding;
 	}

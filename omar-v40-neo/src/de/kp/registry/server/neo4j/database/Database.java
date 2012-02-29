@@ -6,6 +6,8 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 
+import de.kp.registry.server.neo4j.domain.NEOMapper;
+
 public class Database {
 
 	private static String DB_PATH = "testdb.neo4j";
@@ -15,11 +17,18 @@ public class Database {
 	EmbeddedGraphDatabase graphDB;
 	IndexManager indexManager;
 
+	// class mapper
+	NEOMapper mapper;
+	
 	private Database() {
 		graphDB = new EmbeddedGraphDatabase(DB_PATH);
 		registerShutdownHook(graphDB);
 		
+		// index support
 		indexManager = graphDB.index();
+		
+		// mapping support
+		mapper = new NEOMapper();
 		
 	}
 	
@@ -35,6 +44,10 @@ public class Database {
 	
 	public Index<Node> getNodeIndex() {
 		return indexManager.forNodes("nodes");
+	}
+	
+	public NEOMapper getMapper() {
+		return mapper;
 	}
 	
 	public void shutdown() {

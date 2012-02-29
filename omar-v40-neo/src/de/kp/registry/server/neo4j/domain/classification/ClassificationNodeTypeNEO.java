@@ -39,6 +39,27 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 	
 	}
 
+	public static Object toBinding(Node node) {
+	
+		ClassificationNodeType binding = factory.createClassificationNodeType();
+		binding = (ClassificationNodeType)TaxonomyElementTypeNEO.fillBinding(node, binding);
+
+		// - CODE (1..1)
+		String code = (String)node.getProperty(OASIS_RIM_CODE);
+		binding.setCode(code);
+
+		// - PARENT (0..1)
+		String parent = (String)node.getProperty(OASIS_RIM_PARENT);
+		if (parent != null) binding.setParent(parent);
+
+		// - PATH (0..1)
+		String path = (String)node.getProperty(OASIS_RIM_PATH);
+		if (path != null) binding.setPath(path);
+
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "ClassificationNodeType";
 	}

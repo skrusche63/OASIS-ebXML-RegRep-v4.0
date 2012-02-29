@@ -44,6 +44,10 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
+	public static Object fillBinding(Node node, Object binding) {
+		return binding;
+	}
+	
 	public static String getNType() {
 		return "TaxonomyElementType";
 	}

@@ -4,7 +4,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationSchemeType;
 
-
 public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
@@ -30,6 +29,23 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 		classificationSchemeTypeNode.setProperty(OASIS_RIM_NODE_TYPE, nodeType);
 
 		return classificationSchemeTypeNode;
+	}
+
+	public static Object toBinding(Node node) {
+		
+		ClassificationSchemeType binding = factory.createClassificationSchemeType();
+		binding = (ClassificationSchemeType)TaxonomyElementTypeNEO.fillBinding(node, binding);
+
+		// - IS-INTERNAL (1..1)
+		Boolean isInternal = (Boolean)node.getProperty(OASIS_RIM_IS_INTERNAL);
+		binding.setIsInternal(isInternal);
+
+		// - NODE-TYPE (1..1)
+		String nodeType = (String)node.getProperty(OASIS_RIM_NODE_TYPE);
+		binding.setNodeType(nodeType);
+
+		return binding;
+		
 	}
 
 	public static String getNType() {

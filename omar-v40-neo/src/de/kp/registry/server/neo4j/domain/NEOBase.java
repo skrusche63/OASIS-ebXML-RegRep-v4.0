@@ -2,9 +2,6 @@ package de.kp.registry.server.neo4j.domain;
 
 import java.util.UUID;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ObjectFactory;
 
 import de.kp.registry.server.neo4j.database.Database;
@@ -22,6 +19,7 @@ public class NEOBase {
 	public static String OASIS_RIM_DESCRIPTION = "description";
 	public static String OASIS_RIM_ID          = "id";
 	public static String OASIS_RIM_LID         = "lid";
+	public static String OASIS_RIM_MIMETYPE    = "mimetype";
 	public static String OASIS_RIM_OWNER       = "owner";
 	public static String OASIS_RIM_PATH        = "path";
 	public static String OASIS_RIM_STATUS      = "status";
@@ -173,33 +171,19 @@ public class NEOBase {
 	public static String NEO4J_UID  = "_uid";
 	public static String NEO4J_TYPE = "_type";
 	
-	/*
-	 * create and index a Neo4J node from the respective
-	 * JAXB binding object
-	 */
-	
-	public void create() {
+	public static Class<?> getClassNEO(Object binding) {
 		
-		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
-		Transaction tx = graphDB.beginTx();
+		String bindingName = binding.getClass().getName();
+		int pos = bindingName.lastIndexOf(".");
 		
-		try {
-			
-			Node n = graphDB.createNode();
-			// do mutating operation
-			tx.success();
-			
-		} finally {
-			tx.finish();
-		}
-		
+		return Database.getInstance().getMapper().get(bindingName.substring(0, pos));
+
 	}
 
 	// this is a helper method to retrieve a system generated identifier
 	// to uniquely identify a certain node with the Neo4J database
 	
-	public static String getNID() {
-		
+	public static String getNID() {		
 		return UUID.randomUUID().toString();
 	}
 	
