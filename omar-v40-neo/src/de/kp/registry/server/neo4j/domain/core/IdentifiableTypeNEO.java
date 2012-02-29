@@ -14,8 +14,8 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 		// an IdentifiableType is also an ExtensibleObjectType
 		IdentifiableType identifiableType = (IdentifiableType)binding;
 		
-		// - IDENTIFIER (1..1)
-		String identifiableTypeId = identifiableType.getId();
+		// - ID (1..1)
+		String id = identifiableType.getId();
 		
 		// create node from underlying ExtensibleObjectType
 		Node identifiableTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
@@ -23,13 +23,24 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 		// update the internal type to describe an identifiableType
 		identifiableTypeNode.setProperty(NEO4J_TYPE, getNType());
 		
-		// - IDENTIFIER (1..1)
-		identifiableTypeNode.setProperty(OASIS_RIM_ID, identifiableTypeId);
+		// - ID (1..1)
+		identifiableTypeNode.setProperty(OASIS_RIM_ID, id);
 		
 		// add node to node index 
-		Database.getInstance().getNodeIndex().add(identifiableTypeNode, OASIS_RIM_ID, identifiableTypeId);
+		Database.getInstance().getNodeIndex().add(identifiableTypeNode, OASIS_RIM_ID, id);
 		
 		return identifiableTypeNode;
+	}
+	
+	public static Object fillBinding(Node node, Object binding) {
+		
+		IdentifiableType identifiableType = (IdentifiableType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+
+		// - ID (1..1)
+		identifiableType.setId((String)node.getProperty(OASIS_RIM_ID));
+		
+		return identifiableType;
+		
 	}
 	
 	public static String getNType() {

@@ -165,12 +165,20 @@ public class NEOBase {
 	public static String OASIS_RIM_SOURCE = "sourceObject";
 	public static String OASIS_RIM_TARGET = "targetObject";
 
+	// the following parameters represent the property types
+	// associated with a RoleType
+	public static String OASIS_RIM_ROLE_TYPE = "roleType";
+
 	// properties to describe a certain node uniquely within
 	// neo4j
 	
 	public static String NEO4J_UID  = "_uid";
 	public static String NEO4J_TYPE = "_type";
-	
+
+	public static Class<?> getClassNEO(String bindingName) {
+		return Database.getInstance().getMapper().get(bindingName);
+	}
+
 	public static Class<?> getClassNEO(Object binding) {
 		
 		String bindingName = binding.getClass().getName();

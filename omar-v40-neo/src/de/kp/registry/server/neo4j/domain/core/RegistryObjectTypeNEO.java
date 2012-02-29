@@ -1,8 +1,10 @@
 package de.kp.registry.server.neo4j.domain.core;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationType;
 import org.oasis.ebxml.registry.bindings.rim.ExternalIdentifierType;
@@ -159,12 +161,130 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
-		RegistryObjectType binding = factory.createRegistryObjectType();
-		return binding;
+		return fillBinding(node, factory.createRegistryObjectType());
 	}
 
 	public static Object fillBinding(Node node, Object binding) {
-		return binding;
+		
+		RegistryObjectType registryObjectType = (RegistryObjectType)IdentifiableTypeNEO.fillBinding(node, binding);
+		Iterable<Relationship> relationships = null;
+		
+		// - CLASSIFICATION (0..*)
+		relationships = node.getRelationships(RelationTypes.hasClassification);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node classificationTypeNode = relationship.getStartNode();
+				
+				ClassificationType classificationType = (ClassificationType)ClassificationTypeNEO.toBinding(classificationTypeNode);				
+				registryObjectType.getClassification().add(classificationType);
+
+			}
+			
+		}
+
+		// - DESCRIPTION (0..1)
+		relationships = node.getRelationships(RelationTypes.hasDescription);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node internationaStringTypeNode = relationship.getStartNode();
+				
+				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
+				registryObjectType.setDescription(internationalStringType);
+
+			}
+			
+		}
+
+		// - EXTERNAL-IDENTIFIER (0..*)
+		relationships = node.getRelationships(RelationTypes.hasIdentifier);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node externalIdentifierTypeNode = relationship.getStartNode();
+				
+				ExternalIdentifierType externalIdentifierType = (ExternalIdentifierType)ExternalIdentifierTypeNEO.toBinding(externalIdentifierTypeNode);				
+				registryObjectType.getExternalIdentifier().add(externalIdentifierType);
+
+			}
+			
+		}
+		
+		// - EXTERNAL-LINK (0..*)
+		relationships = node.getRelationships(RelationTypes.hasLink);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node externalLinkTypeNode = relationship.getStartNode();
+				
+				ExternalLinkType externalLinkType = (ExternalLinkType)ExternalLinkTypeNEO.toBinding(externalLinkTypeNode);				
+				registryObjectType.getExternalLink().add(externalLinkType);
+
+			}
+			
+		}
+		
+		// - LID (0..1)
+		if (node.hasProperty(OASIS_RIM_LID)) registryObjectType.setLid((String)node.getProperty(OASIS_RIM_LID));
+		
+		// - NAME (0..1)
+		relationships = node.getRelationships(RelationTypes.hasName);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node internationaStringTypeNode = relationship.getStartNode();
+				
+				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
+				registryObjectType.setName(internationalStringType);
+
+			}
+			
+		}
+		
+		// - OBJECT-TYPE (0..1)
+		if (node.hasProperty(OASIS_RIM_TYPE)) registryObjectType.setObjectType((String)node.getProperty(OASIS_RIM_TYPE));
+		
+		// - OWNER (0..1)
+		if (node.hasProperty(OASIS_RIM_OWNER)) registryObjectType.setOwner((String)node.getProperty(OASIS_RIM_OWNER));
+		
+		// - STATUS (0..1)
+		if (node.hasProperty(OASIS_RIM_STATUS)) registryObjectType.setStatus((String)node.getProperty(OASIS_RIM_STATUS));
+		
+		// - VERSION-INFO (0..1)
+		relationships = node.getRelationships(RelationTypes.hasVersion);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node versionInfoTypeNode = relationship.getStartNode();
+				
+				VersionInfoType versionInfoType = (VersionInfoType)VersionInfoTypeNEO.toBinding(versionInfoTypeNode);				
+				registryObjectType.setVersionInfo(versionInfoType);
+
+			}
+			
+		}
+		
+		return registryObjectType;
+		
 	}
 	
 	public static String getNType() {

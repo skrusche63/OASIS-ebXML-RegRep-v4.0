@@ -1,8 +1,11 @@
 package de.kp.registry.server.neo4j.domain.core;
 
+import java.util.Iterator;
+
 import javax.activation.DataHandler;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
 import org.oasis.ebxml.registry.bindings.rim.SimpleLinkType;
@@ -58,14 +61,49 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
-		
-		ExtrinsicObjectType binding = factory.createExtrinsicObjectType();
-		return binding;
-		
+		return fillBinding(node, factory.createExtrinsicObjectType());
 	}
 	
 	public static Object fillBinding(Node node, Object binding) {
-		return binding;
+		
+		ExtrinsicObjectType extrinsicObjectType = (ExtrinsicObjectType)RegistryObjectTypeNEO.fillBinding(node, binding);
+
+		// - CONTENT VERSION INFO (0..1)
+		Iterable<Relationship> relationships = null;
+		
+		relationships = node.getRelationships(RelationTypes.hasContentVersion);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node versionInfoTypeNode = relationship.getStartNode();
+				
+				VersionInfoType versionInfoType = (VersionInfoType)VersionInfoTypeNEO.toBinding(versionInfoTypeNode);				
+				extrinsicObjectType.setContentVersionInfo(versionInfoType);
+
+			}
+			
+		}
+
+		// - MIMETYPE (0..1)
+		if (node.hasProperty(OASIS_RIM_MIMETYPE)) extrinsicObjectType.setMimeType((String)node.getProperty(OASIS_RIM_MIMETYPE));
+		
+		// - REPOSITORY-ITEM (0..1)
+		
+		// - REPOSITORY-ITEM-REF (0..1)
+		if (node.hasProperty(OASIS_RIM_URI)) {
+			
+			SimpleLinkType simpleLinkType = factory.createSimpleLinkType();
+			simpleLinkType.setHref((String)node.getProperty(OASIS_RIM_URI));
+			
+			extrinsicObjectType.setRepositoryItemRef(simpleLinkType);
+
+		}
+		
+		return extrinsicObjectType;
+		
 	}
 	
 	public static String getNType() {

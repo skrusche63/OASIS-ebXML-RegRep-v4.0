@@ -35,6 +35,21 @@ public class VersionInfoTypeNEO extends NEOBase {
 		
 	}
 
+	public static Object toBinding(Node node) {
+	
+		VersionInfoType binding = factory.createVersionInfoType();
+		
+		// - USER VERSION NAME (0..1)
+		if (node.hasProperty(OASIS_RIM_VERSION_USER_NAME)) binding.setUserVersionName((String)node.getProperty(OASIS_RIM_VERSION_USER_NAME));
+		
+		// - VERSION NAME (0..1)
+		if (node.hasProperty(OASIS_RIM_VERSION_NAME)) binding.setVersionName((String)node.getProperty(OASIS_RIM_VERSION_NAME));
+
+		return binding;
+		
+	}
+	
+	
 	public static String getNType() {
 		return "VersionType";
 	}

@@ -40,6 +40,28 @@ public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+
+		ExternalLinkType binding = factory.createExternalLinkType();
+		binding = (ExternalLinkType)RegistryObjectTypeNEO.fillBinding(node, binding);
+
+		// - EXTERNAL-REF (1..1)
+		if (node.hasProperty(OASIS_RIM_URI)) {
+		
+			SimpleLinkType simpleLinkType = factory.createSimpleLinkType();
+			simpleLinkType.setHref((String)node.getProperty(OASIS_RIM_URI));
+			
+			binding.setExternalRef(simpleLinkType);
+		
+		}
+
+		// - REGISTRY-OBJECT (0..1)
+		if (node.hasProperty(OASIS_RIM_PARENT)) binding.setRegistryObject((String)node.getProperty(OASIS_RIM_PARENT));
+		
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "ExternalLinkType";
 	}

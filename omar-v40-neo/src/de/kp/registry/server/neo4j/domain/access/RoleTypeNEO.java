@@ -23,7 +23,7 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 		roleTypeNode.setProperty(NEO4J_TYPE, getNType());
 
 		// - TYPE (1..1)
-		roleTypeNode.setProperty(OASIS_RIM_TYPE, type);
+		roleTypeNode.setProperty(OASIS_RIM_ROLE_TYPE, type);
 		
 		return roleTypeNode;
 		
@@ -35,7 +35,7 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 		binding = (RoleType)RegistryTypeNEO.fillBinding(node, binding);
 		
 		// - TYPE (1..1)
-		binding.setType((String)node.getProperty(OASIS_RIM_TYPE));
+		binding.setType((String)node.getProperty(OASIS_RIM_ROLE_TYPE));
 		
 		return binding;
 		

@@ -42,6 +42,24 @@ public class ExternalIdentifierTypeNEO extends RegistryObjectTypeNEO {
 	
 	}
 	
+	public static Object toBinding(Node node) {
+		
+		ExternalIdentifierType binding = factory.createExternalIdentifierType();
+		binding = (ExternalIdentifierType)RegistryObjectTypeNEO.fillBinding(node, binding);
+
+		// - IDENTIFICATION SCHEME (1..1)
+		binding.setIdentificationScheme((String)node.getProperty(OASIS_RIM_ID_SCHEME));
+		
+		// - REGISTRY-OBJECT (0..1)
+		if (node.hasProperty(OASIS_RIM_PARENT)) binding.setRegistryObject((String)node.getProperty(OASIS_RIM_PARENT));
+
+		// - VALUE (1..1)
+		binding.setValue((String)node.getProperty(OASIS_RIM_VALUE));
+		
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "ExternalIdentifierType";
 	}
