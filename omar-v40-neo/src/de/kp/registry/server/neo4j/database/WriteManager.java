@@ -58,8 +58,6 @@ public class WriteManager {
 		
 		Class<?> clazz = NEOBase.getClassNEO(binding);
 
-		System.out.println("--> writeInternal: neoBinding class: " + clazz.getName());
-
 	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
 	    method.invoke(null, graphDB, binding);
 		
