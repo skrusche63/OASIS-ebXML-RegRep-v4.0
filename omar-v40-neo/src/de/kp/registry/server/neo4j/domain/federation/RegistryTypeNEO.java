@@ -51,6 +51,7 @@ public class RegistryTypeNEO extends RegistryObjectTypeNEO {
 	public static Object toBinding(Node node) {
 	
 		RegistryType binding = factory.createRegistryType();
+		binding = (RegistryType)RegistryObjectTypeNEO.fillBinding(node, binding);
 
 		// - CATALOGING-LATENCY (0..1)
 		if (node.hasProperty(OASIS_RIM_CATALOG_LATENCY)) binding.setCatalogingLatency((Duration)node.getProperty(OASIS_RIM_CATALOG_LATENCY));
