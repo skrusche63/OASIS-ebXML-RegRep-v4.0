@@ -42,6 +42,13 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		return notificationTypeNode;
 	}
 
+	public static Object toBinding(Node node) {
+		
+		NotificationType binding = factory.createNotificationType();
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "NotificationType";
 	}

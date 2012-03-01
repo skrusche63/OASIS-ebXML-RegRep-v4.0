@@ -57,6 +57,12 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 
 	}
 
+	public static Object toBinding(Node node) {
+		
+		AuditableEventType binding = factory.createAuditableEventType();
+		return binding;
+		
+	}
 	public static String getNType() {
 		return "AuditableEventType";
 	}

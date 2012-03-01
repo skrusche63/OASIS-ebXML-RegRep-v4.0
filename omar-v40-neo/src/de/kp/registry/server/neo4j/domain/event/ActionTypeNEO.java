@@ -93,6 +93,15 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 		return actionTypeNode;
 	}
 
+	public static Object toBinding(Node node) {
+	
+		ActionType binding = factory.createActionType();
+		binding = (ActionType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "ActionType";
 	}

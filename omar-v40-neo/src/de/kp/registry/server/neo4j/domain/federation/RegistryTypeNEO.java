@@ -48,6 +48,26 @@ public class RegistryTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+	
+		RegistryType binding = factory.createRegistryType();
+
+		// - CATALOGING-LATENCY (0..1)
+		if (node.hasProperty(OASIS_RIM_CATALOG_LATENCY)) binding.setCatalogingLatency((Duration)node.getProperty(OASIS_RIM_CATALOG_LATENCY));
+		
+		// - CONFORMANCE-PROFILE (0..1)
+		if (node.hasProperty(OASIS_RIM_CONFORMANCE_PROFILE)) binding.setConformanceProfile((String)node.getProperty(OASIS_RIM_CONFORMANCE_PROFILE));
+		
+		// - OPERATOR (1..1)
+		binding.setOperator((String)node.getProperty(OASIS_RIM_OPERATOR));
+		
+		// - REPLICATION-SYNC-LATENCY (0..1)
+		if (node.hasProperty(OASIS_RIM_REPL_SYNC_LATENCY)) binding.setReplicationSyncLatency((Duration)node.getProperty(OASIS_RIM_REPL_SYNC_LATENCY));
+
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "RegistryType";
 	}

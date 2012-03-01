@@ -70,6 +70,13 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		return subscriptionTypeNode;
 	}
 
+	public static Object toBinding(Node node) {
+		
+		SubscriptionType binding = factory.createSubscriptionType();
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "SubscriptionType";
 	}

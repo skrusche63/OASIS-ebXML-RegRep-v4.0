@@ -42,6 +42,13 @@ public class DeliveryInfoTypeNEO extends ExtensibleObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+	
+		DeliveryInfoType binding = factory.createDeliveryInfoType();
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "DeliveryInfoType";
 	}

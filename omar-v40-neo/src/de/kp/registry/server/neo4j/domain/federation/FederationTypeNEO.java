@@ -30,6 +30,17 @@ public class FederationTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+		
+		FederationType binding = factory.createFederationType();
+
+		// - REPLICATION-SYNC-LATENCY (0..1)
+		if (node.hasProperty(OASIS_RIM_REPL_SYNC_LATENCY)) binding.setReplicationSyncLatency((Duration)node.getProperty(OASIS_RIM_REPL_SYNC_LATENCY));
+		
+		return binding;
+	
+	}
+	
 	public static String getNType() {
 		return "FederationType";
 	}
