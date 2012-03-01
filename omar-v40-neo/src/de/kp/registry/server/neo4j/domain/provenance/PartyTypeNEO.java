@@ -1,8 +1,10 @@
 package de.kp.registry.server.neo4j.domain.provenance;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.EmailAddressType;
 import org.oasis.ebxml.registry.bindings.rim.PartyType;
@@ -69,8 +71,61 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 
 	public static Object fillBinding(Node node, Object binding) {
 		
-		binding = (PartyType) RegistryObjectTypeNEO.fillBinding(node, binding);
-		return binding;
+		PartyType partyType = (PartyType) RegistryObjectTypeNEO.fillBinding(node, binding);
+		Iterable<Relationship> relationships = null;
+		
+		// - EMAIL-ADDRESS (0..*)
+		relationships = node.getRelationships(RelationTypes.hasEmailAddress);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node emailAddressTypeNode = relationship.getEndNode();
+				
+				EmailAddressType emailAddressType = (EmailAddressType)EmailAddressTypeNEO.toBinding(emailAddressTypeNode);				
+				partyType.getEmailAddress().add(emailAddressType);
+
+			}
+			
+		}
+
+		// - POSTAL-ADDRESS (0..*)
+		relationships = node.getRelationships(RelationTypes.hasPostalAddress);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node postalAddressTypeNode = relationship.getEndNode();
+				
+				PostalAddressType postalAddressType = (PostalAddressType)PostalAddressTypeNEO.toBinding(postalAddressTypeNode);				
+				partyType.getPostalAddress().add(postalAddressType);
+
+			}
+			
+		}
+
+		// - TELEPHONE-NUMBER (0..*)
+		relationships = node.getRelationships(RelationTypes.hasTelephoneNumber);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node telephoneNumberTypeNode = relationship.getEndNode();
+				
+				TelephoneNumberType telephoneNumberType = (TelephoneNumberType)TelephoneNumberTypeNEO.toBinding(telephoneNumberTypeNode);				
+				partyType.getTelephoneNumber().add(telephoneNumberType);
+
+			}
+			
+		}
+
+		return partyType;
 	}
 	
 	public static String getNType() {

@@ -1,6 +1,9 @@
 package de.kp.registry.server.neo4j.domain.core;
 
+import java.util.Iterator;
+
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.DynamicObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
@@ -30,6 +33,31 @@ public class DynamicObjectRefTypeNEO extends ObjectRefTypeNEO {
 		return dynamicObjectRefTypeNode;
 	}
 
+	public static Object toBinding(Node node) {
+		
+		DynamicObjectRefType binding = factory.createDynamicObjectRefType();
+
+		// - QUERY (1..1)
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasQuery);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node queryTypeNode = relationship.getEndNode();
+				
+				QueryType queryType = (QueryType)QueryTypeNEO.toBinding(queryTypeNode);				
+				binding.setQuery(queryType);
+
+			}
+			
+		}
+		
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "DynamicObjectRefType";
 	}

@@ -8,7 +8,6 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.PersonNameType;
 import org.oasis.ebxml.registry.bindings.rim.PersonType;
 
-import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 public class PersonTypeNEO extends PartyTypeNEO {

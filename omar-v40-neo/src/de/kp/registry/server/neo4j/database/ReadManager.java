@@ -1,10 +1,7 @@
 package de.kp.registry.server.neo4j.database;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
-
 import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 

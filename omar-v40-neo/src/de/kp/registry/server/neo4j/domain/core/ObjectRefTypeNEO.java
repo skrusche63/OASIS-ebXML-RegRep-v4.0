@@ -31,6 +31,21 @@ public class ObjectRefTypeNEO extends ExtensibleObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+		return fillBinding(node, factory.createObjectRefType());
+	}
+	
+	public static Object fillBinding(Node node, Object binding) {
+		
+		ObjectRefType objectRefType = (ObjectRefType)binding;
+
+		// - ID (1..1)
+		objectRefType.setId((String)node.getProperty(OASIS_RIM_ID));
+		
+		return objectRefType;
+
+	}
+	
 	public static String getNType() {
 		return "ObjectRefType";
 	}

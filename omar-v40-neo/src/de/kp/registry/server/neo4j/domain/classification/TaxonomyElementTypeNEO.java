@@ -45,6 +45,8 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object fillBinding(Node node, Object binding) {
+		
+		binding = (TaxonomyElementType)RegistryObjectTypeNEO.fillBinding(node, binding);
 		return binding;
 	}
 	

@@ -1,11 +1,13 @@
 package de.kp.registry.server.neo4j.domain.event;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.DeliveryInfoType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
@@ -74,6 +76,51 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		
 		SubscriptionType binding = factory.createSubscriptionType();
 		binding = (SubscriptionType)RegistryObjectTypeNEO.fillBinding(node, binding);
+
+		Iterable<Relationship> relationships = null;
+
+		// - DELIVER-INFO (0..*)
+		relationships = node.getRelationships(RelationTypes.hasDeliveryInfo);
+		if (relationships != null) {
+			
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node deliveryInfoTypeNode = relationship.getEndNode();
+				
+				DeliveryInfoType deliveryInfoType = (DeliveryInfoType)DeliveryInfoTypeNEO.toBinding(deliveryInfoTypeNode);				
+				binding.getDeliveryInfo().add(deliveryInfoType);
+
+			}
+			
+		}
+
+		// - ENDTIME (0..1)
+		if (node.hasProperty(OASIS_RIM_ENDTIME)) binding.setEndTime((XMLGregorianCalendar)node.getProperty(OASIS_RIM_ENDTIME));
+
+		// - NOTIFICATION-INTERVAL (0..1)
+		if (node.hasProperty(OASIS_RIM_NOTIFICATION_INTERVAL)) binding.setNotificationInterval((Duration)node.getProperty(OASIS_RIM_NOTIFICATION_INTERVAL));
+
+		// - SELECTOR (1..1)
+		relationships = node.getRelationships(RelationTypes.hasSelector);
+		if (relationships != null) {
+			
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node queryTypeNode = relationship.getEndNode();
+				
+				QueryType queryType = (QueryType)QueryTypeNEO.toBinding(queryTypeNode);				
+				binding.setSelector(queryType);
+
+			}
+			
+		}
+
+		// - STARTTIME (0..1)
+		if (node.hasProperty(OASIS_RIM_STARTTIME)) binding.setStartTime((XMLGregorianCalendar)node.getProperty(OASIS_RIM_STARTTIME));
 		
 		return binding;
 		

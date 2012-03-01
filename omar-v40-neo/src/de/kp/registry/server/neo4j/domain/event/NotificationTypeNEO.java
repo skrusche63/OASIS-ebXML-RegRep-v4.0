@@ -1,8 +1,10 @@
 package de.kp.registry.server.neo4j.domain.event;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.NotificationType;
@@ -46,7 +48,27 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		
 		NotificationType binding = factory.createNotificationType();
 		binding = (NotificationType)RegistryObjectTypeNEO.fillBinding(node, binding);
-		
+
+		// - EVENT (1..*)
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasAuditableEvent);
+		if (relationships != null) {
+			
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node auditableEventTypeNode = relationship.getEndNode();
+				
+				AuditableEventType auditableEventType = (AuditableEventType)AuditableEventTypeNEO.toBinding(auditableEventTypeNode);				
+				binding.getEvent().add(auditableEventType);
+
+			}
+			
+		}
+
+		// - SUBSCRIPTION 1..1)
+		binding.setSubscription((String)node.getProperty(OASIS_RIM_SUBSCRIPTION));
+
 		return binding;
 		
 	}

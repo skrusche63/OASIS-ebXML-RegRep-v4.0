@@ -30,10 +30,10 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 		classificationNodeTypeNode.setProperty(OASIS_RIM_CODE, code);
 		
 		// - PARENT (0..1)
-		if (parent != null) classificationNodeTypeNode.setProperty(OASIS_RIM_PARENT, code);
+		if (parent != null) classificationNodeTypeNode.setProperty(OASIS_RIM_PARENT, parent);
 		
 		// - PATH (0..1)
-		if (path != null) classificationNodeTypeNode.setProperty(OASIS_RIM_PATH, code);
+		if (path != null) classificationNodeTypeNode.setProperty(OASIS_RIM_PATH, path);
 
 		return classificationNodeTypeNode;
 	
