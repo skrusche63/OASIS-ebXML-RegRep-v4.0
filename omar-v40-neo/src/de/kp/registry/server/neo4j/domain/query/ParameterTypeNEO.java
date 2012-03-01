@@ -1,8 +1,10 @@
 package de.kp.registry.server.neo4j.domain.query;
 
 import java.math.BigInteger;
+import java.util.Iterator;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
 import org.oasis.ebxml.registry.bindings.rim.ParameterType;
@@ -75,6 +77,66 @@ public class ParameterTypeNEO extends ExtensibleObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+		
+		ParameterType binding = factory.createParameterType();
+		binding = (ParameterType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+
+		Iterable<Relationship> relationships = null;
+
+		// - DATA-TYPE (1..1)
+		binding.setDataType((String)node.getProperty(OASIS_RIM_DATA_TYPE));
+		
+		// - DEFAULT-VALUE (0..1)
+		if (node.hasProperty(OASIS_RIM_DEFAULT_VALUE)) binding.setDefaultValue((String)node.getProperty(OASIS_RIM_DEFAULT_VALUE));
+		
+		// - DESCRIPTION (0..1)
+		relationships = node.getRelationships(RelationTypes.hasDescription);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node internationaStringTypeNode = relationship.getStartNode();
+				
+				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
+				binding.setDescription(internationalStringType);
+
+			}
+			
+		}
+
+		// - MIN-OCCURS (0..1)
+		if (node.hasProperty(OASIS_RIM_MIN_OCCURS)) binding.setMinOccurs((BigInteger)node.getProperty(OASIS_RIM_MIN_OCCURS));
+		
+		// - MAX-OCCURS (0..1)
+		if (node.hasProperty(OASIS_RIM_MAX_OCCURS)) binding.setMaxOccurs((BigInteger)node.getProperty(OASIS_RIM_MAX_OCCURS));
+		
+		// - NAME (1..1)		
+		relationships = node.getRelationships(RelationTypes.hasName);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node internationaStringTypeNode = relationship.getStartNode();
+				
+				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
+				binding.setName(internationalStringType);
+
+			}
+			
+		}
+		
+		// - PARAMETER-NAME (1..1)
+		binding.setParameterName((String)node.getProperty(OASIS_RIM_PARAMETER_NAME));
+
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "ParameterType";
 	}

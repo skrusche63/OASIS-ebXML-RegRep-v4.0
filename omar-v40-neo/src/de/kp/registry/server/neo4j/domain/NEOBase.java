@@ -161,8 +161,9 @@ public class NEOBase {
 	// the following parameters represent the property types
 	// associated with a QueryExpressionType
 
-	public static String OASIS_RIM_QUERY_LANGUAGE = "queryLanguage";
-	public static String OASIS_RIM_QUERY_VALUE    = "value";
+	public static String OASIS_RIM_QUERY_DEFINITION = "queryDefinition";
+	public static String OASIS_RIM_QUERY_LANGUAGE   = "queryLanguage";
+	public static String OASIS_RIM_QUERY_VALUE      = "value";
 
 	// the following parameters represent the property types
 	// associated with an AssociationType
@@ -218,6 +219,7 @@ public class NEOBase {
 	 * @throws Exception
 	 */
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+
 		Class<?> clazz = NEOBase.getClassNEO(binding);
 
 	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);

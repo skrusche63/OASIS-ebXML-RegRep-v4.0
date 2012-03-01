@@ -2,6 +2,8 @@ package de.kp.registry.server.neo4j.domain.service;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+import org.oasis.ebxml.registry.bindings.rim.ServiceInterfaceType;
+
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ServiceInterfaceTypeNEO extends RegistryObjectTypeNEO {
@@ -18,6 +20,15 @@ public class ServiceInterfaceTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+		
+		ServiceInterfaceType binding = factory.createServiceInterfaceType();
+		binding = (ServiceInterfaceType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		
+		return binding;
+		
+	}
+	
 	public static String getNType() {
 		return "ServiceInterfaceType";
 	}

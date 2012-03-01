@@ -73,6 +73,8 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 	public static Object toBinding(Node node) {
 		
 		SubscriptionType binding = factory.createSubscriptionType();
+		binding = (SubscriptionType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		
 		return binding;
 		
 	}

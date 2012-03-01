@@ -26,6 +26,18 @@ public class XMLQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 
 	}
 
+	public static Object toBinding(Node node) {
+		
+		XMLQueryExpressionType binding = factory.createXMLQueryExpressionType();
+		binding = (XMLQueryExpressionType)QueryExpressionTypeNEO.fillBinding(node, binding);
+
+		// - OBJECT (1..1)
+		binding.setAny(node.getProperty(OASIS_RIM_QUERY_VALUE));
+		
+		return binding;
+		
+	}
+
 	public static String getNType() {
 		return "XMLQueryExpressionType";
 	}

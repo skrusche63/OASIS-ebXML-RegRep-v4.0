@@ -1,8 +1,10 @@
 package de.kp.registry.server.neo4j.domain.service;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ServiceEndpointType;
 import org.oasis.ebxml.registry.bindings.rim.ServiceType;
@@ -47,6 +49,35 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
+	public static Object toBinding(Node node) {
+		
+		ServiceType binding = factory.createServiceType();
+		binding = (ServiceType)RegistryObjectTypeNEO.fillBinding(node, binding);
+
+		// - SERVICE-ENDPOINT (0..*)
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasServiceEndpoint);
+		if (relationships != null) {
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				Node serviceEndpointTypeNode = relationship.getStartNode();
+				
+				ServiceEndpointType serviceEndpointType = (ServiceEndpointType)ServiceEndpointTypeNEO.toBinding(serviceEndpointTypeNode);				
+				binding.getServiceEndpoint().add(serviceEndpointType);
+
+			}
+			
+		}
+
+		// - SERVICE-INTERFACE (0..1)
+		if (node.hasProperty(OASIS_RIM_SERVICE_INTERFACE)) binding.setServiceInterface((String)node.getProperty(OASIS_RIM_SERVICE_INTERFACE));
+
+		return binding;
+	
+	}
+	
 	public static String getNType() {
 		return "ServiceType";
 	}

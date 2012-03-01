@@ -45,6 +45,14 @@ public class DeliveryInfoTypeNEO extends ExtensibleObjectTypeNEO {
 	public static Object toBinding(Node node) {
 	
 		DeliveryInfoType binding = factory.createDeliveryInfoType();
+		binding = (DeliveryInfoType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+
+		// - NOTIFICATION-OPTION (0..1)
+		if (node.hasProperty(OASIS_RIM_NOTIFICATION_OPTION)) binding.setNotificationOption((String)node.getProperty(OASIS_RIM_NOTIFICATION_OPTION));
+		
+		// - NOTIFY-TO (1..1)
+		binding.setNotifyTo((EndpointReferenceType)node.getProperty(OASIS_RIM_NOTIFY_TO));
+		
 		return binding;
 		
 	}

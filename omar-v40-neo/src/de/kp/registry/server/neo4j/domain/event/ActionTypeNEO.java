@@ -97,7 +97,13 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 	
 		ActionType binding = factory.createActionType();
 		binding = (ActionType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
-		
+
+		// - AFFECTED-OBJECT (0..1)
+
+		// - AFFECTED-OBJECT-REF (0..1)
+
+		// - EVENT-TYPE (1..1)
+
 		return binding;
 		
 	}
