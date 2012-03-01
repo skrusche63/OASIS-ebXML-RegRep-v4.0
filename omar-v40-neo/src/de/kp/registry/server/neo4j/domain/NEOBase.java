@@ -1,14 +1,11 @@
 package de.kp.registry.server.neo4j.domain;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ObjectFactory;
-import org.oasis.ebxml.registry.bindings.rim.PersonType;
-
 import de.kp.registry.server.neo4j.database.Database;
 
 // the super class for all classes building the bridge
@@ -208,39 +205,6 @@ public class NEOBase {
 	
 	public static String getNType() {
 		return null;
-	}
-	
-	/**
-	 * Generic wrapper rim binding -> node 
-	 * 
-	 * @param graphDB
-	 * @param binding
-	 * @return
-	 * @throws Exception
-	 */
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
-
-		Class<?> clazz = NEOBase.getClassNEO(binding);
-
-	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
-	    return (Node) method.invoke(null, graphDB, binding);
-    	
-	}
-	
-	/**
-	 * Generic wrapper node -> rim binding
-	 * 
-	 * @param node
-	 * @return
-	 */
-	public static Object toBinding(Node node) throws Exception {
-		String rimClassName = (String) node.getProperty(NEOBase.NEO4J_TYPE);
-		Class<?> clazz = getClassNEOByName(rimClassName);
-		
-		// call toBinding()
-		Method method = clazz.getMethod("toBinding", Node.class);
-		return method.invoke(null, node);
-
 	}
 	
 }

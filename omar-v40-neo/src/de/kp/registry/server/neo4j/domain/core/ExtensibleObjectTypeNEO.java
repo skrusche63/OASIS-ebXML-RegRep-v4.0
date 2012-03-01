@@ -71,7 +71,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node slotTypeNode = relationship.getStartNode();
+				Node slotTypeNode = relationship.getEndNode();
 				
 				SlotType slotType = (SlotType)SlotTypeNEO.toBinding(slotTypeNode);				
 				extensibleObjectType.getSlot().add(slotType);

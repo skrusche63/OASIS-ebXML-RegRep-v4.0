@@ -6,7 +6,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.EmailAddressType;
 import org.oasis.ebxml.registry.bindings.rim.PartyType;
-import org.oasis.ebxml.registry.bindings.rim.PersonType;
 import org.oasis.ebxml.registry.bindings.rim.PostalAddressType;
 import org.oasis.ebxml.registry.bindings.rim.TelephoneNumberType;
 

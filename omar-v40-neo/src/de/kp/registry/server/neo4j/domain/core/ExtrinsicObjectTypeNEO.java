@@ -78,7 +78,7 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node versionInfoTypeNode = relationship.getStartNode();
+				Node versionInfoTypeNode = relationship.getEndNode();
 				
 				VersionInfoType versionInfoType = (VersionInfoType)VersionInfoTypeNEO.toBinding(versionInfoTypeNode);				
 				extrinsicObjectType.setContentVersionInfo(versionInfoType);

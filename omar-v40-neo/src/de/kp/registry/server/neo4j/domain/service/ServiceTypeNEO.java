@@ -62,7 +62,7 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node serviceEndpointTypeNode = relationship.getStartNode();
+				Node serviceEndpointTypeNode = relationship.getEndNode();
 				
 				ServiceEndpointType serviceEndpointType = (ServiceEndpointType)ServiceEndpointTypeNEO.toBinding(serviceEndpointTypeNode);				
 				binding.getServiceEndpoint().add(serviceEndpointType);

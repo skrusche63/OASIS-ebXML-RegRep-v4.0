@@ -62,7 +62,7 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node registryObjectTypeNode = relationship.getStartNode();
+				Node registryObjectTypeNode = relationship.getEndNode();
 
 				try {
 

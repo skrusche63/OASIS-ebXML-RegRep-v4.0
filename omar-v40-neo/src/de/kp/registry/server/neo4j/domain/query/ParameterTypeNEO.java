@@ -98,7 +98,7 @@ public class ParameterTypeNEO extends ExtensibleObjectTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node internationaStringTypeNode = relationship.getStartNode();
+				Node internationaStringTypeNode = relationship.getEndNode();
 				
 				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
 				binding.setDescription(internationalStringType);
@@ -121,7 +121,7 @@ public class ParameterTypeNEO extends ExtensibleObjectTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node internationaStringTypeNode = relationship.getStartNode();
+				Node internationaStringTypeNode = relationship.getEndNode();
 				
 				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
 				binding.setName(internationalStringType);

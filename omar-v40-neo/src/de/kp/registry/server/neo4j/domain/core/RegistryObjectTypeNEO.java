@@ -177,7 +177,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node classificationTypeNode = relationship.getStartNode();
+				Node classificationTypeNode = relationship.getEndNode();
 				
 				ClassificationType classificationType = (ClassificationType)ClassificationTypeNEO.toBinding(classificationTypeNode);				
 				registryObjectType.getClassification().add(classificationType);
@@ -194,7 +194,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node internationaStringTypeNode = relationship.getStartNode();
+				Node internationaStringTypeNode = relationship.getEndNode();
 				
 				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
 				registryObjectType.setDescription(internationalStringType);
@@ -211,7 +211,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node externalIdentifierTypeNode = relationship.getStartNode();
+				Node externalIdentifierTypeNode = relationship.getEndNode();
 				
 				ExternalIdentifierType externalIdentifierType = (ExternalIdentifierType)ExternalIdentifierTypeNEO.toBinding(externalIdentifierTypeNode);				
 				registryObjectType.getExternalIdentifier().add(externalIdentifierType);
@@ -228,7 +228,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node externalLinkTypeNode = relationship.getStartNode();
+				Node externalLinkTypeNode = relationship.getEndNode();
 				
 				ExternalLinkType externalLinkType = (ExternalLinkType)ExternalLinkTypeNEO.toBinding(externalLinkTypeNode);				
 				registryObjectType.getExternalLink().add(externalLinkType);
@@ -248,7 +248,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node internationaStringTypeNode = relationship.getStartNode();
+				Node internationaStringTypeNode = relationship.getEndNode();
 				
 				InternationalStringType internationalStringType = (InternationalStringType)InternationalStringTypeNEO.toBinding(internationaStringTypeNode);				
 				registryObjectType.setName(internationalStringType);
@@ -274,7 +274,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node versionInfoTypeNode = relationship.getStartNode();
+				Node versionInfoTypeNode = relationship.getEndNode();
 				
 				VersionInfoType versionInfoType = (VersionInfoType)VersionInfoTypeNEO.toBinding(versionInfoTypeNode);				
 				registryObjectType.setVersionInfo(versionInfoType);

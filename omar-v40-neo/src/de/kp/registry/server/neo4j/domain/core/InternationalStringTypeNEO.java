@@ -55,7 +55,7 @@ public class InternationalStringTypeNEO extends NEOBase {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node localizedStringTypeNode = relationship.getStartNode();
+				Node localizedStringTypeNode = relationship.getEndNode();
 				
 				LocalizedStringType localizedStringType = (LocalizedStringType)LocalizedStringTypeNEO.toBinding(localizedStringTypeNode);				
 				binding.getLocalizedString().add(localizedStringType);

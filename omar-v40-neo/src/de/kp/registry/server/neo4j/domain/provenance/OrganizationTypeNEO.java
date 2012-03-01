@@ -57,7 +57,7 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node organizationTypeNode = relationship.getStartNode();
+				Node organizationTypeNode = relationship.getEndNode();
 				
 				OrganizationType organizationType = (OrganizationType)OrganizationTypeNEO.toBinding(organizationTypeNode);				
 				binding.getOrganization().add(organizationType);

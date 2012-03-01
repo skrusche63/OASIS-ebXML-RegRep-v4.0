@@ -80,7 +80,7 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node parameterTypeNode = relationship.getStartNode();
+				Node parameterTypeNode = relationship.getEndNode();
 				
 				ParameterType parameterType = (ParameterType)ParameterTypeNEO.toBinding(parameterTypeNode);				
 				binding.getParameter().add(parameterType);
@@ -97,7 +97,7 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 			while (iterator.hasNext()) {
 			
 				Relationship relationship = iterator.next();
-				Node queryExpresionTypeNode = relationship.getStartNode();
+				Node queryExpresionTypeNode = relationship.getEndNode();
 
 				try {
 
