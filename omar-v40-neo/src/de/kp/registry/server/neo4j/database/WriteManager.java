@@ -2,6 +2,8 @@ package de.kp.registry.server.neo4j.database;
 
 import java.lang.reflect.Method;
 import java.util.List;
+
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 
@@ -54,9 +56,24 @@ public class WriteManager {
 
 	}
 	
-	private void writeInternal(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
-		
-		NEOBase.toNode(graphDB, binding);
-				
+	private void writeInternal(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {		
+		toNode(graphDB, binding);			
+	}
+	
+	/**
+	 * Generic wrapper rim binding -> node 
+	 * 
+	 * @param graphDB
+	 * @param binding
+	 * @return
+	 * @throws Exception
+	 */
+	public Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+
+		Class<?> clazz = NEOBase.getClassNEO(binding);
+
+	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
+	    return (Node) method.invoke(null, graphDB, binding);
+    	
 	}
 }

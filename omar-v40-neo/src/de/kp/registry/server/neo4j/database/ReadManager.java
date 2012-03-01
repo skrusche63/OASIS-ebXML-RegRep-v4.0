@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.database;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -54,5 +55,23 @@ public class ReadManager {
  		// the node index is built from the OASIS ebRIM 'id'
  		return Database.getInstance().getNodeIndex().get(NEOBase.OASIS_RIM_ID, id).getSingle();
  		
+	}
+ 	
+	/**
+	 * Generic wrapper node -> rim binding
+	 * 
+	 * @param node
+	 * @return
+	 */
+
+ 	public Object toBinding(Node node) throws Exception {
+
+		String rimClassName = (String) node.getProperty(NEOBase.NEO4J_TYPE);
+		Class<?> clazz = NEOBase.getClassNEOByName(rimClassName);
+		
+		// call toBinding()
+		Method method = clazz.getMethod("toBinding", Node.class);
+		return method.invoke(null, node);
+
 	}
 }
