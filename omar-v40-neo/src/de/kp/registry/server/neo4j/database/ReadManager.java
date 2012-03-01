@@ -1,9 +1,13 @@
 package de.kp.registry.server.neo4j.database;
 
 import java.lang.reflect.Method;
+import java.util.List;
+
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
+import org.oasis.ebxml.registry.bindings.rim.QueryType;
 
 import de.kp.registry.server.neo4j.domain.NEOBase;
 
@@ -26,6 +30,10 @@ public class ReadManager {
 		return instance;
 	}
 
+	public List<ObjectRefType> getObjectRefsByQuery(QueryType query) {
+		return null;
+	}
+	
 	// this is a common method to retrieve a certain node
 	// from the index, identified by its 'id' property
 	

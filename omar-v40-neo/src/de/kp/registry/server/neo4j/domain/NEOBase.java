@@ -1,10 +1,7 @@
 package de.kp.registry.server.neo4j.domain;
 
-import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ObjectFactory;
 import de.kp.registry.server.neo4j.database.Database;
 
