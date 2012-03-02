@@ -14,7 +14,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		NotificationType notificationType = (NotificationType)binding;
 		
@@ -25,7 +25,7 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		String subscription = notificationType.getSubscription();
 		
 		// create node from underlying RegistryObjectType
-		Node notificationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node notificationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a NotificationType
 		notificationTypeNode.setProperty(NEO4J_TYPE, getNType());

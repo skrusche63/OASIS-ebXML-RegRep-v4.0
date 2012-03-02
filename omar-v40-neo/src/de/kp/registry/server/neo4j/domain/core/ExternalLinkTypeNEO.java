@@ -8,7 +8,7 @@ import org.oasis.ebxml.registry.bindings.rim.SimpleLinkType;
 
 public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ExternalLinkType externalLinkType = (ExternalLinkType)binding;
 		
@@ -25,7 +25,7 @@ public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 		// from the database (if it exists) or through creation
 
 		// create node from underlying RegistryObjectType
-		Node externalLinkTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node externalLinkTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a ExternalLinkType
 		externalLinkTypeNode.setProperty(NEO4J_TYPE, getNType());

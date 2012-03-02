@@ -18,7 +18,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		QueryDefinitionType queryDefinitionType = (QueryDefinitionType)binding;
 		
@@ -29,7 +29,7 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 		QueryExpressionType queryExpression = queryDefinitionType.getQueryExpression();
 				
 		// create node from underlying RegistryObjectType
-		Node queryDefinitionTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node queryDefinitionTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a QueryDefinitionType
 		queryDefinitionTypeNode.setProperty(NEO4J_TYPE, getNType());

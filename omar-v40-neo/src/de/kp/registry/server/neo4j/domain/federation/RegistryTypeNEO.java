@@ -10,7 +10,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class RegistryTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		RegistryType registryType = (RegistryType)binding;
 		
@@ -27,7 +27,7 @@ public class RegistryTypeNEO extends RegistryObjectTypeNEO {
 		Duration replicationSyncLatency = registryType.getReplicationSyncLatency();
 
 		// create node from underlying RegistryObjectsType
-		Node registryTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node registryTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RegistryType
 		registryTypeNode.setProperty(NEO4J_TYPE, getNType());

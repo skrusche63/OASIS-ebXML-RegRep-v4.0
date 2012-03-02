@@ -8,7 +8,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ClassificationType classificationType = (ClassificationType)binding;
 		
@@ -25,7 +25,7 @@ public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 		String nodeRepresentation = classificationType.getNodeRepresentation();
 
 		// create node from underlying RegistryObjectType
-		Node classificationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node classificationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 
 		// - CLASSIFICATION NODE (0..1)
 		if (classificationNode != null) classificationTypeNode.setProperty(OASIS_RIM_CLAS_NODE, classificationNode);

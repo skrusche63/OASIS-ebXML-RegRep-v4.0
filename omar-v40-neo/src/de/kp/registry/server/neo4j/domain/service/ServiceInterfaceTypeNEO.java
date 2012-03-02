@@ -8,10 +8,10 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ServiceInterfaceTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 
 		// create node from underlying RegistryObjectType
-		Node serviceInterfaceTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node serviceInterfaceTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a ServiceInterfaceType
 		serviceInterfaceTypeNode.setProperty(NEO4J_TYPE, getNType());

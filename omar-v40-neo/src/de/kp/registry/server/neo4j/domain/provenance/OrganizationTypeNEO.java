@@ -11,7 +11,7 @@ import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 public class OrganizationTypeNEO extends PartyTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		OrganizationType organizationType = (OrganizationType)binding;
 		
@@ -22,7 +22,7 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 		String primaryContact = organizationType.getPrimaryContact();
 		
 		// create node from underlying PartyType
-		Node organizationTypeNode = PartyTypeNEO.toNode(graphDB, binding);
+		Node organizationTypeNode = PartyTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe an OrganizationType
 		organizationTypeNode.setProperty(NEO4J_TYPE, getNType());

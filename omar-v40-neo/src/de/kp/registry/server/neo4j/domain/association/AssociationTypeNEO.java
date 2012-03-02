@@ -8,7 +8,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		AssociationType associationType = (AssociationType)binding;
 		
@@ -22,7 +22,7 @@ public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 		String type = associationType.getType();
 		
 		// create node from underlying RegistryObjectType
-		Node associationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node associationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe an AssociationType
 		associationTypeNode.setProperty(NEO4J_TYPE, getNType());

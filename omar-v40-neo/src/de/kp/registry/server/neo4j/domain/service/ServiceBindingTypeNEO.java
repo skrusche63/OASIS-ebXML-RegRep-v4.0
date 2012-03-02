@@ -8,7 +8,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ServiceBindingTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ServiceBindingType serviceBindingType = (ServiceBindingType)binding;
 		
@@ -16,7 +16,7 @@ public class ServiceBindingTypeNEO extends RegistryObjectTypeNEO {
 		String serviceInterface = serviceBindingType.getServiceInterface();
 		
 		// create node from underlying RegistryObjectType
-		Node serviceBindingTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node serviceBindingTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a ServiceBindingType
 		serviceBindingTypeNode.setProperty(NEO4J_TYPE, getNType());

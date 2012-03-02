@@ -7,7 +7,7 @@ import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
 
 public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ClassificationNodeType classificationNodeType = (ClassificationNodeType)binding;
 		
@@ -21,7 +21,7 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 		String path = classificationNodeType.getPath();
 		
 		// create node from underlying TaxonomyElementType
-		Node classificationNodeTypeNode = TaxonomyElementTypeNEO.toNode(graphDB, binding);
+		Node classificationNodeTypeNode = TaxonomyElementTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a ClassificationNodeType
 		classificationNodeTypeNode.setProperty(NEO4J_TYPE, getNType());

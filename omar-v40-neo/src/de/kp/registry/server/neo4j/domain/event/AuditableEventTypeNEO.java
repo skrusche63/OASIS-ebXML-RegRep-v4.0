@@ -15,7 +15,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		AuditableEventType auditableEventType = (AuditableEventType)binding;
 		
@@ -32,7 +32,7 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 		String user = auditableEventType.getUser();
 
 		// create node from underlying RegistryObjectType
-		Node auditableEventTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node auditableEventTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe an AuditableEventType
 		auditableEventTypeNode.setProperty(NEO4J_TYPE, getNType());

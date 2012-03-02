@@ -9,7 +9,7 @@ import de.kp.registry.server.neo4j.domain.federation.RegistryTypeNEO;
 
 public class RoleTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		RoleType roleType = (RoleType)binding;
 		
@@ -17,7 +17,7 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 		String type = roleType.getType();
 		
 		// create node from underlying RegistryObjectType
-		Node roleTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node roleTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RoleType
 		roleTypeNode.setProperty(NEO4J_TYPE, getNType());

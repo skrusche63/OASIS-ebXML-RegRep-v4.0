@@ -14,7 +14,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ServiceType serviceType = (ServiceType)binding;
 		
@@ -25,7 +25,7 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 		String serviceInterface = serviceType.getServiceInterface();
 		
 		// create node from underlying RegistryObjectType
-		Node serviceTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node serviceTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a ServiceType
 		serviceTypeNode.setProperty(NEO4J_TYPE, getNType());

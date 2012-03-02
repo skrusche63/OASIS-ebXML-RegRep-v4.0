@@ -15,7 +15,7 @@ import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ExtrinsicObjectType extrinsicObjectType = (ExtrinsicObjectType)binding;
 		
@@ -32,7 +32,7 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 		SimpleLinkType repositoryItemRef = extrinsicObjectType.getRepositoryItemRef();
 
 		// create node from underlying RegistryObjectType
-		Node extrinsicObjectTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node extrinsicObjectTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe an ExtrinsicObjectType
 		extrinsicObjectTypeNode.setProperty(NEO4J_TYPE, getNType());

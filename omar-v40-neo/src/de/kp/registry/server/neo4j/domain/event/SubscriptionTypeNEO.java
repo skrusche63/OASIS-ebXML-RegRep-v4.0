@@ -19,7 +19,7 @@ import de.kp.registry.server.neo4j.domain.query.QueryTypeNEO;
 
 public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		SubscriptionType subscriptionType = (SubscriptionType)binding;
 		
@@ -39,7 +39,7 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		XMLGregorianCalendar starttime = subscriptionType.getStartTime();
 
 		// create node from underlying RegistryObjectType
-		Node subscriptionTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node subscriptionTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a SubscriptionType
 		subscriptionTypeNode.setProperty(NEO4J_TYPE, getNType());

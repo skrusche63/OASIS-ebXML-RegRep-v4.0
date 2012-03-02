@@ -7,7 +7,7 @@ import org.oasis.ebxml.registry.bindings.rim.ExternalIdentifierType;
 
 public class ExternalIdentifierTypeNEO extends RegistryObjectTypeNEO {
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ExternalIdentifierType externalIdentifierType = (ExternalIdentifierType)binding;
 		
@@ -24,7 +24,7 @@ public class ExternalIdentifierTypeNEO extends RegistryObjectTypeNEO {
 		// from the database (if it exists) or through creation
 
 		// create node from underlying RegistryObjectType
-		Node externalIdentifierTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node externalIdentifierTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a ExternalIdentifierType
 		externalIdentifierTypeNode.setProperty(NEO4J_TYPE, getNType());

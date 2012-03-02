@@ -6,10 +6,10 @@ import org.oasis.ebxml.registry.bindings.rim.CommentType;
 
 public class CommentTypeNEO extends ExtrinsicObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		// create node from underlying ExtrinsicObjectType
-		Node commentTypeNode = ExtrinsicObjectTypeNEO.toNode(graphDB, binding);
+		Node commentTypeNode = ExtrinsicObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a CommentType
 		commentTypeNode.setProperty(NEO4J_TYPE, getNType());

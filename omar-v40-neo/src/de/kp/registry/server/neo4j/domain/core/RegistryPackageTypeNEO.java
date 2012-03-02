@@ -15,7 +15,7 @@ import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		RegistryPackageType registryPackageType = (RegistryPackageType)binding;
 		
@@ -23,7 +23,7 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 		RegistryObjectListType registryObjectList = registryPackageType.getRegistryObjectList();
 
 		// create node from underlying RegistryObjectType
-		Node registryPackageTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node registryPackageTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RegistryPackageType
 		registryPackageTypeNode.setProperty(NEO4J_TYPE, getNType());

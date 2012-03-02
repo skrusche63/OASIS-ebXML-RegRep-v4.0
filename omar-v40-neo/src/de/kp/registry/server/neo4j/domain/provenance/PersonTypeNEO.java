@@ -12,7 +12,7 @@ import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 public class PersonTypeNEO extends PartyTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		PersonType personType = (PersonType)binding;
 		
@@ -20,7 +20,7 @@ public class PersonTypeNEO extends PartyTypeNEO {
 		PersonNameType personName = personType.getPersonName();
 		
 		// create node from underlying PartyType
-		Node personTypeNode = PartyTypeNEO.toNode(graphDB, binding);
+		Node personTypeNode = PartyTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a PersonType
 		personTypeNode.setProperty(NEO4J_TYPE, getNType());

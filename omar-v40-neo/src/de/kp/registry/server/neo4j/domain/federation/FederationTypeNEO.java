@@ -10,7 +10,7 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class FederationTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		FederationType federationType = (FederationType)binding;
 		
@@ -18,7 +18,7 @@ public class FederationTypeNEO extends RegistryObjectTypeNEO {
 		Duration replicationSyncLatency = federationType.getReplicationSyncLatency();
 		
 		// create node from underlying FederationType
-		Node federationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node federationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RegistryObjectType
 		federationTypeNode.setProperty(NEO4J_TYPE, getNType());
