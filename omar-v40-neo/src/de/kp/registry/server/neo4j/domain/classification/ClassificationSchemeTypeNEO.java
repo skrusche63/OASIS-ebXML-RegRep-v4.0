@@ -6,6 +6,8 @@ import org.oasis.ebxml.registry.bindings.rim.ClassificationSchemeType;
 
 public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 
+	// this method creates a new ClassificationSchemeType node within database
+
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ClassificationSchemeType classificationSchemeType = (ClassificationSchemeType)binding;
@@ -29,6 +31,14 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 		classificationSchemeTypeNode.setProperty(OASIS_RIM_NODE_TYPE, nodeType);
 
 		return classificationSchemeTypeNode;
+	}
+
+	// this method replaces an existing ClassificationSchemeType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {		
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

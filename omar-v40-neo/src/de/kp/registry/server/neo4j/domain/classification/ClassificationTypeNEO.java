@@ -7,7 +7,9 @@ import org.oasis.ebxml.registry.bindings.rim.ClassificationType;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
-	
+
+	// this method creates a new ClassificationType node within database
+
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ClassificationType classificationType = (ClassificationType)binding;
@@ -41,6 +43,14 @@ public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 
 		return classificationTypeNode;
 		
+	}
+
+	// this method replaces an existing ClassificationType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {		
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

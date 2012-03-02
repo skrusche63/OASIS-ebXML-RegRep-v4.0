@@ -9,6 +9,8 @@ import de.kp.registry.server.neo4j.domain.federation.RegistryTypeNEO;
 
 public class RoleTypeNEO extends RegistryObjectTypeNEO {
 
+	// this method creates a new RoleType node within database
+	
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		RoleType roleType = (RoleType)binding;
@@ -27,6 +29,14 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 		
 		return roleTypeNode;
 		
+	}
+
+	// this method replaces an existing RoleType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

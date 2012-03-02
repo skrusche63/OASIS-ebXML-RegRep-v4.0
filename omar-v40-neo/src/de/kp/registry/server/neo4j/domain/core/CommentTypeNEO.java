@@ -6,6 +6,8 @@ import org.oasis.ebxml.registry.bindings.rim.CommentType;
 
 public class CommentTypeNEO extends ExtrinsicObjectTypeNEO {
 
+	// this method creates a new CommentType node within database
+
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		// create node from underlying ExtrinsicObjectType
@@ -15,6 +17,14 @@ public class CommentTypeNEO extends ExtrinsicObjectTypeNEO {
 		commentTypeNode.setProperty(NEO4J_TYPE, getNType());
 
 		return commentTypeNode;
+	}
+
+	// this method replaces an existing CommentType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {		
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

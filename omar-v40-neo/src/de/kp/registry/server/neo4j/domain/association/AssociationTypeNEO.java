@@ -8,6 +8,8 @@ import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 
 public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 
+	// this method creates a new AssociationType node within database
+
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		AssociationType associationType = (AssociationType)binding;
@@ -38,6 +40,14 @@ public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 		
 		return associationTypeNode;
 
+	}
+
+	// this method replaces an existing AssociationType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {		
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

@@ -8,7 +8,6 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.lcm.Mode;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
-import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
@@ -118,15 +117,10 @@ public class WriteManager {
 					
 				} else {
 					
-					// we have to catch the respective exception in order to
-					// inform the requestor about the failure that happened
-					try {
-						create(graphDB, registryObject, checkReference, registryResponse);
-						
-					} catch (Exception e) {
+					boolean result = create(graphDB, registryObject, checkReference, registryResponse);
+					if (result == false) {
 						// TODO
 					}
-					
 				}
 				
 			}
@@ -164,15 +158,17 @@ public class WriteManager {
 				node = ReadManager.getInstance().findNodeByID(id);
 				if (node != null) {
 					
-					// If an object already exists, server MUST replace the 
-					// existing object with the submitted object
-					replace(node, registryObject, checkReference, registryResponse);
+					// if an object already exists, the server MUST replace the existing object with the submitted object
+					boolean result = replace(graphDB, node, registryObject, checkReference, registryResponse);
+					if (result == false) {
+						// TODO
+					}
 					
 				} else {
-					try {
-						create(graphDB, registryObject, checkReference, registryResponse);
-						
-					} catch (Exception e) {
+
+					// create a node within database for at least a registry object
+					boolean result = create(graphDB, registryObject, checkReference, registryResponse);
+					if (result == false) {
 						// TODO
 					}
 
@@ -221,10 +217,10 @@ public class WriteManager {
 					version(node, registryObject, checkReference, registryResponse);
 					
 				} else {
-					try {
-						create(graphDB, registryObject, checkReference, registryResponse);
-						
-					} catch (Exception e) {
+					
+					// create a node within database for at least a registry object
+					boolean result = create(graphDB, registryObject, checkReference, registryResponse);
+					if (result == false) {
 						// TODO
 					}
 					
@@ -249,19 +245,58 @@ public class WriteManager {
 	// this method expects that no node with the unique identifier provided
 	// with the registryObject exists in the database
 	
-	private void create(EmbeddedGraphDatabase graphDB, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) throws Exception {
+	private boolean create(EmbeddedGraphDatabase graphDB, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
 		
-		Node registryObjectTypeNode = toNode(graphDB, registryObject, checkReference);
+		Node registryObjectTypeNode;
 
-		String id = (String)registryObjectTypeNode.getProperty(NEOBase.OASIS_RIM_ID);
-		addIdToResponse(id, response);
+		try {
+			// create new node within database
+			registryObjectTypeNode = toNode(graphDB, registryObject, checkReference);
+
+			String id = (String)registryObjectTypeNode.getProperty(NEOBase.OASIS_RIM_ID);
+			addIdToResponse(id, response);
+
+			return true;
+			
+		} catch (Exception e) {
+			
+			// this request failed, we therefore indicate this status in the registry's response
+			response.setStatus(CanonicalConstants.FAILURE);
+
+			// TODO 
+			e.printStackTrace();
+		}
+		
+		return false;
 		
 	}
 
-	private void replace(Node node, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
+	private boolean replace(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
 
 		// in case of a successful replacement of this registry object, the 
 		// respective unique identifier is assigned to the registry response
+
+		Node registryObjectTypeNode;
+
+		try {
+			// replace existing node within database
+			registryObjectTypeNode = fillNode(graphDB, node, registryObject, checkReference);
+
+			String id = (String)registryObjectTypeNode.getProperty(NEOBase.OASIS_RIM_ID);
+			addIdToResponse(id, response);
+
+			return true;
+			
+		} catch (Exception e) {
+			
+			// this request failed, we therefore indicate this status in the registry's response
+			response.setStatus(CanonicalConstants.FAILURE);
+
+			// TODO 
+			e.printStackTrace();
+		}
+		
+		return false;
 
 	}
 
@@ -271,7 +306,26 @@ public class WriteManager {
 		// respective unique identifier is assigned to the registry response
 
 	}
+	
+	// this method create a new node in the database for at least a registry object
+	private Node toNode(EmbeddedGraphDatabase graphDB, Object binding, Boolean checkReference) throws Exception {
 
+		Class<?> clazz = NEOBase.getClassNEO(binding);
+
+	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class, Boolean.class);
+	    return (Node) method.invoke(null, graphDB, binding, checkReference);
+    	
+	}
+	
+	private Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, Boolean checkReference) throws Exception {
+
+		Class<?> clazz = NEOBase.getClassNEO(binding);
+
+	    Method method = clazz.getMethod("fillNode", graphDB.getClass(), Node.class, Object.class, Boolean.class);
+	    return (Node) method.invoke(null, graphDB, node, binding, checkReference);
+    	
+	}
+	
 	private RegistryResponseType createResponse() {
 
 		
@@ -299,7 +353,7 @@ public class WriteManager {
 		response.getObjectRefList().getObjectRef().add(objectRef);
 
 	}
-	
+
 	/************************************************************************
 	 * 
 	 * TEST INTERFACE     TEST INTERFACE     TEST INTERFACE     TEST
@@ -344,13 +398,5 @@ public class WriteManager {
 	private void writeInternal(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {		
 		toNode(graphDB, binding, false);			
 	}
-	
-	public Node toNode(EmbeddedGraphDatabase graphDB, Object binding, Boolean checkReference) throws Exception {
 
-		Class<?> clazz = NEOBase.getClassNEO(binding);
-
-	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class, Boolean.class);
-	    return (Node) method.invoke(null, graphDB, binding, checkReference);
-    	
-	}
 }

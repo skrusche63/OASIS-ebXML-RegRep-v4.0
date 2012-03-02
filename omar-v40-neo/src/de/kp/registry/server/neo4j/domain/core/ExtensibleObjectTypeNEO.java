@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.domain.core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,47 +18,99 @@ import de.kp.registry.server.neo4j.domain.RelationTypes;
 
 public class ExtensibleObjectTypeNEO extends NEOBase {
 
-	// this method creates a node and respective relationships
-	// to potential slots; it is embedded (due to transaction
-	// handling) into another superior method
+	// this method creates a new ExtensibleObjectType node within database;
+	// note, that we do not have to check references to other registry
+	// objects, provided with this ExtensibleObjectType
 	
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+		
+		// build extensibleObjectType node
+		Node node = graphDB.createNode();
+		
+		// add internal administration properties
+		node.setProperty(NEO4J_UID, getNID());		
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding);
+		
+	}
+
+	// this method replaces an existing ExtensibleObjectType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+
+	// note, that we do not have to check references to other registry
+	// objects, provided with this ExtensibleObjectType
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws Exception {
+		
+		node = clearNode(node);
+		return fillNodeInternal(graphDB, node, binding); 
+
+	}
+	
+	public static Node clearNode(Node node) {
+		
+		// - SLOTS (0..*)
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasSlot);
+		if (relationships != null) {
+
+			List<Object>removables = new ArrayList<Object>();
+		
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+			
+				Relationship relationship = iterator.next();
+				removables.add(relationship);
 				
+				Node endNode = relationship.getEndNode();
+				removables.add(endNode);
+
+			}
+			
+			// remove all collected node and relationships
+			while (removables.size() > 0) {
+				
+				Object removable = removables.get(0);
+				if (removable instanceof Node)
+					((Node)removable).delete();
+				
+				else if (removable instanceof Relationship)
+					((Relationship)removable).delete();
+			}
+			
+		}
+
+		return node;
+		
+	}
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws Exception {
+
 		ExtensibleObjectType extensibleObjectType = (ExtensibleObjectType)binding;
 		
 		// - SLOTS (0..*)
-		List<SlotType> slots = extensibleObjectType.getSlot();
-		
-		// build extensibleObjectType node
-		Node extensibleObjectTypeNode = graphDB.createNode();
-		
-		// add internal administration properties
-		extensibleObjectTypeNode.setProperty(NEO4J_UID, getNID());		
-		extensibleObjectTypeNode.setProperty(NEO4J_TYPE, getNType());
-		
+		List<SlotType> slots = extensibleObjectType.getSlot();		
+		if (slots.isEmpty()) return node;
+
+		// ===== FILL NODE =====
+
 		// - SLOTS (0..*)
-		if (slots.isEmpty()) return extensibleObjectTypeNode;
-		
 		for (SlotType slot:slots) {
 			
 			// create a SlotType node and associate the extensibleObjectType node
 			// via the relationship 'hasSlot'
 			Node slotTypeNode = SlotTypeNEO.toNode(graphDB, slot);
-			extensibleObjectTypeNode.createRelationshipTo(slotTypeNode, RelationTypes.hasSlot);
+			node.createRelationshipTo(slotTypeNode, RelationTypes.hasSlot);
 			
 		}
-		
-		return extensibleObjectTypeNode;
+
+		return node;
 		
 	}
 	
-	public static Node updateNode(EmbeddedGraphDatabase graphDB, Object binding) {
-		return null;
-	}
-
-	public static boolean deleteNode(EmbeddedGraphDatabase graphDB, Object binding) {
-		return false;
-	}
+	// this method supports query requests and provides the ExtensibleObjectType
+	// of the overall JAXB binding
 	
 	public static Object fillBinding(Node node, Object binding) {
 		

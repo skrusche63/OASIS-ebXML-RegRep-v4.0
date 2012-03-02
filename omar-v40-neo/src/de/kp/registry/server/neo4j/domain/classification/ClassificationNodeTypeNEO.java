@@ -7,6 +7,8 @@ import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
 
 public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 
+	// this method creates a new ClassificationNodeType node within database
+
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
 		
 		ClassificationNodeType classificationNodeType = (ClassificationNodeType)binding;
@@ -37,6 +39,14 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 
 		return classificationNodeTypeNode;
 	
+	}
+
+	// this method replaces an existing ClassificationNodeType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {		
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

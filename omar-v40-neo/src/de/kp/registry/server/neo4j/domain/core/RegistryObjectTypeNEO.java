@@ -1,10 +1,12 @@
 package de.kp.registry.server.neo4j.domain.core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationType;
 import org.oasis.ebxml.registry.bindings.rim.ExternalIdentifierType;
@@ -16,18 +18,76 @@ import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.classification.ClassificationTypeNEO;
 
-/*
- * This class is introduced to fill a node with RegistryObjectType
- * specific properties and relations to other nodes
- * 
- * The RegistryObjectType is supported as an externally used object
- * and must provide a create-or-get mechanism 
- */
-
 public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 
+	// this method creates a new RegistryObjectType node within database
+
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+				
+		// create node from underlying IdentifiableType
+		Node node = IdentifiableTypeNEO.toNode(graphDB, binding);
 		
+		// update the internal type to describe a RegistryObjectType
+		node.setProperty(NEO4J_TYPE, getNType());
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+		
+	}
+
+	// this method replaces an existing RegistryObjectType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
+		
+		node = clearNode(node);
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+		
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// clear the IdentifiableType of the respective node
+		node = IdentifiableTypeNEO.clearNode(node);
+		
+		// - CLASSIFICATION (0..*)
+		node = clearRelationship(node, RelationTypes.hasClassification);
+		
+		// - DESCRIPTION (0..1)
+		node = clearRelationship(node, RelationTypes.hasDescription);
+
+		// - EXTERNAL-IDENTIFIER (0..*)
+
+		// TODO
+		
+		// - EXTERNAL-LINK (0..*)
+
+		// TODO
+		
+		// - LID (0..1)
+		if (node.hasProperty(OASIS_RIM_LID)) node.removeProperty(OASIS_RIM_ID);
+		
+		// - NAME (0..1)
+		node = clearRelationship(node, RelationTypes.hasName);
+		
+		// - OBJECT-TYPE (0..1)
+		if (node.hasProperty(OASIS_RIM_TYPE)) node.removeProperty(OASIS_RIM_TYPE);
+		
+		// - OWNER (0..1)
+		if (node.hasProperty(OASIS_RIM_OWNER)) node.removeProperty(OASIS_RIM_OWNER);
+		
+		// - STATUS (0..1)
+		if (node.hasProperty(OASIS_RIM_STATUS)) node.removeProperty(OASIS_RIM_STATUS);
+		
+		// - VERSION-INFO (0..1)
+		node = clearRelationship(node, RelationTypes.hasVersion);
+
+		return node;		
+	}
+
+	// TODO: checkReference
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
+
 		RegistryObjectType registryObjectType = (RegistryObjectType)binding;
 
 		// - CLASSIFICATION (0..*)
@@ -59,15 +119,8 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		
 		// - VERSION-INFO (0..1)
 		VersionInfoType versionInfo = registryObjectType.getVersionInfo();
-				
-		// TODO: here we have to determine whether we retrieve the respective node
-		// from the database (if it exists) or through creation
-				
-		// create node from underlying IdentifiableType
-		Node registryObjectTypeNode = IdentifiableTypeNEO.toNode(graphDB, binding);
 		
-		// update the internal type to describe a RegistryObjectType
-		registryObjectTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 				
 		// - CLASSIFICATION (0..*)
 		if (classifications.isEmpty() == false) {
@@ -79,7 +132,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 				// is composed within the RegistryObjectType
 				
 				Node classificationTypeNode = ClassificationTypeNEO.toNode(graphDB, classification);
-				registryObjectTypeNode.createRelationshipTo(classificationTypeNode, RelationTypes.hasClassification);
+				node.createRelationshipTo(classificationTypeNode, RelationTypes.hasClassification);
 				
 			}
 		
@@ -89,7 +142,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		if (registryObjectTypeDescription != null) {
 			
 			Node internationalStringTypeNode = InternationalStringTypeNEO.toNode(graphDB, registryObjectTypeDescription);
-			registryObjectTypeNode.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasDescription);
+			node.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasDescription);
 
 		}
 		
@@ -98,14 +151,18 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		
 			for (ExternalIdentifierType externalIdentifier:externalIdentifiers) {
 				
-				// an ExternalIdentifierType is always created when the respective
+				// an ExternalIdentifierType may already exist when the respective
 				// RegistryObjectType is created, i.e. the ExternalIdentifierType
-				// is composed within the RegistryObjectType
+				// is NOT composed within the RegistryObjectType
 				
+				// TODO: externalIdentifier may already exist
 				// TODO: reference to registry object (=parent)
+				
+				// The value MUST be set by the server if the ExternalLink is 
+				// submitted as part of the submission of its parent object
 
 				Node externalIdentifierTypeNode = ExternalIdentifierTypeNEO.toNode(graphDB, externalIdentifier);
-				registryObjectTypeNode.createRelationshipTo(externalIdentifierTypeNode, RelationTypes.hasIdentifier);
+				node.createRelationshipTo(externalIdentifierTypeNode, RelationTypes.hasIdentifier);
 			
 			}
 			
@@ -118,45 +175,85 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			
 				// an ExternalLinkType may already exist when the respective
 				// RegistryObjectType is created, i.e. the ExternalLinkType
-				// is composed within the RegistryObjectType
+				// is NOT composed within the RegistryObjectType
 				
+				// TODO: externalLink may already exist
 				// TODO: reference to registry object (=parent)
+				
+				// The value MUST be set by the server if the ExternalLink is 
+				// submitted as part of the submission of its parent object
+				
 				Node externalLinkTypeNode = ExternalLinkTypeNEO.toNode(graphDB, externalLink);
-				registryObjectTypeNode.createRelationshipTo(externalLinkTypeNode, RelationTypes.hasLink);
+				node.createRelationshipTo(externalLinkTypeNode, RelationTypes.hasLink);
 				
 			}
 			
 		}
 		
 		// - LID (0..1)
-		if (registryObjectTypeLid != null) registryObjectTypeNode.setProperty(OASIS_RIM_LID, registryObjectTypeLid);
+		if (registryObjectTypeLid != null) node.setProperty(OASIS_RIM_LID, registryObjectTypeLid);
 		
 		// - NAME (0..1)
 		if (registryObjectTypeName != null) {
 			
 			Node internationalStringTypeNode = InternationalStringTypeNEO.toNode(graphDB, registryObjectTypeName);
-			registryObjectTypeNode.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasName);
+			node.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasName);
 
 		}
 		
 		// - OBJECT-TYPE (0..1)
-		if (registryObjectTypeType != null) registryObjectTypeNode.setProperty(OASIS_RIM_TYPE, registryObjectTypeType);
+		if (registryObjectTypeType != null) node.setProperty(OASIS_RIM_TYPE, registryObjectTypeType);
 		
 		// - OWNER (0..1)
-		if (registryObjectTypeOwner != null) registryObjectTypeNode.setProperty(OASIS_RIM_OWNER, registryObjectTypeOwner);
+		if (registryObjectTypeOwner != null) node.setProperty(OASIS_RIM_OWNER, registryObjectTypeOwner);
 		
 		// - STATUS (0..1)
-		if (registryObjectTypeStatus != null) registryObjectTypeNode.setProperty(OASIS_RIM_STATUS, registryObjectTypeStatus);
+		if (registryObjectTypeStatus != null) node.setProperty(OASIS_RIM_STATUS, registryObjectTypeStatus);
 		
 		// - VERSION-INFO (0..1)
 		if (versionInfo != null) {
 			
 			Node versionInfoTypeNode = VersionInfoTypeNEO.toNode(graphDB, versionInfo);
-			registryObjectTypeNode.createRelationshipTo(versionInfoTypeNode, RelationTypes.hasVersion);
+			node.createRelationshipTo(versionInfoTypeNode, RelationTypes.hasVersion);
 			
 		}
 		
-		return registryObjectTypeNode;
+		return node;
+
+	}
+
+	private static Node clearRelationship(Node node, RelationshipType relationshipType) {
+		
+		Iterable<Relationship> relationships = node.getRelationships(relationshipType);
+		if (relationships != null) {
+
+			List<Object>removables = new ArrayList<Object>();
+
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+				
+				Relationship relationship = iterator.next();
+				removables.add(relationship);
+				
+				Node endNode = relationship.getEndNode();
+				removables.add(endNode);
+
+			}
+
+			// remove all collected node and relationships
+			while (removables.size() > 0) {
+				
+				Object removable = removables.get(0);
+				if (removable instanceof Node)
+					((Node)removable).delete();
+				
+				else if (removable instanceof Relationship)
+					((Relationship)removable).delete();
+			}
+
+		}
+
+		return node;
 		
 	}
 	
