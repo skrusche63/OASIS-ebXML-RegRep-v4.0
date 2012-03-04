@@ -5,12 +5,13 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationType;
 
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 
 	// this method creates a new ClassificationType node within database
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		ClassificationType classificationType = (ClassificationType)binding;
 		
@@ -49,7 +50,7 @@ public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {		
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
 		return null;
 	}
 

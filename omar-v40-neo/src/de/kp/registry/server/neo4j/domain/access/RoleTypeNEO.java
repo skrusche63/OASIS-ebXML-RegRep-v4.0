@@ -5,29 +5,22 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.RoleType;
 
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.federation.RegistryTypeNEO;
 
 public class RoleTypeNEO extends RegistryObjectTypeNEO {
 
 	// this method creates a new RoleType node within database
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
-		
-		RoleType roleType = (RoleType)binding;
-		
-		// - TYPE (1..1)
-		String type = roleType.getType();
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		// create node from underlying RegistryObjectType
-		Node roleTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RoleType
-		roleTypeNode.setProperty(NEO4J_TYPE, getNType());
+		node.setProperty(NEO4J_TYPE, getNType());
 
-		// - TYPE (1..1)
-		roleTypeNode.setProperty(OASIS_RIM_ROLE_TYPE, type);
-		
-		return roleTypeNode;
+		return fillNodeInternal(graphDB, node, binding, checkReference);
 		
 	}
 
@@ -35,8 +28,41 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
-		return null;
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		
+		node = clearNode(node);
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+	
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// - TYPE (1..1)
+		node.removeProperty(OASIS_RIM_ROLE_TYPE);
+		
+		return node;
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		
+		// the parameter 'checkReference' is not explicitly evaluated by RoleType
+		
+		RoleType roleType = (RoleType)binding;
+		
+		// - TYPE (1..1)
+		String type = roleType.getType();
+
+		// ===== FILL NODE =====
+
+		// - TYPE (1..1)
+		node.setProperty(OASIS_RIM_ROLE_TYPE, type);
+		
+		return node;
+		
 	}
 
 	public static Object toBinding(Node node) {

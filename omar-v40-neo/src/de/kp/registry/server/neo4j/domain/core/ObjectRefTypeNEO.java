@@ -5,10 +5,11 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 
 import de.kp.registry.server.neo4j.database.Database;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class ObjectRefTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 		
 		ObjectRefType objectRefType = (ObjectRefType)binding;
 		

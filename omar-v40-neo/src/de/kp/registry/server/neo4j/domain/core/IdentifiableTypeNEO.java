@@ -5,6 +5,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.IdentifiableType;
 
 import de.kp.registry.server.neo4j.database.Database;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 
 public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
@@ -13,7 +14,7 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this IdentifiableType
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 
 		// create node from underlying ExtensibleObjectType
 		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
@@ -32,7 +33,7 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this IdentifiableType
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws Exception {
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
 		
 		// for an IdentifiableType, the respective slots have to be 
 		// removed; this is done by explicitly calling the super class		
@@ -40,7 +41,7 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 
 	}
 
-	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws Exception {
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
 
 		IdentifiableType identifiableType = (IdentifiableType)binding;
 		

@@ -5,10 +5,14 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ExternalLinkType;
 import org.oasis.ebxml.registry.bindings.rim.SimpleLinkType;
 
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+
 
 public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	// this method creates a new ExternalLinkType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		ExternalLinkType externalLinkType = (ExternalLinkType)binding;
 		
@@ -37,6 +41,24 @@ public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 		if (parent != null) externalLinkTypeNode.setProperty(OASIS_RIM_PARENT, parent);
 
 		return externalLinkTypeNode;
+		
+	}
+
+	// this method replaces an existing ExternalLinkType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return null;
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// TODO
+		return null;
 		
 	}
 

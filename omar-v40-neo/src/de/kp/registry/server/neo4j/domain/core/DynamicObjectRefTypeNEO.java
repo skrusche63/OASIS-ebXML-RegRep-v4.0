@@ -9,11 +9,12 @@ import org.oasis.ebxml.registry.bindings.rim.DynamicObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.query.QueryTypeNEO;
 
 public class DynamicObjectRefTypeNEO extends ObjectRefTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 		
 		DynamicObjectRefType dynamicObjectRefType = (DynamicObjectRefType)binding;
 		

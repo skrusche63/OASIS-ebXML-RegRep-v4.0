@@ -6,6 +6,7 @@ import org.oasis.ebxml.registry.bindings.rim.DeliveryInfoType;
 import org.w3._2005._08.addressing.EndpointReferenceType;
 
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 /*
  * __DESIGN__ 
@@ -16,7 +17,9 @@ import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
  */
 public class DeliveryInfoTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	// this method creates a new DeliveryInfoType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 		
 		DeliveryInfoType deliveryInfoType = (DeliveryInfoType)binding;
 		
@@ -40,6 +43,10 @@ public class DeliveryInfoTypeNEO extends ExtensibleObjectTypeNEO {
 		
 		return deliveryInfoTypeNode;
 		
+	}
+
+	public static Node clearNode(Node node) {
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

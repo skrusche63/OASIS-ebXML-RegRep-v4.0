@@ -8,10 +8,13 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.OrganizationType;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class OrganizationTypeNEO extends PartyTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	// this method creates a new OrganizationType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		OrganizationType organizationType = (OrganizationType)binding;
 		
@@ -42,6 +45,18 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 		
 		return organizationTypeNode;
 		
+	}
+
+	// this method replaces an existing OrganizationType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return null;
+	}
+
+	public static Node clearNode(Node node) {
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

@@ -17,12 +17,13 @@ import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.classification.ClassificationTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 
 	// this method creates a new RegistryObjectType node within database
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 				
 		// create node from underlying IdentifiableType
 		Node node = IdentifiableTypeNEO.toNode(graphDB, binding);
@@ -37,7 +38,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
 		node = clearNode(node);
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
@@ -86,7 +87,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 
 	// TODO: checkReference
 	
-	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
 		RegistryObjectType registryObjectType = (RegistryObjectType)binding;
 

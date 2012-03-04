@@ -12,10 +12,11 @@ import org.oasis.ebxml.registry.bindings.rim.ParameterType;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.core.InternationalStringTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class ParameterTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 		
 		ParameterType parameterType = (ParameterType)binding;
 		

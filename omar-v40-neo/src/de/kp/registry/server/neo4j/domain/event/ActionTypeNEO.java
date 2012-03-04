@@ -16,6 +16,7 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 /*
  * __DESIGN__ 
@@ -27,7 +28,9 @@ import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 
 public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	// this method creates a new ActionType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 		
 		ActionType actionType = (ActionType)binding;
 		
@@ -64,7 +67,7 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 				String id = registryObject.getId();
 				Node registryObjectTypeNode = cqm.findNodeByID(id);
 				
-				if (registryObjectTypeNode == null) throw new Exception("[AffectedObjects] No node found for id: " + id);
+				if (registryObjectTypeNode == null) throw new RegistryException("[AffectedObjects] No node found for id: " + id);
 				actionTypeNode.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasAffectedObject);
 
 			}
@@ -83,7 +86,7 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 				String id = objectRef.getId();
 				Node objectRefTypeNode = cqm.findNodeByID(id);
 
-				if (objectRefTypeNode == null) throw new Exception("[AffectedObjectRefs] No node found for id: " + id);
+				if (objectRefTypeNode == null) throw new RegistryException("[AffectedObjectRefs] No node found for id: " + id);
 				actionTypeNode.createRelationshipTo(objectRefTypeNode, RelationTypes.hasAffectedObjectRef);
 
 			}
@@ -94,6 +97,10 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 		actionTypeNode.setProperty(OASIS_RIM_EVENT_TYPE, eventType);
 		
 		return actionTypeNode;
+	}
+
+	public static Node clearNode(Node node) {
+		return null;
 	}
 
 	public static Object toBinding(Node node) {

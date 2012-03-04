@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.domain.core;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
@@ -12,10 +13,13 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryPackageType;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	// this method creates a new RegistryPackageType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		RegistryPackageType registryPackageType = (RegistryPackageType)binding;
 		
@@ -36,15 +40,51 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 				
 				// (1) the registry objects may already exist
 				Class<?> clazz = getClassNEO(registryObject);
-			    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
+			    Method method;
+				try {
+					method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
 
-			    Node registryObjectTypeNode = (Node)method.invoke(null, graphDB, registryObject);
-				registryPackageTypeNode.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasMember);
+					Node registryObjectTypeNode = (Node)method.invoke(null, graphDB, registryObject);
+					registryPackageTypeNode.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasMember);
+
+				} catch (SecurityException e) {
+					e.printStackTrace();
+
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
 
 			}
 		}
 		
 		return registryPackageTypeNode;
+	}
+
+	// this method replaces an existing RegistryPackageType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return null;
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// TODO
+		return null;
+		
 	}
 
 	public static Object toBinding(Node node) {

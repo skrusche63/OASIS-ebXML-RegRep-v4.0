@@ -4,10 +4,11 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.EmailAddressType;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 		
 		EmailAddressType emailAddressType = (EmailAddressType)binding;
 		

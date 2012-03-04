@@ -7,10 +7,13 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.RegistryType;
 
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class RegistryTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	// this method creates a new RegistryType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		RegistryType registryType = (RegistryType)binding;
 		
@@ -45,6 +48,24 @@ public class RegistryTypeNEO extends RegistryObjectTypeNEO {
 		if (replicationSyncLatency != null) registryTypeNode.setProperty(OASIS_RIM_REPL_SYNC_LATENCY, replicationSyncLatency);
 
 		return registryTypeNode;
+		
+	}
+
+	// this method replaces an existing RegistryType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return null;
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// TODO
+		return null;
 		
 	}
 

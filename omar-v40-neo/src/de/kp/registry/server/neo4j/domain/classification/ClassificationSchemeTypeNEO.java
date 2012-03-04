@@ -4,11 +4,13 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationSchemeType;
 
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+
 public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 
 	// this method creates a new ClassificationSchemeType node within database
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		ClassificationSchemeType classificationSchemeType = (ClassificationSchemeType)binding;
 		
@@ -37,7 +39,7 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {		
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
 		return null;
 	}
 

@@ -11,10 +11,13 @@ import org.oasis.ebxml.registry.bindings.rim.ServiceType;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	// this method creates a new ServiceType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		ServiceType serviceType = (ServiceType)binding;
 		
@@ -46,6 +49,23 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 		if (serviceInterface != null) serviceTypeNode.setProperty(OASIS_RIM_SERVICE_INTERFACE, serviceInterface);
 		
 		return serviceTypeNode;
+		
+	}
+	// this method replaces an existing ServiceType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return null;
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// TODO
+		return null;
 		
 	}
 

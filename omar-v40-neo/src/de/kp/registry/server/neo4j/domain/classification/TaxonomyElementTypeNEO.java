@@ -11,13 +11,14 @@ import org.oasis.ebxml.registry.bindings.rim.TaxonomyElementType;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 // This abstract type is the common base type for ClassificationSchemeType 
 // and ClassificationNodeType
 
 public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		TaxonomyElementType taxonomyElementType = (TaxonomyElementType)binding;
 		
@@ -43,6 +44,16 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 		}
 		
 		return taxonomyElementTypeNode;
+		
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// TODO
+		return null;
 		
 	}
 

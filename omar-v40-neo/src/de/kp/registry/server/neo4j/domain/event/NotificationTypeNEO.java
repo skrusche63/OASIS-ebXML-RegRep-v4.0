@@ -11,10 +11,13 @@ import org.oasis.ebxml.registry.bindings.rim.NotificationType;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	// this method creates a new NotificationType node within database
+
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		NotificationType notificationType = (NotificationType)binding;
 		
@@ -42,6 +45,24 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		notificationTypeNode.setProperty(OASIS_RIM_SUBSCRIPTION, subscription);
 
 		return notificationTypeNode;
+	}
+
+	// this method replaces an existing NotificationType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return null;
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// TODO
+		return null;
+		
 	}
 
 	public static Object toBinding(Node node) {

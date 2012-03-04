@@ -4,9 +4,11 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.XMLQueryExpressionType;
 
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+
 public class XMLQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 
 		XMLQueryExpressionType xmlQueryExpressionType = (XMLQueryExpressionType)binding;
 

@@ -13,10 +13,11 @@ import org.oasis.ebxml.registry.bindings.rim.TelephoneNumberType;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class PartyTypeNEO extends RegistryObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		PartyType partyType = (PartyType)binding;
 		
@@ -66,6 +67,16 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 		}
 		
 		return partyTypeNode;
+		
+	}
+
+	public static Node clearNode(Node node) {
+
+		// clear the RegistryObjectType of the respective node
+		node = RegistryObjectTypeNEO.clearNode(node);
+		
+		// TODO
+		return null;
 		
 	}
 

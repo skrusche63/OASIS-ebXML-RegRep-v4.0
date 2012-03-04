@@ -12,6 +12,7 @@ import org.oasis.ebxml.registry.bindings.rim.SlotType;
 
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 // starting from the OASIS ebRIM v4.0 information model, this is
 // the basic class for all other data structures
@@ -22,7 +23,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this ExtensibleObjectType
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws Exception {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
 		
 		// build extensibleObjectType node
 		Node node = graphDB.createNode();
@@ -42,7 +43,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this ExtensibleObjectType
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws Exception {
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
 		
 		node = clearNode(node);
 		return fillNodeInternal(graphDB, node, binding); 
@@ -85,7 +86,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 		
 	}
 	
-	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws Exception {
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
 
 		ExtensibleObjectType extensibleObjectType = (ExtensibleObjectType)binding;
 		
