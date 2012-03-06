@@ -33,14 +33,20 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this IdentifiableType
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {	
 		
-		// for an IdentifiableType, the respective slots have to be 
-		// removed; this is done by explicitly calling the super class		
-		return ExtensibleObjectTypeNEO.clearNode(node);
-
+		// there are no IdentifiableType specific parameters that must be 
+		// cleared and filled afterwards
+		return ExtensibleObjectTypeNEO.fillNode(graphDB, node, binding);
+		
 	}
 
+	// this is a common wrapper to delete an IdentifiableType node and all of its dependencies
+
+	public static void removeNode(Node node) {		
+		ExtensibleObjectTypeNEO.removeNode(node);
+	}
+	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
 
 		IdentifiableType identifiableType = (IdentifiableType)binding;

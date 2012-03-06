@@ -4,15 +4,64 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 
 	// this method creates a new ClassificationType node within database
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+
+		// create node from underlying RegistryObjectType
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+
+		// update the internal type to describe a ClassificationType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
 		
+	}
+
+	// this method replaces an existing ClassificationType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
+
+		// clear ClassificationType specific parameters
+		node = clearNode(node);
+
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with ClassificationType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+	
+	}
+
+	public static Node clearNode(Node node) {
+
+		// - CLASSIFICATION NODE (0..1)
+		if (node.hasProperty(OASIS_RIM_CLAS_NODE)) node.removeProperty(OASIS_RIM_CLAS_NODE);
+
+		// - CLASSIFIED-OBJECT (0..1)
+		if (node.hasProperty(OASIS_RIM_CLAS_OBJE)) node.removeProperty(OASIS_RIM_CLAS_OBJE);
+
+		// - CLASSIFICATION SCHEME (0..1)
+		if (node.hasProperty(OASIS_RIM_CLAS_SCHE)) node.removeProperty(OASIS_RIM_CLAS_SCHE);
+
+		// - NODE-REPRESENTATION (0..1)
+		if (node.hasProperty(OASIS_RIM_NODE_REPR)) node.removeProperty(OASIS_RIM_NODE_REPR);
+
+		return node;
+		
+	}
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
 		ClassificationType classificationType = (ClassificationType)binding;
 		
 		// - CLASSIFICATION NODE (0..1)
@@ -26,32 +75,53 @@ public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 		
 		// - NODE-REPRESENTATION (0..1)
 		String nodeRepresentation = classificationType.getNodeRepresentation();
-
-		// create node from underlying RegistryObjectType
-		Node classificationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		
+		// ===== FILL NODE =====
 
 		// - CLASSIFICATION NODE (0..1)
-		if (classificationNode != null) classificationTypeNode.setProperty(OASIS_RIM_CLAS_NODE, classificationNode);
+		if (classificationNode != null) {
+
+			if (checkReference == true) {
+				// make sure that the ClassificationNode references an existing node within the database
+				if (ReadManager.getInstance().findNodeByID(classificationNode) == null) 
+					throw new UnresolvedReferenceException("[ClassificationType] Classification node with id '" + classificationNode + "' does not exist.");		
+
+			}
+			
+			node.setProperty(OASIS_RIM_CLAS_NODE, classificationNode);
+		}
 
 		// - CLASSIFIED-OBJECT (0..1)
-		if (classifiedObject != null) classificationTypeNode.setProperty(OASIS_RIM_CLAS_OBJE, classifiedObject);
+		if (classifiedObject != null) {
+
+			if (checkReference == true) {
+				// make sure that the classified object references an existing node within the database
+				if (ReadManager.getInstance().findNodeByID(classifiedObject) == null) 
+					throw new UnresolvedReferenceException("[ClassificationType] Classified object with id '" + classifiedObject + "' does not exist.");		
+
+			}
+
+			node.setProperty(OASIS_RIM_CLAS_OBJE, classifiedObject);
+		}
 
 		// - CLASSIFICATION SCHEME (0..1)
-		if (classificationScheme != null) classificationTypeNode.setProperty(OASIS_RIM_CLAS_SCHE, classificationScheme);
+		if (classificationScheme != null) {
+			
+			if (checkReference == true) {
+				// make sure that the ClassificationScheme references an existing node within the database
+				if (ReadManager.getInstance().findNodeByID(classificationScheme) == null) 
+					throw new UnresolvedReferenceException("[ClassificationType] Classification Scheme with id '" + classificationScheme + "' does not exist.");		
+
+			}
+			
+			node.setProperty(OASIS_RIM_CLAS_SCHE, classificationScheme);
+		}
 
 		// - NODE-REPRESENTATION (0..1)
-		if (nodeRepresentation != null) classificationTypeNode.setProperty(OASIS_RIM_NODE_REPR, nodeRepresentation);
+		if (nodeRepresentation != null) node.setProperty(OASIS_RIM_NODE_REPR, nodeRepresentation);
 
-		return classificationTypeNode;
-		
-	}
+		return node;
 
-	// this method replaces an existing ClassificationType node in the database
-	
-	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
-		return null;
 	}
 
 	public static Object toBinding(Node node) {

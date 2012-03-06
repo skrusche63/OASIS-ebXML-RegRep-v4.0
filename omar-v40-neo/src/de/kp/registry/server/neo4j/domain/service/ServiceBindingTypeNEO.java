@@ -4,8 +4,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ServiceBindingType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class ServiceBindingTypeNEO extends RegistryObjectTypeNEO {
 
@@ -29,19 +31,21 @@ public class ServiceBindingTypeNEO extends RegistryObjectTypeNEO {
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
+		// clear ServiceBindingType specific parameters
 		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with ServiceBindingType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 	
 	}
 
 	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
 		
 		// - SERVICE-INTERFACE (0..1)
-		if (node.hasProperty(OASIS_RIM_SERVICE_INTERFACE)) node.removeProperty(OASIS_RIM_SERVICE_INTERFACE);
-		
+		if (node.hasProperty(OASIS_RIM_SERVICE_INTERFACE)) node.removeProperty(OASIS_RIM_SERVICE_INTERFACE);		
 		return node;
 		
 	}
@@ -58,7 +62,17 @@ public class ServiceBindingTypeNEO extends RegistryObjectTypeNEO {
 		// ===== FILL NODE =====
 
 		// - SERVICE-INTERFACE (0..1)
-		if (serviceInterface != null) node.setProperty(OASIS_RIM_SERVICE_INTERFACE, serviceInterface);
+		if (serviceInterface != null) {
+			
+			if (checkReference == true) {
+				// make sure that the ServiceInterfaceType references an existing node within the database
+				if (ReadManager.getInstance().findNodeByID(serviceInterface) == null) 
+					throw new UnresolvedReferenceException("[ServiceBindingType] ServiceInterfaceType node with id '" + serviceInterface + "' does not exist.");		
+
+			}
+
+			node.setProperty(OASIS_RIM_SERVICE_INTERFACE, serviceInterface);
+		}
 
 		return node;
 

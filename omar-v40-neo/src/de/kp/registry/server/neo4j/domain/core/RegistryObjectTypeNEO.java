@@ -1,12 +1,10 @@
 package de.kp.registry.server.neo4j.domain.core;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationType;
 import org.oasis.ebxml.registry.bindings.rim.ExternalIdentifierType;
@@ -15,6 +13,7 @@ import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.classification.ClassificationTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
@@ -40,21 +39,28 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
+		// clear RegistyObjectType specific parameters
 		node = clearNode(node);
+		
+		// clear & fill node with IdentifiableType specific parameters
+		node = IdentifiableTypeNEO.fillNode(graphDB, node, binding);
+		
+		// fill node with RegistryObjectType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 		
 	}
 
 	public static Node clearNode(Node node) {
 		
-		// clear the IdentifiableType of the respective node
-		node = IdentifiableTypeNEO.clearNode(node);
-		
 		// - CLASSIFICATION (0..*)
-		node = clearRelationship(node, RelationTypes.hasClassification);
+		
+		// clear relationship and referenced ClassificationType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasClassification, true);
 		
 		// - DESCRIPTION (0..1)
-		node = clearRelationship(node, RelationTypes.hasDescription);
+
+		// clear relationship and referenced InternationalStringType node
+		node = NEOBase.clearRelationship(node, RelationTypes.hasDescription, true);
 
 		// - EXTERNAL-IDENTIFIER (0..*)
 
@@ -68,7 +74,9 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		if (node.hasProperty(OASIS_RIM_LID)) node.removeProperty(OASIS_RIM_ID);
 		
 		// - NAME (0..1)
-		node = clearRelationship(node, RelationTypes.hasName);
+
+		// clear relationship and referenced InternationalStringType node
+		node = NEOBase.clearRelationship(node, RelationTypes.hasName, true);
 		
 		// - OBJECT-TYPE (0..1)
 		if (node.hasProperty(OASIS_RIM_TYPE)) node.removeProperty(OASIS_RIM_TYPE);
@@ -80,7 +88,9 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		if (node.hasProperty(OASIS_RIM_STATUS)) node.removeProperty(OASIS_RIM_STATUS);
 		
 		// - VERSION-INFO (0..1)
-		node = clearRelationship(node, RelationTypes.hasVersion);
+
+		// clear relationship and referenced VersionInfoType node
+		node = NEOBase.clearRelationship(node, RelationTypes.hasVersion, true);
 
 		return node;		
 	}
@@ -221,41 +231,6 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		
 		return node;
 
-	}
-
-	private static Node clearRelationship(Node node, RelationshipType relationshipType) {
-		
-		Iterable<Relationship> relationships = node.getRelationships(relationshipType);
-		if (relationships != null) {
-
-			List<Object>removables = new ArrayList<Object>();
-
-			Iterator<Relationship> iterator = relationships.iterator();
-			while (iterator.hasNext()) {
-				
-				Relationship relationship = iterator.next();
-				removables.add(relationship);
-				
-				Node endNode = relationship.getEndNode();
-				removables.add(endNode);
-
-			}
-
-			// remove all collected node and relationships
-			while (removables.size() > 0) {
-				
-				Object removable = removables.get(0);
-				if (removable instanceof Node)
-					((Node)removable).delete();
-				
-				else if (removable instanceof Relationship)
-					((Relationship)removable).delete();
-			}
-
-		}
-
-		return node;
-		
 	}
 	
 	public static Object toBinding(Node node) {

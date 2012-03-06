@@ -11,6 +11,7 @@ import org.oasis.ebxml.registry.bindings.rim.PartyType;
 import org.oasis.ebxml.registry.bindings.rim.PostalAddressType;
 import org.oasis.ebxml.registry.bindings.rim.TelephoneNumberType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
@@ -18,6 +19,64 @@ import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 public class PartyTypeNEO extends RegistryObjectTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+		
+		// create node from underlying RegistryObjectType
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		
+		// update the internal type to describe a PartyType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+		
+	}
+
+	// this method replaces an existing PartyType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		
+		// clear PartyType specific parameters
+		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with PartyType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+	
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// - EMAIL-ADDRESS (0..*)
+		
+		// clear relationship and referenced EmailAddressType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasEmailAddress, true);
+
+		// - POSTAL-ADDRESS (0..*)
+
+		// clear relationship and referenced PostalAddressType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasPostalAddress, true);
+
+		// - TELEPHONE-NUMBER (0..*)
+
+		// clear relationship and referenced TelephoneNumberType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasTelephoneNumber, true);
+
+		return node;
+		
+	}
+
+	// this is a common wrapper to delete a PartyType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		// TODO
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// the parameter 'checkReference' is not evaluated for PartyType specific parameters
 		
 		PartyType partyType = (PartyType)binding;
 		
@@ -29,19 +88,15 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 		
 		// - TELEPHONE-NUMBER (0..*)
 		List<TelephoneNumberType> telephoneNumbers = partyType.getTelephoneNumber();
-	
-		// create node from underlying RegistryObjectType
-		Node partyTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
-		
-		// update the internal type to describe a PartyType
-		partyTypeNode.setProperty(NEO4J_TYPE, getNType());
+
+		// ===== FILL NODE =====
 
 		// - EMAIL-ADDRESS (0..*)
 		if (emailAddresses.isEmpty() == false) {
 			for (EmailAddressType emailAddress:emailAddresses) {
 				
 				Node emailAddressTypeNode = EmailAddressTypeNEO.toNode(graphDB, emailAddress);
-				partyTypeNode.createRelationshipTo(emailAddressTypeNode, RelationTypes.hasEmailAddress);
+				node.createRelationshipTo(emailAddressTypeNode, RelationTypes.hasEmailAddress);
 
 			}
 		}
@@ -51,7 +106,7 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 			for (PostalAddressType postalAddress:postalAddresses) {
 				
 				Node postalAddressTypeNode = PostalAddressTypeNEO.toNode(graphDB, postalAddress);
-				partyTypeNode.createRelationshipTo(postalAddressTypeNode, RelationTypes.hasPostalAddress);
+				node.createRelationshipTo(postalAddressTypeNode, RelationTypes.hasPostalAddress);
 				
 			}
 		}
@@ -61,23 +116,13 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 			for (TelephoneNumberType telephoneNumber:telephoneNumbers) {
 				
 				Node telephoneNumberTypeNode = TelephoneNumberTypeNEO.toNode(graphDB, telephoneNumber);
-				partyTypeNode.createRelationshipTo(telephoneNumberTypeNode, RelationTypes.hasTelephoneNumber);
+				node.createRelationshipTo(telephoneNumberTypeNode, RelationTypes.hasTelephoneNumber);
 				
 			}
 		}
 		
-		return partyTypeNode;
-		
-	}
+		return node;
 
-	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
-		
-		// TODO
-		return null;
-		
 	}
 
 	public static Object fillBinding(Node node, Object binding) {

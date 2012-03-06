@@ -30,26 +30,30 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
+		// clear RoleType specific parameters
 		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with RoleType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 	
 	}
 
 	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
 		
 		// - TYPE (1..1)
-		node.removeProperty(OASIS_RIM_ROLE_TYPE);
-		
+		node.removeProperty(OASIS_RIM_ROLE_TYPE);		
 		return node;
 		
 	}
 
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
-		// the parameter 'checkReference' is not explicitly evaluated by RoleType
+		// __DESIGN__
+		
+		// the parameter 'checkReference' must not be evaluated for RoleType
 		
 		RoleType roleType = (RoleType)binding;
 		

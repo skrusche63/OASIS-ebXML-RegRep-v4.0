@@ -4,8 +4,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.TelephoneNumberType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class TelephoneNumberTypeNEO extends ExtensibleObjectTypeNEO {
 
@@ -47,10 +49,23 @@ public class TelephoneNumberTypeNEO extends ExtensibleObjectTypeNEO {
 		if  (number != null) telephoneNumberTypeNode.setProperty(OASIS_RIM_NUMBER, number);
 
 		// - TYPE (0..1)
-		if  (type != null) telephoneNumberTypeNode.setProperty(OASIS_RIM_TYPE, type);
+		if  (type != null) {
+
+			// make sure that the classification node references an existing node within the database
+			if (ReadManager.getInstance().findNodeByID(type) == null) 
+				throw new UnresolvedReferenceException("[TelephoneNumberType] Classification node with id '" + type + "' does not exist.");		
+
+			telephoneNumberTypeNode.setProperty(OASIS_RIM_TYPE, type);
+		}
 
 		return telephoneNumberTypeNode;
 		
+	}
+
+	// this is a common wrapper to delete a TelephoneNumberType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		node.delete();		
 	}
 
 	public static Object toBinding(Node node) {

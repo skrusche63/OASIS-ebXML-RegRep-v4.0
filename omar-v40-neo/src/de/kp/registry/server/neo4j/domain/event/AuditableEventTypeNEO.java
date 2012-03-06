@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.domain.event;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,16 +11,117 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ActionType;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
+
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 
 	// this method creates a new AuditableType node within database
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+
+		// create node from underlying RegistryObjectType
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
+		// update the internal type to describe an AuditableEventType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+
+	}
+
+	// this method replaces an existing AuditableEventType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		
+		// clear AuditableEventType specific parameters
+		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with AuditableEventType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+	}
+	
+	public static Node clearNode(Node node) {
+		
+		// - ACTION (1..*)
+		
+		// __DESIGN__
+		
+		// ActionType nodes are an intrinsic part of an AuditableEventType
+		// and are therefore removed in addition to the respective relationships
+
+		// clear relationship and referenced ActionType nodes (cascading removal)
+		node = clearActions(node);
+		
+		// - REQUEST-ID (1..1)
+		node.removeProperty(OASIS_RIM_REQUEST_ID);
+
+		// - TIMESTAMP (1..1)
+		node.removeProperty(OASIS_RIM_TIMESTAMP);
+
+		// - USER (1..1)
+		node.removeProperty(OASIS_RIM_USER);
+		
+		return node;
+		
+	}
+
+	public static void removeNode(Node node) {
+		// TODO
+	}
+	
+	// __CASCADING REMOVAL__
+	
+	// this method is part of the cascading delete strategy
+	// for AuditableEventType nodes
+	
+	private static Node clearActions(Node node) {
+		
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasAction);
+		if (relationships != null) {
+
+			List<Object>removables = new ArrayList<Object>();
+
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+				
+				Relationship relationship = iterator.next();
+				removables.add(relationship);
+				
+				Node endNode = relationship.getEndNode();
+				removables.add(endNode);
+
+			}
+
+			// remove all collected node and relationships
+			while (removables.size() > 0) {
+				
+				Object removable = removables.get(0);
+				if (removable instanceof Node)
+					// this is a dedicated removal of an ActionType node
+					ActionTypeNEO.removeNode((Node)removable);
+				
+				else if (removable instanceof Relationship)
+					((Relationship)removable).delete();
+			}
+
+		}
+
+		return node;
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
 		AuditableEventType auditableEventType = (AuditableEventType)binding;
 		
 		// - ACTION (1..*)
@@ -34,51 +136,40 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 		// - USER (1..1)
 		String user = auditableEventType.getUser();
 
-		// create node from underlying RegistryObjectType
-		Node auditableEventTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
-		
-		// update the internal type to describe an AuditableEventType
-		auditableEventTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 
 		// - ACTION (1..*)
 		for (ActionType action:actions) {
 
-			Node actionTypeNode = ActionTypeNEO.toNode(graphDB, action);
-			auditableEventTypeNode.createRelationshipTo(actionTypeNode, RelationTypes.hasAction);
+			// An ActionType is an ExtensibleObjectType without any referenceable
+			// unique identifier; the parameter 'checkReferenec' must not be
+			// evaluated in this context
+			Node actionTypeNode = ActionTypeNEO.toNode(graphDB, action, checkReference);
+			node.createRelationshipTo(actionTypeNode, RelationTypes.hasAction);
 
 		}
 		
 		// - REQUEST-ID (1..1)
-		auditableEventTypeNode.setProperty(OASIS_RIM_REQUEST_ID, requestId);
+		node.setProperty(OASIS_RIM_REQUEST_ID, requestId);
 
 		// - TIMESTAMP (1..1)
-		auditableEventTypeNode.setProperty(OASIS_RIM_TIMESTAMP, timestamp);
+		node.setProperty(OASIS_RIM_TIMESTAMP, timestamp);
 
 		// - USER (1..1)
-		auditableEventTypeNode.setProperty(OASIS_RIM_USER, user);
+		if (checkReference == true) {
+
+			// make sure that the PersonType node references an existing node within the database
+			if (ReadManager.getInstance().findNodeByID(user) == null) 
+				throw new UnresolvedReferenceException("[AuditableEventType] PersonType node with id '" + user + "' does not exist.");		
+
+		}
 		
-		return auditableEventTypeNode;
+		node.setProperty(OASIS_RIM_USER, user);
+		
+		return node;
 
 	}
 
-	// this method replaces an existing AuditableEventType node in the database
-	
-	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
-	}
-
-	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
-		
-		// TODO
-		return null;
-		
-	}
-	
 	public static Object toBinding(Node node) {
 		
 		AuditableEventType binding = factory.createAuditableEventType();

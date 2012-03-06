@@ -55,9 +55,6 @@ public class ExternalIdentifierTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
 		
 		// TODO
 		return null;

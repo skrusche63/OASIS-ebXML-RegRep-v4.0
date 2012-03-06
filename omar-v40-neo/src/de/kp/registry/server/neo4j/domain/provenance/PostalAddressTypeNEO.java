@@ -58,6 +58,12 @@ public class PostalAddressTypeNEO extends ExtensibleObjectTypeNEO {
 		
 	}
 
+	// this is a common wrapper to delete a PostalAddressType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		node.delete();		
+	}
+
 	public static Object toBinding(Node node) {
 			
 		PostalAddressType binding = factory.createPostalAddressType();

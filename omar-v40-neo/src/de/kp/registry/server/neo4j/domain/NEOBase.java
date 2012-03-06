@@ -1,7 +1,13 @@
 package de.kp.registry.server.neo4j.domain;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectFactory;
 import de.kp.registry.server.neo4j.database.Database;
 
@@ -189,8 +195,46 @@ public class NEOBase {
 	}
 
 	public static Class<?> getClassNEOByName(String bindingName) {
-
 		return Database.getInstance().getMapper().get(bindingName);
+	}
+
+
+	// this method deletes a certain relationship and optionally
+	// the respective referenced node
+	
+	public static Node clearRelationship(Node node, RelationshipType relationshipType, boolean reference) {
+		
+		Iterable<Relationship> relationships = node.getRelationships(relationshipType);
+		if (relationships != null) {
+
+			List<Object>removables = new ArrayList<Object>();
+
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+				
+				Relationship relationship = iterator.next();
+				removables.add(relationship);
+				
+				Node endNode = relationship.getEndNode();
+				removables.add(endNode);
+
+			}
+
+			// remove all collected node and relationships
+			while (removables.size() > 0) {
+				
+				Object removable = removables.get(0);
+				if (removable instanceof Node)
+					if (reference == true) ((Node)removable).delete();
+				
+				else if (removable instanceof Relationship)
+					((Relationship)removable).delete();
+			}
+
+		}
+
+		return node;
+		
 	}
 
 	// this is a helper method to retrieve a system generated identifier

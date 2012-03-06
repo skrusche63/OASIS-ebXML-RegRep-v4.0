@@ -9,6 +9,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.NotificationType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
@@ -19,6 +20,56 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
+		// create node from underlying RegistryObjectType
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		
+		// update the internal type to describe a NotificationType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+
+	}
+
+	// this method replaces an existing NotificationType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		
+		// clear NotificationType specific parameters
+		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with NotificationType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// - EVENT (1..*)
+		
+		// __DESIGN__
+		
+		// An AuditableEventType node is NOT an intrinsic information
+		// that us ultimately related with a NotificationType node
+		
+		// clear relationship only
+		node = NEOBase.clearRelationship(node, RelationTypes.hasAuditableEvent, false);
+		
+		// - SUBSCRIPTION 1..1)
+		node.removeProperty(OASIS_RIM_SUBSCRIPTION);
+
+		return node;
+		
+	}
+
+	// TODO: checkReference
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
 		NotificationType notificationType = (NotificationType)binding;
 		
 		// - EVENT (1..*)
@@ -27,44 +78,23 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		// - SUBSCRIPTION 1..1)
 		String subscription = notificationType.getSubscription();
 		
-		// create node from underlying RegistryObjectType
-		Node notificationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
-		
-		// update the internal type to describe a NotificationType
-		notificationTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 
 		// - EVENT (1..*)
 		for (AuditableEventType event:events) {
 
 			Node auditableEventTypeNode = AuditableEventTypeNEO.toNode(graphDB, event);
-			notificationTypeNode.createRelationshipTo(auditableEventTypeNode, RelationTypes.hasAuditableEvent);
+			node.createRelationshipTo(auditableEventTypeNode, RelationTypes.hasAuditableEvent);
 
 		}
 		
 		// - SUBSCRIPTION 1..1)
-		notificationTypeNode.setProperty(OASIS_RIM_SUBSCRIPTION, subscription);
+		node.setProperty(OASIS_RIM_SUBSCRIPTION, subscription);
 
-		return notificationTypeNode;
+		return node;
+
 	}
-
-	// this method replaces an existing NotificationType node in the database
 	
-	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
-	}
-
-	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
-		
-		// TODO
-		return null;
-		
-	}
-
 	public static Object toBinding(Node node) {
 		
 		NotificationType binding = factory.createNotificationType();

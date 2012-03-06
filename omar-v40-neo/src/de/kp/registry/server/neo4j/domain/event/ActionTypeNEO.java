@@ -14,9 +14,11 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
 import de.kp.registry.server.neo4j.database.ReadManager;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 /*
  * __DESIGN__ 
@@ -30,7 +32,55 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 
 	// this method creates a new ActionType node within database
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+		
+		// create node from underlying ExtensibleObjectType
+		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
+		
+		// update the internal type to describe an ActionType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+
+	}
+
+	public static Node clearNode(Node node) {
+
+		// - AFFECTED-OBJECT (0..1)
+
+		// clear relationship only
+		node = NEOBase.clearRelationship(node, RelationTypes.hasAffectedObject, false);
+
+		// - AFFECTED-OBJECT-REF (0..1)
+
+		// clear relationship only
+		node = NEOBase.clearRelationship(node, RelationTypes.hasAffectedObjectRef, false);
+
+		// - EVENT-TYPE (1..1)
+		node.removeProperty(OASIS_RIM_EVENT_TYPE);
+		
+		return node;
+		
+	}
+
+	// this is a common wrapper to delete an ActionType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		
+		// clear ActionType specific parameters
+		node = clearNode(node);
+		
+		// clear node from ExtensibleObjectType specific parameters and remove
+		ExtensibleObjectTypeNEO.removeNode(node);
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// __DESIGN__
+		
+		// the parameter 'checkReference' is not evaluated for ActionType as the 
+		// references affect object (refs) MUST exist in the database
 		
 		ActionType actionType = (ActionType)binding;
 		
@@ -42,17 +92,10 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 		
 		// - EVENT-TYPE (1..1)
 		String eventType = actionType.getEventType();
+				
+		// ===== FILL NODE =====
 		
-		// create node from underlying ExtensibleObjectType
-		Node actionTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
-		
-		// update the internal type to describe an ActionType
-		actionTypeNode.setProperty(NEO4J_TYPE, getNType());
-
-		// retrieve CipherQueryManager to determine already existing
-		// nodes by their respective OASIS ebRIM id
-		
-		ReadManager cqm = ReadManager.getInstance();
+		ReadManager rm = ReadManager.getInstance();
 
 		// - AFFECTED-OBJECT (0..1)
 		if (affectedObjects != null) {
@@ -65,10 +108,10 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				String id = registryObject.getId();
-				Node registryObjectTypeNode = cqm.findNodeByID(id);
+				Node registryObjectTypeNode = rm.findNodeByID(id);
 				
-				if (registryObjectTypeNode == null) throw new RegistryException("[AffectedObjects] No node found for id: " + id);
-				actionTypeNode.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasAffectedObject);
+				if (registryObjectTypeNode == null) throw new UnresolvedReferenceException("[ActionType] Affected object node for '" + id + "' does not exist");
+				node.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasAffectedObject);
 
 			}
 			
@@ -84,23 +127,29 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 			for (ObjectRefType objectRef:objectRefs) {
 
 				String id = objectRef.getId();
-				Node objectRefTypeNode = cqm.findNodeByID(id);
+				Node objectRefTypeNode = rm.findNodeByID(id);
 
-				if (objectRefTypeNode == null) throw new RegistryException("[AffectedObjectRefs] No node found for id: " + id);
-				actionTypeNode.createRelationshipTo(objectRefTypeNode, RelationTypes.hasAffectedObjectRef);
+				if (objectRefTypeNode == null) throw new UnresolvedReferenceException("[ActionType] Affected object node for '" + id + "' does not exist");
+				node.createRelationshipTo(objectRefTypeNode, RelationTypes.hasAffectedObjectRef);
 
 			}
 
 		}
 		
 		// - EVENT-TYPE (1..1)
-		actionTypeNode.setProperty(OASIS_RIM_EVENT_TYPE, eventType);
-		
-		return actionTypeNode;
-	}
+		if (checkReference == true) {
+			
+			// make sure that the classification node references an existing node within the database
+			if (ReadManager.getInstance().findNodeByID(eventType) == null) 
+				throw new UnresolvedReferenceException("[ActionType] Classification node with id '" + eventType + "' does not exist.");		
 
-	public static Node clearNode(Node node) {
-		return null;
+
+		}
+		
+		node.setProperty(OASIS_RIM_EVENT_TYPE, eventType);
+		
+		return node;
+
 	}
 
 	public static Object toBinding(Node node) {

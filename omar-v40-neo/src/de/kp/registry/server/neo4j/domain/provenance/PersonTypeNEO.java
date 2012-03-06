@@ -8,6 +8,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.PersonNameType;
 import org.oasis.ebxml.registry.bindings.rim.PersonType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
@@ -17,26 +18,14 @@ public class PersonTypeNEO extends PartyTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
-		PersonType personType = (PersonType)binding;
-		
-		// - PERSON-NAME (0..1)
-		PersonNameType personName = personType.getPersonName();
-		
 		// create node from underlying PartyType
-		Node personTypeNode = PartyTypeNEO.toNode(graphDB, binding, checkReference);
+		Node node = PartyTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a PersonType
-		personTypeNode.setProperty(NEO4J_TYPE, getNType());
+		node.setProperty(NEO4J_TYPE, getNType());
 
-		// - PERSON-NAME (0..1)
-		if (personName != null) {
+		return fillNodeInternal(graphDB, node, binding, checkReference);
 
-			Node personNameTypeNode = PersonNameTypeNEO.toNode(graphDB, personName);
-			personTypeNode.createRelationshipTo(personNameTypeNode, RelationTypes.hasPersonName);
-
-		}
-		
-		return personTypeNode;
 	}
 
 	// this method replaces an existing PersonType node in the database
@@ -44,13 +33,63 @@ public class PersonTypeNEO extends PartyTypeNEO {
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
+		
+		// clear PersonType specific parameters
+		node = clearNode(node);
+		
+		// clear & fill node with PartyType specific parameters
+		node = PartyTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with PersonType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+
 	}
 
 	public static Node clearNode(Node node) {
-		return null;
+
+		// - PERSON-NAME (0..1)
+		
+		// clear relationship and referenced PersonNameType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasPersonName, true);
+		return node;
+		
 	}
 
+	// this is a common wrapper to delete a PersonType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		
+		// clear PersonType specific parameters
+		node = clearNode(node);
+		
+		// clear node from PartyType specific parameters and remove
+		PartyTypeNEO.removeNode(node);
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// the parameter 'checkReference' is not evaluated for PersonType specific parameters
+
+		PersonType personType = (PersonType)binding;
+		
+		// - PERSON-NAME (0..1)
+		PersonNameType personName = personType.getPersonName();
+
+		// ===== FILL NODE =====
+
+		// - PERSON-NAME (0..1)
+		if (personName != null) {
+
+			Node personNameTypeNode = PersonNameTypeNEO.toNode(graphDB, personName);
+			node.createRelationshipTo(personNameTypeNode, RelationTypes.hasPersonName);
+
+		}
+		
+		return node;
+
+	}
+	
 	public static Object toBinding(Node node) {
 		
 		PersonType binding = factory.createPersonType();

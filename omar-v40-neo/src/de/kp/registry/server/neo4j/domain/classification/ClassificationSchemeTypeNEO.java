@@ -12,6 +12,52 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
+		// create node from underlying TaxonomyElementType
+		Node node = TaxonomyElementTypeNEO.toNode(graphDB, binding, checkReference);
+		
+		// update the internal type to describe a ClassificationSchemeType
+		node.setProperty(NEO4J_TYPE, getNType());
+				
+		// fill node with ClassificationSchemeType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+
+	}
+
+	// this method replaces an existing ClassificationSchemeType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
+
+		// clear ClassificationSchemeType specific parameters
+		node = clearNode(node);
+
+		// clear & fill node with TaxonomyElementType specific parameters
+		node = TaxonomyElementTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with ClassificationSchemeType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+
+	}
+
+	public static Node clearNode(Node node) {
+
+		// - IS-INTERNAL (1..1)
+		node.removeProperty(OASIS_RIM_IS_INTERNAL);
+
+		// - NODE-TYPE (1..1)
+		node.removeProperty(OASIS_RIM_NODE_TYPE);
+		
+		return node;
+		
+	}
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// __DESIGN__
+		
+		// the parameter 'checkReference' must not be evaluated for ClassificationSchemeType
+		
 		ClassificationSchemeType classificationSchemeType = (ClassificationSchemeType)binding;
 		
 		// - IS-INTERNAL (1..1)
@@ -20,27 +66,16 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 		// - NODE-TYPE (1..1)
 		String nodeType = classificationSchemeType.getNodeType();
 		
-		// create node from underlying TaxonomyElementType
-		Node classificationSchemeTypeNode = TaxonomyElementTypeNEO.toNode(graphDB, binding, checkReference);
-		
-		// update the internal type to describe a ClassificationSchemeType
-		classificationSchemeTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 
 		// - IS-INTERNAL (1..1)
-		classificationSchemeTypeNode.setProperty(OASIS_RIM_IS_INTERNAL, isInternal);
+		node.setProperty(OASIS_RIM_IS_INTERNAL, isInternal);
 		
 		// - NODE-TYPE (1..1)
-		classificationSchemeTypeNode.setProperty(OASIS_RIM_NODE_TYPE, nodeType);
+		node.setProperty(OASIS_RIM_NODE_TYPE, nodeType);
 
-		return classificationSchemeTypeNode;
-	}
+		return node;
 
-	// this method replaces an existing ClassificationSchemeType node in the database
-	
-	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
-		return null;
 	}
 
 	public static Object toBinding(Node node) {

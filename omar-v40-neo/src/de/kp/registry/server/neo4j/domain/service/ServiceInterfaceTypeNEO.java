@@ -14,12 +14,12 @@ public class ServiceInterfaceTypeNEO extends RegistryObjectTypeNEO {
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 
 		// create node from underlying RegistryObjectType
-		Node serviceInterfaceTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a ServiceInterfaceType
-		serviceInterfaceTypeNode.setProperty(NEO4J_TYPE, getNType());
+		node.setProperty(NEO4J_TYPE, getNType());
 
-		return serviceInterfaceTypeNode;
+		return node;
 		
 	}
 
@@ -28,17 +28,23 @@ public class ServiceInterfaceTypeNEO extends RegistryObjectTypeNEO {
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
+
+		// clear ServiceInterfaceType specific parameters
+		node = clearNode(node);
+
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with ServiceInterfaceType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
 	}
 
 	public static Node clearNode(Node node) {
+		return node;
+	}
 
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
-		
-		// TODO
-		return null;
-		
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return node;
 	}
 
 	public static Object toBinding(Node node) {

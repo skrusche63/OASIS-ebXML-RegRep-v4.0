@@ -113,13 +113,13 @@ public class WriteManager {
 					// this request failed, we therefore indicate this status in the registry's response
 					registryResponse.setStatus(CanonicalConstants.FAILURE);
 
-					// TODO
+					// TODO: build response
 					
 				} else {
 					
 					boolean result = create(graphDB, registryObject, checkReference, registryResponse);
 					if (result == false) {
-						// TODO
+						// TODO: build response
 					}
 				}
 				

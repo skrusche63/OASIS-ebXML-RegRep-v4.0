@@ -40,6 +40,12 @@ public class PersonNameTypeNEO extends ExtensibleObjectTypeNEO {
 		return personNameTypeNode;
 		
 	}
+
+	// this is a common wrapper to delete a PersonNameType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		node.delete();		
+	}
 	
 	public static Object toBinding(Node node) {
 		

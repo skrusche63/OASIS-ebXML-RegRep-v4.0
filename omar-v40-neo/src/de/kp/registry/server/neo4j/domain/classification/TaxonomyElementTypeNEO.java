@@ -20,16 +20,50 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
+		// create node from underlying RegistryObjectType
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		
+		// update the internal type to describe a TaxonomyElementType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+		
+	}
+
+	// this method replaces an existing TaxonomyElementType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
+
+		// clear TaxonomyElementType specific parameters
+		node = clearNode(node);
+
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with TaxonomyElementType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+	
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// TODO
+		return null;
+		
+	}
+
+	// TODO: checkReference
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		
 		TaxonomyElementType taxonomyElementType = (TaxonomyElementType)binding;
 		
 		// - CLASSIFICATION-NODE (0..*)
 		List<ClassificationNodeType> classificationNodes = taxonomyElementType.getClassificationNode();
 		
-		// create node from underlying RegistryObjectType
-		Node taxonomyElementTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding);
-		
-		// update the internal type to describe a TaxonomyElementType
-		taxonomyElementTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 				
 		// - CLASSIFICATION-NODE (0..*)
 		if (classificationNodes.isEmpty() == false) {
@@ -37,24 +71,14 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 			for (ClassificationNodeType classificationNode:classificationNodes) {
 				
 				Node classificationNodeTypeNode = ClassificationNodeTypeNEO.toNode(graphDB, classificationNode);
-				taxonomyElementTypeNode.createRelationshipTo(classificationNodeTypeNode, RelationTypes.hasChild);
+				node.createRelationshipTo(classificationNodeTypeNode, RelationTypes.hasChild);
 
 			}
 
 		}
 		
-		return taxonomyElementTypeNode;
-		
-	}
+		return node;
 
-	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
-		
-		// TODO
-		return null;
-		
 	}
 
 	public static Object fillBinding(Node node, Object binding) {

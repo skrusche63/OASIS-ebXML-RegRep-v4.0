@@ -15,21 +15,13 @@ public class FederationTypeNEO extends RegistryObjectTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
-		FederationType federationType = (FederationType)binding;
-		
-		// - REPLICATION-SYNC-LATENCY (0..1)
-		Duration replicationSyncLatency = federationType.getReplicationSyncLatency();
-		
 		// create node from underlying FederationType
-		Node federationTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RegistryObjectType
-		federationTypeNode.setProperty(NEO4J_TYPE, getNType());
+		node.setProperty(NEO4J_TYPE, getNType());
 
-		// - REPLICATION-SYNC-LATENCY (0..1)
-		if (replicationSyncLatency != null) federationTypeNode.setProperty(OASIS_RIM_REPL_SYNC_LATENCY, replicationSyncLatency);
-		
-		return federationTypeNode;
+		return fillNodeInternal(graphDB, node, binding, checkReference);
 		
 	}
 
@@ -38,17 +30,43 @@ public class FederationTypeNEO extends RegistryObjectTypeNEO {
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
+
+		// clear FederationType specific parameters
+		node = clearNode(node);
+
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with FederationType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+
 	}
 
 	public static Node clearNode(Node node) {
+		
+		// - REPLICATION-SYNC-LATENCY (0..1)
+		if (node.hasProperty(OASIS_RIM_REPL_SYNC_LATENCY)) node.removeProperty(OASIS_RIM_REPL_SYNC_LATENCY);
+		return node;
+		
+	}
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
+		// the parameter 'checkReference' must not be evaluated
+		// for a FederationType
 		
-		// TODO
-		return null;
+		FederationType federationType = (FederationType)binding;
 		
+		// - REPLICATION-SYNC-LATENCY (0..1)
+		Duration replicationSyncLatency = federationType.getReplicationSyncLatency();
+		
+		// ===== FILL NODE =====
+
+		// - REPLICATION-SYNC-LATENCY (0..1)
+		if (replicationSyncLatency != null) node.setProperty(OASIS_RIM_REPL_SYNC_LATENCY, replicationSyncLatency);
+		
+		return node;
+
 	}
 
 	public static Object toBinding(Node node) {

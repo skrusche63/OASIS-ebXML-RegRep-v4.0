@@ -7,8 +7,12 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.OrganizationType;
+
+import de.kp.registry.server.neo4j.database.ReadManager;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class OrganizationTypeNEO extends PartyTypeNEO {
 
@@ -16,34 +20,13 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
-		OrganizationType organizationType = (OrganizationType)binding;
-		
-		// - ORGANIZATION (0..*)
-		List<OrganizationType> organizations = organizationType.getOrganization();
-		
-		// - PRIMARY CONTACT (0..1)
-		String primaryContact = organizationType.getPrimaryContact();
-		
 		// create node from underlying PartyType
-		Node organizationTypeNode = PartyTypeNEO.toNode(graphDB, binding, checkReference);
+		Node node = PartyTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe an OrganizationType
-		organizationTypeNode.setProperty(NEO4J_TYPE, getNType());
+		node.setProperty(NEO4J_TYPE, getNType());
 
-		// - ORGANIZATION (0..*)
-		if (organizations.isEmpty() == false) {
-			for (OrganizationType organization:organizations) {
-				
-				Node organizationTypeSubNode = OrganizationTypeNEO.toNode(graphDB, organization);
-				organizationTypeNode.createRelationshipTo(organizationTypeSubNode, RelationTypes.hasOrganization);
-
-			}
-		}
-		
-		// - PRIMARY CONTACT (0..1)
-		if (primaryContact != null) organizationTypeNode.setProperty(OASIS_RIM_PRIMARY_CONTACT, primaryContact);
-		
-		return organizationTypeNode;
+		return fillNodeInternal(graphDB, node, binding, checkReference);
 		
 	}
 
@@ -52,11 +35,102 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
+		
+		// clear OrganizationType specific parameters
+		node = clearNode(node);
+		
+		// clear & fill node with PartyType specific parameters
+		node = PartyTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with OrganizationType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+
 	}
 
 	public static Node clearNode(Node node) {
-		return null;
+		
+		// - ORGANIZATION (0..*)
+
+		// __DESGIN__
+		
+		// an OrganizationType node is cleared by removing the relationships
+		// to other OrganizationType nodes; the respective nodes are NOT removed
+		
+		// clear relationship and NOT referenced OrganizationType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasOrganization, false);
+
+		// - PRIMARY CONTACT (0..1)
+		if (node.hasProperty(OASIS_RIM_PRIMARY_CONTACT)) node.removeProperty(OASIS_RIM_PRIMARY_CONTACT);
+		
+		return node;
+	}
+
+	// this is a common wrapper to delete an OrganizationType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		
+		// clear OrganizationType specific parameters
+		node = clearNode(node);
+		
+		// clear node from PartyType specific parameters and remove
+		PartyTypeNEO.removeNode(node);
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		OrganizationType organizationType = (OrganizationType)binding;
+		
+		// - ORGANIZATION (0..*)
+		List<OrganizationType> organizations = organizationType.getOrganization();
+		
+		// - PRIMARY CONTACT (0..1)
+		String primaryContact = organizationType.getPrimaryContact();
+
+		// ===== FILL NODE =====
+
+		// - ORGANIZATION (0..*)
+		if (organizations.isEmpty() == false) {
+			for (OrganizationType organization:organizations) {
+				
+				Node organizationTypeSubNode = null;
+				if (checkReference == true) {
+				
+					// we have to make sure that the referenced OrganizationType
+					// references an existing node in the database
+
+					String nid = organization.getId();					
+					organizationTypeSubNode = ReadManager.getInstance().findNodeByID(nid);
+					
+					if (organizationTypeSubNode == null) 
+						throw new UnresolvedReferenceException("[OrganizationType] OrganizationType node with id '" + nid + "' does not exist.");		
+					
+				} else {
+					organizationTypeSubNode = OrganizationTypeNEO.toNode(graphDB, organization, checkReference);
+					
+				}
+				
+				// associate subordinate organization with superior one
+				node.createRelationshipTo(organizationTypeSubNode, RelationTypes.hasOrganization);
+
+			}
+		}
+		
+		// - PRIMARY CONTACT (0..1)
+		if (primaryContact != null) {
+
+			if (checkReference == true) {
+				// make sure that the primary contact references an existing node within the database
+				if (ReadManager.getInstance().findNodeByID(primaryContact) == null) 
+					throw new UnresolvedReferenceException("[OrganizationType] Primary contact node with id '" + primaryContact + "' does not exist.");		
+
+			}
+
+			node.setProperty(OASIS_RIM_PRIMARY_CONTACT, primaryContact);
+		}
+		
+		return node;
+
 	}
 
 	public static Object toBinding(Node node) {

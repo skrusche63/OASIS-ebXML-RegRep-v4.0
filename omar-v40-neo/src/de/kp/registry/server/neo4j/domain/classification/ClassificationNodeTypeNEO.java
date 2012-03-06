@@ -4,7 +4,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 
 public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
@@ -12,7 +14,50 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 	// this method creates a new ClassificationNodeType node within database
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+
+		// create node from underlying TaxonomyElementType
+		Node node = TaxonomyElementTypeNEO.toNode(graphDB, binding, checkReference);
 		
+		// update the internal type to describe a ClassificationNodeType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+	
+	}
+
+	// this method replaces an existing ClassificationNodeType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
+
+		// clear ClassificationNodeType specific parameters
+		node = clearNode(node);
+
+		// clear & fill node with TaxonomyElementType specific parameters
+		node = TaxonomyElementTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with ClassificationNodeType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+	}
+
+	public static Node clearNode(Node node) {
+
+		// - CODE (1..1)
+		node.removeProperty(OASIS_RIM_CODE);
+		
+		// - PARENT (0..1)
+		if (node.hasProperty(OASIS_RIM_PARENT)) node.removeProperty(OASIS_RIM_PARENT);
+		
+		// - PATH (0..1)
+		if (node.hasProperty(OASIS_RIM_PATH)) node.removeProperty(OASIS_RIM_PATH);
+
+		return node;
+		
+	}
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
 		ClassificationNodeType classificationNodeType = (ClassificationNodeType)binding;
 		
 		// - CODE (1..1)
@@ -23,32 +68,30 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 		
 		// - PATH (0..1)
 		String path = classificationNodeType.getPath();
-		
-		// create node from underlying TaxonomyElementType
-		Node classificationNodeTypeNode = TaxonomyElementTypeNEO.toNode(graphDB, binding, checkReference);
-		
-		// update the internal type to describe a ClassificationNodeType
-		classificationNodeTypeNode.setProperty(NEO4J_TYPE, getNType());
+				
+		// ===== FILL NODE =====
 
 		// - CODE (1..1)
-		classificationNodeTypeNode.setProperty(OASIS_RIM_CODE, code);
+		node.setProperty(OASIS_RIM_CODE, code);
 		
 		// - PARENT (0..1)
-		if (parent != null) classificationNodeTypeNode.setProperty(OASIS_RIM_PARENT, parent);
+		if (parent != null) {
+
+			if (checkReference == true) {
+				// make sure that the parent references an existing node within the database
+				if (ReadManager.getInstance().findNodeByID(parent) == null) 
+					throw new UnresolvedReferenceException("[ClassificationNodeType] Parent node with id '" + parent + "' does not exist.");		
+
+			}
+
+			node.setProperty(OASIS_RIM_PARENT, parent);
+		}
 		
 		// - PATH (0..1)
-		if (path != null) classificationNodeTypeNode.setProperty(OASIS_RIM_PATH, path);
+		if (path != null) node.setProperty(OASIS_RIM_PATH, path);
 
-		return classificationNodeTypeNode;
-	
-	}
+		return node;
 
-	// this method replaces an existing ClassificationNodeType node in the database
-	
-	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
-		return null;
 	}
 
 	public static Object toBinding(Node node) {

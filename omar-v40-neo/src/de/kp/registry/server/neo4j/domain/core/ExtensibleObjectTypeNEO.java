@@ -1,6 +1,5 @@
 package de.kp.registry.server.neo4j.domain.core;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,39 +52,24 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	public static Node clearNode(Node node) {
 		
 		// - SLOTS (0..*)
-		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasSlot);
-		if (relationships != null) {
 
-			List<Object>removables = new ArrayList<Object>();
-		
-			Iterator<Relationship> iterator = relationships.iterator();
-			while (iterator.hasNext()) {
-			
-				Relationship relationship = iterator.next();
-				removables.add(relationship);
-				
-				Node endNode = relationship.getEndNode();
-				removables.add(endNode);
-
-			}
-			
-			// remove all collected node and relationships
-			while (removables.size() > 0) {
-				
-				Object removable = removables.get(0);
-				if (removable instanceof Node)
-					((Node)removable).delete();
-				
-				else if (removable instanceof Relationship)
-					((Relationship)removable).delete();
-			}
-			
-		}
+		// clear relationship and referenced SlotType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasSlot, true);
 
 		return node;
 		
 	}
-	
+
+	// this is a common wrapper to delete an ExtensibleObjectType node and all of its dependencies
+
+	public static void removeNode(Node node) {
+		
+		// clear ExtensibleType specific parameters
+		node = clearNode(node);
+		node.delete();
+		
+	}
+
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
 
 		ExtensibleObjectType extensibleObjectType = (ExtensibleObjectType)binding;

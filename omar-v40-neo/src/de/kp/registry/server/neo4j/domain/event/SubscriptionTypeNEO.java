@@ -13,6 +13,7 @@ import org.oasis.ebxml.registry.bindings.rim.DeliveryInfoType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.SubscriptionType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
@@ -23,7 +24,72 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 	// this method creates a new SubscriptionType node within database
 	
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+
+		// create node from underlying RegistryObjectType
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
+		// update the internal type to describe a SubscriptionType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+		
+	}
+
+	// this method replaces an existing SubscriptionType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		
+		// clear SubscriptionType specific parameters
+		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with SubscriptionType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// - DELIVER-INFO (0..*)
+		
+		// __DESIGN__
+		
+		// DeliveryInfoType nodes are an intrinsic part of a SubscriptionType
+		// and are therefore removed in addition to the respective relationships
+
+		// clear relationship and referencedDeliveryInfoType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasDeliveryInfo, true);
+
+		// - ENDTIME (0..1)
+		if (node.hasProperty(OASIS_RIM_ENDTIME)) node.removeProperty(OASIS_RIM_ENDTIME);
+
+		// - NOTIFICATION-INTERVAL (0..1)
+		if (node.hasProperty(OASIS_RIM_NOTIFICATION_INTERVAL)) node.removeProperty(OASIS_RIM_NOTIFICATION_INTERVAL);
+
+		// - SELECTOR (1..1)
+
+		// __DESIGN__
+		
+		// A QueryType node is NOT an intrinsic information
+		// that us ultimately related with a SubscriptionType node
+
+		// clear relationship only
+		node = NEOBase.clearRelationship(node, RelationTypes.hasSelector, false);
+
+		// - STARTTIME (0..1)
+		if (node.hasProperty(OASIS_RIM_STARTTIME)) node.removeProperty(OASIS_RIM_STARTTIME);
+		
+		return node;
+		
+	}
+
+	// TODO: checkReference
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
 		SubscriptionType subscriptionType = (SubscriptionType)binding;
 		
 		// - DELIVER-INFO (0..*)
@@ -40,12 +106,8 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		
 		// - STARTTIME (0..1)
 		XMLGregorianCalendar starttime = subscriptionType.getStartTime();
-
-		// create node from underlying RegistryObjectType
-		Node subscriptionTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
-		// update the internal type to describe a SubscriptionType
-		subscriptionTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 
 		// - DELIVER-INFO (0..*)
 		if (deliveryInfos.isEmpty() == false) {
@@ -53,43 +115,26 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 			for (DeliveryInfoType deliveryInfo:deliveryInfos) {
 
 				Node deliveryInfoTypeNode = DeliveryInfoTypeNEO.toNode(graphDB, deliveryInfo);
-				subscriptionTypeNode.createRelationshipTo(deliveryInfoTypeNode, RelationTypes.hasDeliveryInfo);
+				node.createRelationshipTo(deliveryInfoTypeNode, RelationTypes.hasDeliveryInfo);
 
 			}
 
 		}
 
 		// - ENDTIME (0..1)
-		if (endtime != null) subscriptionTypeNode.setProperty(OASIS_RIM_ENDTIME, endtime);
+		if (endtime != null) node.setProperty(OASIS_RIM_ENDTIME, endtime);
 
 		// - NOTIFICATION-INTERVAL (0..1)
-		if (notificationInterval != null) subscriptionTypeNode.setProperty(OASIS_RIM_NOTIFICATION_INTERVAL, notificationInterval);
+		if (notificationInterval != null) node.setProperty(OASIS_RIM_NOTIFICATION_INTERVAL, notificationInterval);
 
 		// - SELECTOR (1..1)
 		Node queryTypeNode = QueryTypeNEO.toNode(graphDB, selector);
-		subscriptionTypeNode.createRelationshipTo(queryTypeNode, RelationTypes.hasSelector);
+		node.createRelationshipTo(queryTypeNode, RelationTypes.hasSelector);
 
 		// - STARTTIME (0..1)
-		if (starttime != null) subscriptionTypeNode.setProperty(OASIS_RIM_STARTTIME, starttime);
+		if (starttime != null) node.setProperty(OASIS_RIM_STARTTIME, starttime);
 
-		return subscriptionTypeNode;
-	}
-
-	// this method replaces an existing SubscriptionType node in the database
-	
-	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
-	}
-
-	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
-		
-		// TODO
-		return null;
+		return node;
 		
 	}
 

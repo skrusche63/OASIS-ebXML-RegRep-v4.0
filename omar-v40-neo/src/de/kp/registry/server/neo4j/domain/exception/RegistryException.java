@@ -8,4 +8,11 @@ public class RegistryException extends Exception {
 		super(message);
 	}
 	
+	// transfer a Java exception into the respective binding object
+	
+	public Object toBinding(RegistryException exception) {
+		// TODO
+		return null;
+	}
+	
 }

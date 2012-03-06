@@ -31,15 +31,18 @@ public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
 
+		// clear AssociationType specific parameters
 		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with AssociationType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 	
 	}
 
 	public static Node clearNode(Node node) {
-
-		// clear the RegistryObjectType of the respective node
-		node = RegistryObjectTypeNEO.clearNode(node);
 
 		// - SOURCE-OBJECT (1..1)
 		node.removeProperty(OASIS_RIM_SOURCE);
