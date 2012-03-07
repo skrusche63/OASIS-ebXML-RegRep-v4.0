@@ -99,7 +99,7 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 			
 			for (ParameterType parameter:parameters) {
 				
-				Node parameterTypeNode = ParameterTypeNEO.toNode(graphDB, parameter);
+				Node parameterTypeNode = ParameterTypeNEO.toNode(graphDB, parameter, checkReference);
 				node.createRelationshipTo(parameterTypeNode, RelationTypes.hasParameter);
 
 			}
@@ -110,12 +110,12 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 
 			if (queryExpression instanceof StringQueryExpressionType) {
 				
-				Node queryExpressionTypeNode = StringQueryExpressionTypeNEO.toNode(graphDB, queryExpression);
+				Node queryExpressionTypeNode = StringQueryExpressionTypeNEO.toNode(graphDB, queryExpression, checkReference);
 				node.createRelationshipTo(queryExpressionTypeNode, RelationTypes.hasQueryExpression);
 				
 			} else if (queryExpression instanceof XMLQueryExpressionType) {
 				
-				Node queryExpressionTypeNode = XMLQueryExpressionTypeNEO.toNode(graphDB, queryExpression);
+				Node queryExpressionTypeNode = XMLQueryExpressionTypeNEO.toNode(graphDB, queryExpression, checkReference);
 				node.createRelationshipTo(queryExpressionTypeNode, RelationTypes.hasQueryExpression);
 				
 			}

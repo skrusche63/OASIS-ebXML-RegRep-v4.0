@@ -9,7 +9,7 @@ import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class PersonNameTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		PersonNameType personNameType = (PersonNameType)binding;
 		
@@ -23,7 +23,7 @@ public class PersonNameTypeNEO extends ExtensibleObjectTypeNEO {
 		String middleName = personNameType.getMiddleName();
 		
 		// create node from underlying ExtensibleObjectType
-		Node personNameTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
+		Node personNameTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a personNameType
 		personNameTypeNode.setProperty(NEO4J_TYPE, getNType());
@@ -43,7 +43,8 @@ public class PersonNameTypeNEO extends ExtensibleObjectTypeNEO {
 
 	// this is a common wrapper to delete a PersonNameType node and all of its dependencies
 
-	public static void removeNode(Node node) {
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		// TODO
 		node.delete();		
 	}
 	

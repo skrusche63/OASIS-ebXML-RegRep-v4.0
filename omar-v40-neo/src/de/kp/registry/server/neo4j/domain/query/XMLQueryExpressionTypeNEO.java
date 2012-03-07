@@ -8,7 +8,7 @@ import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class XMLQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 
 		XMLQueryExpressionType xmlQueryExpressionType = (XMLQueryExpressionType)binding;
 
@@ -16,7 +16,7 @@ public class XMLQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 		Object value = xmlQueryExpressionType.getAny();
 		
 		// create node from underlying QueryExpressionType
-		Node xmlQueryExpressionTypeNode = QueryExpressionTypeNEO.toNode(graphDB, binding);
+		Node xmlQueryExpressionTypeNode = QueryExpressionTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a XMLQueryExpressionType
 		xmlQueryExpressionTypeNode.setProperty(NEO4J_TYPE, getNType());
@@ -26,6 +26,24 @@ public class XMLQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 		
 		return xmlQueryExpressionTypeNode;
 
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// - OBJECT (1..1)
+		node.removeProperty(OASIS_RIM_QUERY_VALUE);
+		return node;
+
+	}
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear XMLQueryExpressionType specific parameters
+		node = clearNode(node);
+		
+		// clear node from QueryExpressionType specific parameters and remove
+		QueryExpressionTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
 	}
 
 	public static Object toBinding(Node node) {

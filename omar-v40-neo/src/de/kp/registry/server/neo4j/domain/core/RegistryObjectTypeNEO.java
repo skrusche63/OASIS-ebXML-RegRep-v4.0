@@ -25,7 +25,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 				
 		// create node from underlying IdentifiableType
-		Node node = IdentifiableTypeNEO.toNode(graphDB, binding);
+		Node node = IdentifiableTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RegistryObjectType
 		node.setProperty(NEO4J_TYPE, getNType());
@@ -43,7 +43,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		node = clearNode(node);
 		
 		// clear & fill node with IdentifiableType specific parameters
-		node = IdentifiableTypeNEO.fillNode(graphDB, node, binding);
+		node = IdentifiableTypeNEO.fillNode(graphDB, node, binding, checkReference);
 		
 		// fill node with RegistryObjectType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
@@ -95,6 +95,10 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		return node;		
 	}
 
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+	}
+
 	// TODO: checkReference
 	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
@@ -142,7 +146,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 				// RegistryObjectType is created, i.e. the ClassificationType
 				// is composed within the RegistryObjectType
 				
-				Node classificationTypeNode = ClassificationTypeNEO.toNode(graphDB, classification);
+				Node classificationTypeNode = ClassificationTypeNEO.toNode(graphDB, classification, checkReference);
 				node.createRelationshipTo(classificationTypeNode, RelationTypes.hasClassification);
 				
 			}
@@ -172,7 +176,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 				// The value MUST be set by the server if the ExternalLink is 
 				// submitted as part of the submission of its parent object
 
-				Node externalIdentifierTypeNode = ExternalIdentifierTypeNEO.toNode(graphDB, externalIdentifier);
+				Node externalIdentifierTypeNode = ExternalIdentifierTypeNEO.toNode(graphDB, externalIdentifier, checkReference);
 				node.createRelationshipTo(externalIdentifierTypeNode, RelationTypes.hasIdentifier);
 			
 			}
@@ -194,7 +198,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 				// The value MUST be set by the server if the ExternalLink is 
 				// submitted as part of the submission of its parent object
 				
-				Node externalLinkTypeNode = ExternalLinkTypeNEO.toNode(graphDB, externalLink);
+				Node externalLinkTypeNode = ExternalLinkTypeNEO.toNode(graphDB, externalLink, checkReference);
 				node.createRelationshipTo(externalLinkTypeNode, RelationTypes.hasLink);
 				
 			}

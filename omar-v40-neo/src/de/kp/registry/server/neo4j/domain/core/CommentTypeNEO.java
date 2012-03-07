@@ -33,6 +33,18 @@ public class CommentTypeNEO extends ExtrinsicObjectTypeNEO {
 		return ExtrinsicObjectTypeNEO.clearNode(node);
 	}
 
+	// this is a common wrapper to delete CommentType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear CommentType specific parameters
+		node = clearNode(node);
+		
+		// clear node from ExtrinsicObjectType specific parameters and remove
+		ExtrinsicObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+
 	public static Object toBinding(Node node) {
 		
 		CommentType binding = factory.createCommentType();

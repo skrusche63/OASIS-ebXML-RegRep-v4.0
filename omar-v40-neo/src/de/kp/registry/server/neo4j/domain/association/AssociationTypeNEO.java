@@ -56,7 +56,19 @@ public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 		return node;
 		
 	}
-	
+
+	// this is a common wrapper to delete AssociationType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear AssociationType specific parameters
+		node = clearNode(node);
+		
+		// clear node from RegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
 		AssociationType associationType = (AssociationType)binding;

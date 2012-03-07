@@ -11,6 +11,7 @@ import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
 import org.oasis.ebxml.registry.bindings.rim.SimpleLinkType;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
@@ -19,6 +20,69 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 	// this method creates a new ExtrinsicObjectType node within database
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+
+		// create node from underlying RegistryObjectType
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		
+		// update the internal type to describe an ExtrinsicObjectType
+		node.setProperty(NEO4J_TYPE, getNType());
+		
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+
+	}
+
+	// this method replaces an existing ExtrinsicObjectType node in the database
+	
+	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// clear ExtrinsicObjectType specific parameters
+		node = clearNode(node);
+
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with ExtrinsicObjectType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// - CONTENT VERSION INFO (0..1)
+
+		// clear relationship and referenced VersionInfoType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasClassification, true);
+
+		// - MIMETYPE (0..1)
+		if (node.hasProperty(OASIS_RIM_MIMETYPE)) node.removeProperty(OASIS_RIM_MIMETYPE);
+		
+		// - REPOSITORY-ITEM (0..1)
+		clearRepositoryItem(node);
+		
+		// - REPOSITORY-ITEM-REF (0..1)
+		if (node.hasProperty(OASIS_RIM_URI)) node.removeProperty(OASIS_RIM_URI);
+		
+		return node;
+		
+	}
+
+	// this is a common wrapper to delete ExtrinsicObjectType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear ExtrinsicObjectType specific parameters
+		node = clearNode(node);
+		
+		// clear node from RegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// parameter 'checkReference' must not be evaluated for ExtrinsicObjectType node
 		
 		ExtrinsicObjectType extrinsicObjectType = (ExtrinsicObjectType)binding;
 		
@@ -33,51 +97,45 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 		
 		// - REPOSITORY-ITEM-REF (0..1)
 		SimpleLinkType repositoryItemRef = extrinsicObjectType.getRepositoryItemRef();
-
-		// create node from underlying RegistryObjectType
-		Node extrinsicObjectTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
-		// update the internal type to describe an ExtrinsicObjectType
-		extrinsicObjectTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 
 		// - CONTENT VERSION INFO (0..1)
 		if (contentVersionInfo != null) {
 
 			Node versionInfoTypeNode = VersionInfoTypeNEO.toNode(graphDB, contentVersionInfo);
-			extrinsicObjectTypeNode.createRelationshipTo(versionInfoTypeNode, RelationTypes.hasContentVersion);
+			node.createRelationshipTo(versionInfoTypeNode, RelationTypes.hasContentVersion);
 			
 		}
 
 		// - MIMETYPE (0..1)
-		if (mimetype != null) extrinsicObjectTypeNode.setProperty(OASIS_RIM_MIMETYPE, mimetype);
+		if (mimetype != null) node.setProperty(OASIS_RIM_MIMETYPE, mimetype);
 
 		// - REPOSITORY-ITEM (0..1)
-		if (repositoryItem != null) {
-			// TODO
-		}
+		if (repositoryItem != null) setRepositoryItem(node, repositoryItem);
 
 		// - REPOSITORY-ITEM-REF (0..1)
-		if (repositoryItemRef != null) extrinsicObjectTypeNode.setProperty(OASIS_RIM_URI, repositoryItemRef.getHref());
+		if (repositoryItemRef != null) node.setProperty(OASIS_RIM_URI, repositoryItemRef.getHref());
 		
-		return extrinsicObjectTypeNode;
+		return node;
 
 	}
 
-	// this method replaces an existing ExtrinsicObjectType node in the database
+	// this is a helper method to assign a repository item to the
+	// respective ExtrinsicObjectType node
 	
-	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
-	}
-
-	public static Node clearNode(Node node) {
-		
+	private static void setRepositoryItem(Node node, DataHandler repositoryItem) {
 		// TODO
-		return null;
-		
 	}
-
+	
+	// this is a helper method to clear a certain repository item
+	// from the respective ExtrinsicObjectTpye node and also delete
+	// the associated file
+	
+	private static void clearRepositoryItem(Node node) {
+		// TODO
+	}
+	
 	public static Object toBinding(Node node) {
 		return fillBinding(node, factory.createExtrinsicObjectType());
 	}

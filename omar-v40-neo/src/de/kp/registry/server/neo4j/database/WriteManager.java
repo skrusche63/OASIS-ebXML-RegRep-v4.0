@@ -77,7 +77,58 @@ public class WriteManager {
 	
 	// this public method is used by the LifecycleManager
 	public RegistryResponseType removeObjects(List<ObjectRefType> objectRefs, Boolean checkReference, Boolean deleteChildren, String deletionScope) {	
-		return null;
+
+		ReadManager rm = ReadManager.getInstance();
+		
+		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
+		Transaction tx = graphDB.beginTx();
+		
+		RegistryResponseType registryResponse = createResponse();
+		
+		try {
+
+			for (ObjectRefType objectRef:objectRefs) {
+
+				Node node = null;
+				
+				// determine whether the respective registry object already exists
+				String id = objectRef.getId();
+				
+				// __DESIGN__
+				
+				// it is expected, that the registry object is provided with a unique identifier
+				node = rm.findNodeByID(id);
+				if (node != null) {
+
+					boolean result = delete(node, checkReference, deleteChildren, deletionScope, registryResponse);
+					if (result == false) {
+						// TODO
+					}
+
+				} else {
+
+					if (checkReference == true) {
+					
+						// Specifies that a server MUST check objects being removed AND make sure 
+						// that there are no references to them from other objects via reference 
+						// attributes and slots. If a reference exists then the server MUST return
+						// ReferencesExistsException			
+						
+					}
+				}
+
+			}
+			
+			tx.success();
+			// this is a successful request, we therefore indicate this status in the registry's response
+			registryResponse.setStatus(CanonicalConstants.SUCCESS);
+
+		} finally {
+			tx.finish();
+		}
+
+		return registryResponse;
+
 	}
 	
 	public RegistryResponseType updateObjects(List<ObjectRefType> registryObjects, Boolean checkReference, Mode mode, List<UpdateActionType> updateActions) {
@@ -86,6 +137,8 @@ public class WriteManager {
 	
 	// private methods to support the submitObjects request
 	private RegistryResponseType createOnly(List<RegistryObjectType> registryObjects, Boolean checkReference) {
+
+		ReadManager rm = ReadManager.getInstance();
 
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
@@ -104,7 +157,7 @@ public class WriteManager {
 				// __DESIGN__
 				
 				// it is expected, that the registry object is provided with a unique identifier
-				node = ReadManager.getInstance().findNodeByID(id);
+				node = rm.findNodeByID(id);
 				if (node != null) {
 					
 					// If an object already exists, the server MUST return an 
@@ -137,6 +190,8 @@ public class WriteManager {
 	}
 
 	private RegistryResponseType createOrReplace(List<RegistryObjectType> registryObjects, Boolean checkReference) {
+
+		ReadManager rm = ReadManager.getInstance();
 		
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
@@ -155,7 +210,7 @@ public class WriteManager {
 				// __DESIGN__
 				
 				// it is expected, that the registry object is provided with a unique identifier
-				node = ReadManager.getInstance().findNodeByID(id);
+				node = rm.findNodeByID(id);
 				if (node != null) {
 					
 					// if an object already exists, the server MUST replace the existing object with the submitted object
@@ -191,6 +246,8 @@ public class WriteManager {
 
 	private RegistryResponseType createOrVersion(List<RegistryObjectType> registryObjects, Boolean checkReference) {
 
+		ReadManager rm = ReadManager.getInstance();
+
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
 		
@@ -208,7 +265,7 @@ public class WriteManager {
 				// __DESIGN__
 				
 				// it is expected, that the registry object is provided with a unique identifier
-				node = ReadManager.getInstance().findNodeByID(id);
+				node = rm.findNodeByID(id);
 				if (node != null) {
 					
 					// If an object already exists, server MUST not alter the existing 
@@ -306,6 +363,30 @@ public class WriteManager {
 		// respective unique identifier is assigned to the registry response
 
 	}
+
+	private boolean delete(Node node, Boolean checkReference, Boolean deleteChildren, String deletionScope, RegistryResponseType response) {
+		
+		try {
+
+			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
+			removeNode(node, checkReference, deleteChildren, deletionScope);
+			
+			addIdToResponse(id, response);
+
+			return true;
+			
+		} catch (Exception e) {
+			
+			// this request failed, we therefore indicate this status in the registry's response
+			response.setStatus(CanonicalConstants.FAILURE);
+
+			// TODO 
+			e.printStackTrace();
+		}
+
+		return false;
+		
+	}
 	
 	// this method create a new node in the database for at least a registry object
 	private Node toNode(EmbeddedGraphDatabase graphDB, Object binding, Boolean checkReference) throws Exception {
@@ -324,6 +405,16 @@ public class WriteManager {
 	    Method method = clazz.getMethod("fillNode", graphDB.getClass(), Node.class, Object.class, Boolean.class);
 	    return (Node) method.invoke(null, graphDB, node, binding, checkReference);
     	
+	}
+	
+	private void removeNode(Node node, Boolean checkReference, Boolean deleteChildren, String deletionScope) throws Exception {
+
+		String bindingName = (String)node.getProperty(NEOBase.NEO4J_TYPE);
+		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
+
+	    Method method = clazz.getMethod("removeNode", Node.class, boolean.class, boolean.class, String.class);
+	    method.invoke(null, node, checkReference, deleteChildren, deletionScope);
+
 	}
 	
 	private RegistryResponseType createResponse() {

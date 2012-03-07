@@ -86,10 +86,23 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
-	// TODO: checkReference
+	// this is a common wrapper to delete a SubscriptionType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear SubscriptionType specific parameters
+		node = clearNode(node);
+		
+		// clear node fromRegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+
+	}
 	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
+		// parameter 'checkReference' must not be evaluated for SubscriptionTypeInfo nodes,
+		// as the respective references all refer to ExtensibleObjectType nodes
+		
 		SubscriptionType subscriptionType = (SubscriptionType)binding;
 		
 		// - DELIVER-INFO (0..*)
@@ -114,7 +127,7 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 			
 			for (DeliveryInfoType deliveryInfo:deliveryInfos) {
 
-				Node deliveryInfoTypeNode = DeliveryInfoTypeNEO.toNode(graphDB, deliveryInfo);
+				Node deliveryInfoTypeNode = DeliveryInfoTypeNEO.toNode(graphDB, deliveryInfo, checkReference);
 				node.createRelationshipTo(deliveryInfoTypeNode, RelationTypes.hasDeliveryInfo);
 
 			}
@@ -128,7 +141,7 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		if (notificationInterval != null) node.setProperty(OASIS_RIM_NOTIFICATION_INTERVAL, notificationInterval);
 
 		// - SELECTOR (1..1)
-		Node queryTypeNode = QueryTypeNEO.toNode(graphDB, selector);
+		Node queryTypeNode = QueryTypeNEO.toNode(graphDB, selector, checkReference);		
 		node.createRelationshipTo(queryTypeNode, RelationTypes.hasSelector);
 
 		// - STARTTIME (0..1)

@@ -19,7 +19,33 @@ public class DeliveryInfoTypeNEO extends ExtensibleObjectTypeNEO {
 
 	// this method creates a new DeliveryInfoType node within database
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+
+		// create node from underlying ExtensibleObjectType
+		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		
+		// update the internal type to describe a  DeliveryInfoType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+		
+	}
+
+	public static Node clearNode(Node node) {
+
+		// - NOTIFICATION-OPTION (0..1)
+		if (node.hasProperty(OASIS_RIM_NOTIFICATION_OPTION)) node.removeProperty(OASIS_RIM_NOTIFICATION_OPTION);
+
+		// - NOTIFY-TO (1..1)
+		node.removeProperty(OASIS_RIM_NOTIFY_TO);
+		
+		return node;
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// the parameter 'checkReference' is not evaluated for DeliveryInfoType nodes
 		
 		DeliveryInfoType deliveryInfoType = (DeliveryInfoType)binding;
 		
@@ -29,24 +55,16 @@ public class DeliveryInfoTypeNEO extends ExtensibleObjectTypeNEO {
 		// - NOTIFY-TO (1..1)
 		EndpointReferenceType endpointReference = deliveryInfoType.getNotifyTo();
 
-		// create node from underlying ExtensibleObjectType
-		Node deliveryInfoTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
-		
-		// update the internal type to describe a  DeliveryInfoType
-		deliveryInfoTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 
 		// - NOTIFICATION-OPTION (0..1)
-		if (notificationOption != null) deliveryInfoTypeNode.setProperty(OASIS_RIM_NOTIFICATION_OPTION, notificationOption);
+		if (notificationOption != null) node.setProperty(OASIS_RIM_NOTIFICATION_OPTION, notificationOption);
 
 		// - NOTIFY-TO (1..1)
-		deliveryInfoTypeNode.setProperty(OASIS_RIM_NOTIFY_TO, endpointReference);
+		node.setProperty(OASIS_RIM_NOTIFY_TO, endpointReference);
 		
-		return deliveryInfoTypeNode;
-		
-	}
+		return node;
 
-	public static Node clearNode(Node node) {
-		return null;
 	}
 
 	public static Object toBinding(Node node) {

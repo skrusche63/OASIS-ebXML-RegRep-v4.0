@@ -22,7 +22,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this ExtensibleObjectType
 	
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		// build extensibleObjectType node
 		Node node = graphDB.createNode();
@@ -31,7 +31,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 		node.setProperty(NEO4J_UID, getNID());		
 		node.setProperty(NEO4J_TYPE, getNType());
 
-		return fillNodeInternal(graphDB, node, binding);
+		return fillNodeInternal(graphDB, node, binding, checkReference);
 		
 	}
 
@@ -42,10 +42,10 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this ExtensibleObjectType
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
 		node = clearNode(node);
-		return fillNodeInternal(graphDB, node, binding); 
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
 
 	}
 	
@@ -62,7 +62,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 
 	// this is a common wrapper to delete an ExtensibleObjectType node and all of its dependencies
 
-	public static void removeNode(Node node) {
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear ExtensibleType specific parameters
 		node = clearNode(node);
@@ -70,7 +70,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 		
 	}
 
-	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
 		ExtensibleObjectType extensibleObjectType = (ExtensibleObjectType)binding;
 		

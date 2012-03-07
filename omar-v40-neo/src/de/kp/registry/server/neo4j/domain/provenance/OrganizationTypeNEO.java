@@ -67,13 +67,13 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 
 	// this is a common wrapper to delete an OrganizationType node and all of its dependencies
 
-	public static void removeNode(Node node) {
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear OrganizationType specific parameters
 		node = clearNode(node);
 		
 		// clear node from PartyType specific parameters and remove
-		PartyTypeNEO.removeNode(node);
+		PartyTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
 		
 	}
 

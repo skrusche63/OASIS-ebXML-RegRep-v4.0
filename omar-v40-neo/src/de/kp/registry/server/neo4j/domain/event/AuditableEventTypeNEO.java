@@ -60,7 +60,12 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 		// and are therefore removed in addition to the respective relationships
 
 		// clear relationship and referenced ActionType nodes (cascading removal)
-		node = clearActions(node);
+		String deletionScope = "";
+		
+		boolean checkReference = false;
+		boolean deleteChildren = false;
+		
+		node = clearActions(node, checkReference, deleteChildren, deletionScope);
 		
 		// - REQUEST-ID (1..1)
 		node.removeProperty(OASIS_RIM_REQUEST_ID);
@@ -75,8 +80,16 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
-	public static void removeNode(Node node) {
-		// TODO
+	// this is a common wrapper to delete an AuditableEventType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear AuditableEventType specific parameters
+		node = clearNode(node);
+		
+		// clear node fromRegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+
 	}
 	
 	// __CASCADING REMOVAL__
@@ -84,7 +97,7 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 	// this method is part of the cascading delete strategy
 	// for AuditableEventType nodes
 	
-	private static Node clearActions(Node node) {
+	private static Node clearActions(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasAction);
 		if (relationships != null) {
@@ -108,7 +121,7 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 				Object removable = removables.get(0);
 				if (removable instanceof Node)
 					// this is a dedicated removal of an ActionType node
-					ActionTypeNEO.removeNode((Node)removable);
+					ActionTypeNEO.removeNode((Node)removable, checkReference, deleteChildren, deletionScope);
 				
 				else if (removable instanceof Relationship)
 					((Relationship)removable).delete();

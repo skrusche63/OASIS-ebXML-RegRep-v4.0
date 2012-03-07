@@ -51,6 +51,18 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 		return node;
 		
 	}
+
+	// this is a common wrapper to delete ClassificationSchemeType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear ClassificationSchemeType specific parameters
+		node = clearNode(node);
+		
+		// clear node from TaxonomyElementType specific parameters and remove
+		TaxonomyElementTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
 	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 

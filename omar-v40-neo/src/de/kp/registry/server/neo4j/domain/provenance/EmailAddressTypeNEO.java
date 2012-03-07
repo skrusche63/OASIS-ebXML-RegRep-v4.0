@@ -11,7 +11,7 @@ import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException
 
 public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		EmailAddressType emailAddressType = (EmailAddressType)binding;
 		
@@ -22,7 +22,7 @@ public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
 		String type = emailAddressType.getType();
 
 		// create node from underlying ExtensibleObjectType
-		Node emailAddressTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
+		Node emailAddressTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe an emailAddressType
 		emailAddressTypeNode.setProperty(NEO4J_TYPE, getNType());
@@ -47,7 +47,8 @@ public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
 	
 	// this is a common wrapper to delete an EmailAddressType node and all of its dependencies
 
-	public static void removeNode(Node node) {
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		//TODO
 		node.delete();		
 	}
 	

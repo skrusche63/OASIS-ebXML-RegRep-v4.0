@@ -14,10 +14,10 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this IdentifiableType
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 
 		// create node from underlying ExtensibleObjectType
-		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
+		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		node = fillNodeInternal(graphDB, node, binding);
 		
 		// add node to node index 
@@ -33,18 +33,18 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 	// note, that we do not have to check references to other registry
 	// objects, provided with this IdentifiableType
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {	
 		
 		// there are no IdentifiableType specific parameters that must be 
 		// cleared and filled afterwards
-		return ExtensibleObjectTypeNEO.fillNode(graphDB, node, binding);
+		return ExtensibleObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
 		
 	}
 
 	// this is a common wrapper to delete an IdentifiableType node and all of its dependencies
 
-	public static void removeNode(Node node) {		
-		ExtensibleObjectTypeNEO.removeNode(node);
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {		
+		ExtensibleObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
 	}
 	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding) throws RegistryException {

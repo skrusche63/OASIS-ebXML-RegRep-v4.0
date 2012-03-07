@@ -70,7 +70,7 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 
 	// this is a common wrapper to delete a PartyType node and all of its dependencies
 
-	public static void removeNode(Node node) {
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		// TODO
 	}
 
@@ -95,7 +95,7 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 		if (emailAddresses.isEmpty() == false) {
 			for (EmailAddressType emailAddress:emailAddresses) {
 				
-				Node emailAddressTypeNode = EmailAddressTypeNEO.toNode(graphDB, emailAddress);
+				Node emailAddressTypeNode = EmailAddressTypeNEO.toNode(graphDB, emailAddress, checkReference);
 				node.createRelationshipTo(emailAddressTypeNode, RelationTypes.hasEmailAddress);
 
 			}
@@ -105,7 +105,7 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 		if (postalAddresses.isEmpty() == false) {
 			for (PostalAddressType postalAddress:postalAddresses) {
 				
-				Node postalAddressTypeNode = PostalAddressTypeNEO.toNode(graphDB, postalAddress);
+				Node postalAddressTypeNode = PostalAddressTypeNEO.toNode(graphDB, postalAddress, checkReference);
 				node.createRelationshipTo(postalAddressTypeNode, RelationTypes.hasPostalAddress);
 				
 			}
@@ -115,7 +115,7 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 		if (telephoneNumbers.isEmpty() == false) {
 			for (TelephoneNumberType telephoneNumber:telephoneNumbers) {
 				
-				Node telephoneNumberTypeNode = TelephoneNumberTypeNEO.toNode(graphDB, telephoneNumber);
+				Node telephoneNumberTypeNode = TelephoneNumberTypeNEO.toNode(graphDB, telephoneNumber, checkReference);
 				node.createRelationshipTo(telephoneNumberTypeNode, RelationTypes.hasTelephoneNumber);
 				
 			}

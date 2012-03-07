@@ -9,6 +9,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
 import org.oasis.ebxml.registry.bindings.rim.ParameterType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.core.InternationalStringTypeNEO;
@@ -16,7 +17,62 @@ import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class ParameterTypeNEO extends ExtensibleObjectTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
+		
+		// create node from underlying ExtensibleObjectType
+		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		
+		// update the internal type to describe a ParameterType
+		node.setProperty(NEO4J_TYPE, getNType());
+
+		return fillNodeInternal(graphDB, node, binding, checkReference);
+		
+	}
+
+	public static Node clearNode(Node node) {
+
+		// - DATA-TYPE (1..1)
+		node.removeProperty(OASIS_RIM_DATA_TYPE);	
+		
+		// - DEFAULT-VALUE (0..1)
+		if (node.hasProperty(OASIS_RIM_DEFAULT_VALUE)) node.removeProperty(OASIS_RIM_DEFAULT_VALUE);
+		
+		// - DESCRIPTION (0..1)
+
+		// clear relationship and referenced InternationalStringType node
+		node = NEOBase.clearRelationship(node, RelationTypes.hasDescription, true);
+
+		// - MIN-OCCURS (0..1)
+		if (node.hasProperty(OASIS_RIM_MIN_OCCURS)) node.removeProperty(OASIS_RIM_MIN_OCCURS);
+		
+		// - MAX-OCCURS (0..1)
+		if (node.hasProperty(OASIS_RIM_MAX_OCCURS)) node.removeProperty(OASIS_RIM_MAX_OCCURS);
+		
+		// - NAME (1..1)		
+
+		// clear relationship and referenced InternationalStringType node
+		node = NEOBase.clearRelationship(node, RelationTypes.hasName, true);
+		
+		// - PARAMETER-NAME (1..1)
+		node.removeProperty(OASIS_RIM_PARAMETER_NAME);
+
+		return node;
+
+	}
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear ParameterType specific parameters
+		node = clearNode(node);
+		
+		// clear node from ExtensibleObjectType specific parameters and remove
+		ExtensibleObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+	
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		// the parameter 'checkReference' must not be evaluated for ParameterType node
 		
 		ParameterType parameterType = (ParameterType)binding;
 		
@@ -41,41 +97,38 @@ public class ParameterTypeNEO extends ExtensibleObjectTypeNEO {
 		// - PARAMETER-NAME (1..1)
 		String parameterName = parameterType.getParameterName();
 		
-		// create node from underlying ExtensibleObjectType
-		Node parameterTypeNode = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
 		
-		// update the internal type to describe a ParameterType
-		parameterTypeNode.setProperty(NEO4J_TYPE, getNType());
+		// ===== FILL NODE =====
 
 		// - DATA-TYPE (1..1)
-		parameterTypeNode.setProperty(OASIS_RIM_DATA_TYPE, dataType);	
+		node.setProperty(OASIS_RIM_DATA_TYPE, dataType);	
 		
 		// - DEFAULT-VALUE (0..1)
-		if (defaultValue != null) parameterTypeNode.setProperty(OASIS_RIM_DEFAULT_VALUE, defaultValue);
+		if (defaultValue != null) node.setProperty(OASIS_RIM_DEFAULT_VALUE, defaultValue);
 		
 		// - DESCRIPTION (0..1)
 		if (description != null) {
 			
 			Node internationalStringTypeNode = InternationalStringTypeNEO.toNode(graphDB, description);
-			parameterTypeNode.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasDescription);
+			node.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasDescription);
 
 		}
 
 		// - MIN-OCCURS (0..1)
-		if (minOccurs != null) parameterTypeNode.setProperty(OASIS_RIM_MIN_OCCURS, minOccurs);
+		if (minOccurs != null) node.setProperty(OASIS_RIM_MIN_OCCURS, minOccurs);
 		
 		// - MAX-OCCURS (0..1)
-		if (maxOccurs != null) parameterTypeNode.setProperty(OASIS_RIM_MAX_OCCURS, maxOccurs);
+		if (maxOccurs != null) node.setProperty(OASIS_RIM_MAX_OCCURS, maxOccurs);
 		
 		// - NAME (1..1)		
 		Node internationalStringTypeNode = InternationalStringTypeNEO.toNode(graphDB, name);
-		parameterTypeNode.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasName);
+		node.createRelationshipTo(internationalStringTypeNode, RelationTypes.hasName);
 		
 		// - PARAMETER-NAME (1..1)
-		parameterTypeNode.setProperty(OASIS_RIM_PARAMETER_NAME, parameterName);
+		node.setProperty(OASIS_RIM_PARAMETER_NAME, parameterName);
 
-		return parameterTypeNode;
-		
+		return node;
+
 	}
 
 	public static Object toBinding(Node node) {

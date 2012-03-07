@@ -9,9 +9,12 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
 import org.oasis.ebxml.registry.bindings.rim.TaxonomyElementType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 // This abstract type is the common base type for ClassificationSchemeType 
 // and ClassificationNodeType
@@ -21,7 +24,7 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		// create node from underlying RegistryObjectType
-		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding);
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a TaxonomyElementType
 		node.setProperty(NEO4J_TYPE, getNType());
@@ -49,12 +52,32 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 
 	public static Node clearNode(Node node) {
 		
-		// TODO
-		return null;
+		// - CLASSIFICATION-NODE (0..*)
+
+		// __DESGIN__
+		
+		// a TaxonomyElementType node is cleared by removing the relationships
+		// to other ClassificationNodeType nodes; the respective nodes are NOT 
+		// removed
+		
+		// clear relationship and NOT referenced ClassificationNodeType nodes
+		node = NEOBase.clearRelationship(node, RelationTypes.hasChild, false);
+		
+		return node;
 		
 	}
 
-	// TODO: checkReference
+	// this is a common wrapper to delete TaxonomyElementType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear TaxonomyElementType specific parameters
+		node = clearNode(node);
+		
+		// clear node from RegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
 	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
@@ -67,10 +90,28 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 				
 		// - CLASSIFICATION-NODE (0..*)
 		if (classificationNodes.isEmpty() == false) {
-			
+
+			ReadManager rm = ReadManager.getInstance();
+
 			for (ClassificationNodeType classificationNode:classificationNodes) {
+
+				Node classificationNodeTypeNode = null;
+				if (checkReference == true) {
 				
-				Node classificationNodeTypeNode = ClassificationNodeTypeNEO.toNode(graphDB, classificationNode);
+					// we have to make sure that the referenced OrganizationType
+					// references an existing node in the database
+
+					String nid = classificationNode.getId();					
+					classificationNodeTypeNode = rm.findNodeByID(nid);
+					
+					if (classificationNodeTypeNode == null) 
+						throw new UnresolvedReferenceException("[TaxonomyElementType] ClassificationNodeType node with id '" + nid + "' does not exist.");		
+					
+				} else {
+					classificationNodeTypeNode = ClassificationNodeTypeNEO.toNode(graphDB, classificationNode, checkReference);
+					
+				}
+
 				node.createRelationshipTo(classificationNodeTypeNode, RelationTypes.hasChild);
 
 			}

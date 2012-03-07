@@ -9,10 +9,12 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.NotificationType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 
@@ -66,7 +68,17 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
-	// TODO: checkReference
+	// this is a common wrapper to delete a NotificationType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear NotificationType specific parameters
+		node = clearNode(node);
+		
+		// clear node fromRegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+
+	}
 	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
@@ -83,12 +95,35 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 		// - EVENT (1..*)
 		for (AuditableEventType event:events) {
 
-			Node auditableEventTypeNode = AuditableEventTypeNEO.toNode(graphDB, event);
+			Node auditableEventTypeNode = null;
+			if (checkReference == true) {
+
+				// we have to make sure that the referenced AuditableEventType
+				// references an existing node in the database
+
+				String nid = event.getId();					
+				auditableEventTypeNode = ReadManager.getInstance().findNodeByID(nid);
+				
+				if (auditableEventTypeNode == null) 
+					throw new UnresolvedReferenceException("[NotificationType] AuditableEventType node with id '" + nid + "' does not exist.");		
+			
+			} else {
+				auditableEventTypeNode = AuditableEventTypeNEO.toNode(graphDB, event, checkReference);
+			}
+			
 			node.createRelationshipTo(auditableEventTypeNode, RelationTypes.hasAuditableEvent);
 
 		}
 		
 		// - SUBSCRIPTION 1..1)
+		if (checkReference == true) {
+
+			// make sure that the SubscriptionType references an existing node within the database
+			if (ReadManager.getInstance().findNodeByID(subscription) == null) 
+				throw new UnresolvedReferenceException("[NotificationType] SubscriptionType node with id '" + subscription + "' does not exist.");		
+			
+		}
+		
 		node.setProperty(OASIS_RIM_SUBSCRIPTION, subscription);
 
 		return node;

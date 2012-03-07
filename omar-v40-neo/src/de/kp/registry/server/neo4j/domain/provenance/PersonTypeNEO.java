@@ -57,13 +57,13 @@ public class PersonTypeNEO extends PartyTypeNEO {
 
 	// this is a common wrapper to delete a PersonType node and all of its dependencies
 
-	public static void removeNode(Node node) {
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear PersonType specific parameters
 		node = clearNode(node);
 		
 		// clear node from PartyType specific parameters and remove
-		PartyTypeNEO.removeNode(node);
+		PartyTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
 		
 	}
 
@@ -81,7 +81,7 @@ public class PersonTypeNEO extends PartyTypeNEO {
 		// - PERSON-NAME (0..1)
 		if (personName != null) {
 
-			Node personNameTypeNode = PersonNameTypeNEO.toNode(graphDB, personName);
+			Node personNameTypeNode = PersonNameTypeNEO.toNode(graphDB, personName, checkReference);
 			node.createRelationshipTo(personNameTypeNode, RelationTypes.hasPersonName);
 
 		}

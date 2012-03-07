@@ -8,7 +8,7 @@ import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class StringQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 
-	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding) throws RegistryException {
+	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		StringQueryExpressionType stringQueryExpressionType = (StringQueryExpressionType)binding;
 		
@@ -16,7 +16,7 @@ public class StringQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 		String value = stringQueryExpressionType.getValue();
 		
 		// create node from underlying QueryExpressionType
-		Node stringQueryExpressionTypeNode = QueryExpressionTypeNEO.toNode(graphDB, binding);
+		Node stringQueryExpressionTypeNode = QueryExpressionTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a StringQueryExpressionType
 		stringQueryExpressionTypeNode.setProperty(NEO4J_TYPE, getNType());
@@ -25,6 +25,24 @@ public class StringQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 		stringQueryExpressionTypeNode.setProperty(OASIS_RIM_QUERY_VALUE, value);
 		
 		return stringQueryExpressionTypeNode;
+	}
+
+	public static Node clearNode(Node node) {
+		
+		// - OBJECT (1..1)
+		node.removeProperty(OASIS_RIM_QUERY_VALUE);
+		return node;
+
+	}
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear StringQueryExpressionType specific parameters
+		node = clearNode(node);
+		
+		// clear node from QueryExpressionType specific parameters and remove
+		QueryExpressionTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
 	}
 
 	public static Object toBinding(Node node) {

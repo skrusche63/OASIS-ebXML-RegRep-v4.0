@@ -62,7 +62,19 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 		return node;
 		
 	}
-	
+
+	// this is a common wrapper to delete ServiceType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear ServiceType specific parameters
+		node = clearNode(node);
+		
+		// clear node from RegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
 		ServiceType serviceType = (ServiceType)binding;

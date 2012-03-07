@@ -35,7 +35,7 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
 		
 		// create node from underlying ExtensibleObjectType
-		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding);
+		Node node = ExtensibleObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe an ActionType
 		node.setProperty(NEO4J_TYPE, getNType());
@@ -65,13 +65,13 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 
 	// this is a common wrapper to delete an ActionType node and all of its dependencies
 
-	public static void removeNode(Node node) {
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear ActionType specific parameters
 		node = clearNode(node);
 		
 		// clear node from ExtensibleObjectType specific parameters and remove
-		ExtensibleObjectTypeNEO.removeNode(node);
+		ExtensibleObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
 		
 	}
 

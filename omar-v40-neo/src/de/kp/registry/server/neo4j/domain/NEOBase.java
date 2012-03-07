@@ -181,10 +181,6 @@ public class NEOBase {
 	public static String NEO4J_UID  = "_uid";
 	public static String NEO4J_TYPE = "_type";
 
-	public static Class<?> getClassNEO(String bindingName) {
-		return Database.getInstance().getMapper().get(bindingName);
-	}
-
 	public static Class<?> getClassNEO(Object binding) {
 		
 		String bindingName = binding.getClass().getName();
