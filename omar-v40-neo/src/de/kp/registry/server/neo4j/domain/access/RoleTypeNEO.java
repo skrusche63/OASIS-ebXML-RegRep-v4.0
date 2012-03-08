@@ -1,12 +1,18 @@
 package de.kp.registry.server.neo4j.domain.access;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
 import org.oasis.ebxml.registry.bindings.rim.RoleType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.federation.RegistryTypeNEO;
+import de.kp.registry.server.neo4j.domain.util.UpdateActionListType;
 
 public class RoleTypeNEO extends RegistryObjectTypeNEO {
 
@@ -58,6 +64,16 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 		
 		// clear node from RegistryObjectType specific parameters and remove
 		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+	
+	public static void updateNode(Node node, Boolean checkReference, UpdateActionListType updateActionList) {
+		
+		List<UpdateActionType> updateActions = updateActionList.getUpdateAction();
+		
+	}
+
+	public static void versionNode(Node node, boolean checkReference, String status) {
 		
 	}
 	

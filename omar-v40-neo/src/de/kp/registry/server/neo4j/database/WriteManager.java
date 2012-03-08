@@ -15,6 +15,7 @@ import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
+import de.kp.registry.server.neo4j.domain.util.UpdateActionListType;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;
 
 public class WriteManager {
@@ -159,6 +160,9 @@ public class WriteManager {
 	}
 	
 	// private methods to support the submitObjects request
+	
+	// TODO: transaction rollback
+
 	private RegistryResponseType createOnly(List<RegistryObjectType> registryObjects, Boolean checkReference) {
 
 		ReadManager rm = ReadManager.getInstance();
@@ -216,6 +220,9 @@ public class WriteManager {
 		return registryResponse;
 	}
 
+
+	// TODO: transaction rollback
+
 	private RegistryResponseType createOrReplace(List<RegistryObjectType> registryObjects, Boolean checkReference) {
 
 		ReadManager rm = ReadManager.getInstance();
@@ -268,6 +275,9 @@ public class WriteManager {
 		
 	}
 
+
+	// TODO: transaction rollback
+
 	private RegistryResponseType createOrVersion(List<RegistryObjectType> registryObjects, Boolean checkReference) {
 
 		ReadManager rm = ReadManager.getInstance();
@@ -292,10 +302,12 @@ public class WriteManager {
 				// it is expected, that the registry object is provided with a unique identifier
 				node = rm.findNodeByID(nid);
 				if (node != null) {					
+
 					// If an object already exists, server MUST not alter the existing 
 					// object and instead it MUST create a new version of the existing 
 					// object using the state of the submitted object
-					result = version(node, registryObject, checkReference, registryResponse);
+					String status = registryObject.getStatus();
+					result = version(node, checkReference, status, registryResponse);
 					
 				} else {					
 					// create a node within database for at least a registry object
@@ -381,10 +393,53 @@ public class WriteManager {
 
 	}
 
-	private boolean version(Node node, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
+	private boolean update(Node node, Boolean checkReference, List<UpdateActionType> updateActions, RegistryResponseType response) {
 
-		// in case of a successful version of this registry object, the 
-		// respective unique identifier is assigned to the registry response
+		try {
+
+			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
+			updateNode(node, checkReference, updateActions);
+			
+			// fill response with unique identifier of the registry
+			// object that has been successfully removed
+			
+			addIdToResponse(id, response);
+			return true;
+			
+		} catch (Exception e) {
+						
+			ExceptionManager em = ExceptionManager.getInstance();
+			
+			response.setStatus(CanonicalConstants.FAILURE);
+			response.getException().add(em.toBinding(e));
+
+		}
+
+		return false;
+		
+	}
+	
+	private boolean version(Node node, Boolean checkReference, String status, RegistryResponseType response) {
+
+		try {
+
+			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
+			versionNode(node, checkReference, status);
+			
+			// fill response with unique identifier of the registry
+			// object that has been successfully removed
+			
+			addIdToResponse(id, response);
+			return true;
+			
+		} catch (Exception e) {
+						
+			ExceptionManager em = ExceptionManager.getInstance();
+			
+			response.setStatus(CanonicalConstants.FAILURE);
+			response.getException().add(em.toBinding(e));
+
+		}
 
 		return false;
 		
@@ -421,6 +476,8 @@ public class WriteManager {
 	 * already exists, server MUST update the existing object without creating a new version.	
 	 */
 
+	// TODO: transaction rollback
+
 	private RegistryResponseType updateOnly(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions) {
 
 		ReadManager rm = ReadManager.getInstance();
@@ -454,7 +511,12 @@ public class WriteManager {
 					
 				} else {
 
-					// TODO
+					boolean result = update(node, checkReference, updateActions, registryResponse);
+
+					// in case of a failure, the respective request
+					// is terminated and the error message sent back
+					if (result == false) break;
+
 				}
 				
 			}
@@ -477,6 +539,8 @@ public class WriteManager {
 	 * the requested update action.
 	 */
 
+	// TODO: transaction rollback
+	
 	private RegistryResponseType updateAndVersion(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions) {
 
 		ReadManager rm = ReadManager.getInstance();
@@ -510,7 +574,17 @@ public class WriteManager {
 					
 				} else {
 
-					// TODO
+					boolean result = false;
+					// the status provided with the versioning request is set
+					// to 'null' in order to be compatible with create requests
+					result = version(node, checkReference, null, registryResponse);
+
+					if (result == true) result = update(node, checkReference, updateActions, registryResponse);
+
+					// in case of a failure, the respective request
+					// is terminated and the error message sent back
+					if (result == false) break;
+
 				}
 				
 			}
@@ -556,6 +630,26 @@ public class WriteManager {
 
 	}
 	
+	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {
+
+		String bindingName = (String)node.getProperty(NEOBase.NEO4J_TYPE);
+		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
+
+	    Method method = clazz.getMethod("updateNode", Node.class, boolean.class, UpdateActionListType.class);
+	    method.invoke(null, node, checkReference, new UpdateActionListType(updateActions));
+		
+	}
+
+	private void versionNode(Node node, Boolean checkReference, String status) throws Exception {
+
+		String bindingName = (String)node.getProperty(NEOBase.NEO4J_TYPE);
+		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
+
+	    Method method = clazz.getMethod("versionNode", Node.class, boolean.class, String.class);
+	    method.invoke(null, node, checkReference, status);
+	    
+	}
+
 	private RegistryResponseType createResponse() {
 
 		
