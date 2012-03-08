@@ -94,8 +94,7 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 	
 	// __CASCADING REMOVAL__
 	
-	// this method is part of the cascading delete strategy
-	// for AuditableEventType nodes
+	// this method is part of the cascading delete strategy for AuditableEventType nodes
 	
 	private static Node clearActions(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		

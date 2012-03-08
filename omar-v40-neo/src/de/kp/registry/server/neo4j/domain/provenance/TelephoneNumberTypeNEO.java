@@ -65,7 +65,6 @@ public class TelephoneNumberTypeNEO extends ExtensibleObjectTypeNEO {
 	// this is a common wrapper to delete a TelephoneNumberType node and all of its dependencies
 
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
-		// TODO
 		node.delete();		
 	}
 

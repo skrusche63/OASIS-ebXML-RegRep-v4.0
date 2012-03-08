@@ -1,6 +1,5 @@
 package de.kp.registry.server.neo4j.domain.core;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
@@ -12,61 +11,26 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryPackageType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 
 	// this method creates a new RegistryPackageType node within database
 
 	public static Node toNode(EmbeddedGraphDatabase graphDB, Object binding, boolean checkReference) throws RegistryException {
-		
-		RegistryPackageType registryPackageType = (RegistryPackageType)binding;
-		
-		// - REGISTRY-OBJECT-LIST (0..1)
-		RegistryObjectListType registryObjectList = registryPackageType.getRegistryObjectList();
 
 		// create node from underlying RegistryObjectType
-		Node registryPackageTypeNode = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
+		Node node = RegistryObjectTypeNEO.toNode(graphDB, binding, checkReference);
 		
 		// update the internal type to describe a RegistryPackageType
-		registryPackageTypeNode.setProperty(NEO4J_TYPE, getNType());
+		node.setProperty(NEO4J_TYPE, getNType());
 
-		if (registryObjectList != null) {
-			List<RegistryObjectType>registryObjects = registryObjectList.getRegistryObject();
-			for (RegistryObjectType registryObject:registryObjects) {
-				
-				// TODO:
-				
-				// (1) the registry objects may already exist
-				Class<?> clazz = getClassNEO(registryObject);
-			    Method method;
-				try {
-					method = clazz.getMethod("toNode", graphDB.getClass(), Object.class);
+		return fillNodeInternal(graphDB, node, binding, checkReference);
 
-					Node registryObjectTypeNode = (Node)method.invoke(null, graphDB, registryObject);
-					registryPackageTypeNode.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasMember);
-
-				} catch (SecurityException e) {
-					e.printStackTrace();
-
-				} catch (NoSuchMethodException e) {
-					e.printStackTrace();
-
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
-
-			}
-		}
-		
-		return registryPackageTypeNode;
 	}
 
 	// this method replaces an existing RegistryPackageType node in the database
@@ -74,14 +38,88 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
-		return null;
+
+		// clear RegistyPackageType specific parameters
+		node = clearNode(node);
+		
+		// clear & fill node with RegistryObjectType specific parameters
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		
+		// fill node with RegistryPackageType specific parameters
+		return fillNodeInternal(graphDB, node, binding, checkReference); 
+		
 	}
 
 	public static Node clearNode(Node node) {
 		
-		// TODO
-		return null;
+		// - REGISTRY-OBJECT-LIST (0..1)
+
+		// __DESIGN__
 		
+		// a RegistryObjectType node is no intrinsic part of a RegistryPackageType node;
+		// therefore the associated RegistryObjectType must not be deleted
+		
+		// clear relationship only
+		node = NEOBase.clearRelationship(node, RelationTypes.hasMember, false);
+		
+		return node;
+		
+	}
+
+	// this is a common wrapper to delete RegistryPackageType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear RegistryPackageType specific parameters
+		node = clearNode(node);
+		
+		// clear node from RegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+
+	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+
+		RegistryPackageType registryPackageType = (RegistryPackageType)binding;
+		
+		// - REGISTRY-OBJECT-LIST (0..1)
+		RegistryObjectListType registryObjectList = registryPackageType.getRegistryObjectList();
+
+		if (registryObjectList != null) {
+			List<RegistryObjectType>registryObjects = registryObjectList.getRegistryObject();
+			for (RegistryObjectType registryObject:registryObjects) {
+
+				String nid = registryObject.getId();					
+				Node registryObjectTypeNode = ReadManager.getInstance().findNodeByID(nid);
+
+				if (registryObjectTypeNode == null) {
+					
+					if (checkReference == true)
+						throw new UnresolvedReferenceException("[RegistryPackageType] RegistryObjectType node with id '" + nid + "' does not exist.");		
+					
+					else {
+
+						Class<?> clazz = getClassNEO(registryObject);
+					    Method method;
+						try {
+
+							method = clazz.getMethod("toNode", graphDB.getClass(), Object.class, boolean.class);
+							registryObjectTypeNode = (Node)method.invoke(null, graphDB, registryObject, checkReference);
+
+						} catch (Exception e) {
+							//TODO
+						} 
+
+					}
+					
+				}
+
+				node.createRelationshipTo(registryObjectTypeNode, RelationTypes.hasMember);
+
+			}
+		}
+		
+		return node;		
 	}
 
 	public static Object toBinding(Node node) {

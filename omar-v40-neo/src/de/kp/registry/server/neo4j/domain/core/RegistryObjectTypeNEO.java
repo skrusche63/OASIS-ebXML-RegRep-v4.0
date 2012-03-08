@@ -13,10 +13,12 @@ import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
+import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.classification.ClassificationTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
 
 public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 
@@ -29,6 +31,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		
 		// update the internal type to describe a RegistryObjectType
 		node.setProperty(NEO4J_TYPE, getNType());
+
 		return fillNodeInternal(graphDB, node, binding, checkReference);
 		
 	}
@@ -64,11 +67,21 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 
 		// - EXTERNAL-IDENTIFIER (0..*)
 
-		// TODO
+		// __DESIGN__
+		
+		// an ExternalIdentifierType node is no intrinsic part of a RegistryObjectType node;
+		// therefore the associated ExternalIdentifierType must not be deleted
+		
+		// clear relationship only
+		node = NEOBase.clearRelationship(node, RelationTypes.hasIdentifier, false);
 		
 		// - EXTERNAL-LINK (0..*)
 
-		// TODO
+		// an ExternalLinkType node is no intrinsic part of a RegistryObjectType node;
+		// therefore the associated ExternalLinkType must not be deleted
+		
+		// clear relationship only
+		node = NEOBase.clearRelationship(node, RelationTypes.hasLink, false);
 		
 		// - LID (0..1)
 		if (node.hasProperty(OASIS_RIM_LID)) node.removeProperty(OASIS_RIM_ID);
@@ -95,11 +108,17 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		return node;		
 	}
 
+	// this is a common wrapper to delete RegistryObjectType node and all of its dependencies
+
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
+		// clear RegistryObjectType specific parameters
+		node = clearNode(node);
+		
+		// clear node from IdentifiableType specific parameters and remove
+		IdentifiableTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
 	}
-
-	// TODO: checkReference
 	
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
@@ -142,6 +161,8 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 			
 			for (ClassificationType classification:classifications) {
 				
+				// __DESIGN__
+				
 				// a ClassificationType is always created when the respective
 				// RegistryObjectType is created, i.e. the ClassificationType
 				// is composed within the RegistryObjectType
@@ -169,14 +190,29 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 				// an ExternalIdentifierType may already exist when the respective
 				// RegistryObjectType is created, i.e. the ExternalIdentifierType
 				// is NOT composed within the RegistryObjectType
-				
-				// TODO: externalIdentifier may already exist
-				// TODO: reference to registry object (=parent)
-				
-				// The value MUST be set by the server if the ExternalLink is 
-				// submitted as part of the submission of its parent object
 
-				Node externalIdentifierTypeNode = ExternalIdentifierTypeNEO.toNode(graphDB, externalIdentifier, checkReference);
+				String nid = externalIdentifier.getId();					
+				Node externalIdentifierTypeNode = ReadManager.getInstance().findNodeByID(nid);
+
+				if (externalIdentifierTypeNode == null) {
+					
+					if (checkReference == true)
+						throw new UnresolvedReferenceException("[RegistryObjectType] ExternalIdentifierType node with id '" + nid + "' does not exist.");		
+					
+					else {
+
+						// __DESIGN__
+						
+						// The parent reference MUST be set by the server if the ExternalIdentifierType 
+						// is submitted as part of the submission of its parent object
+						
+						externalIdentifierTypeNode = ExternalIdentifierTypeNEO.toNode(graphDB, externalIdentifier, checkReference);
+						externalIdentifierTypeNode.setProperty(OASIS_RIM_PARENT, registryObjectType.getId());
+						
+					}
+					
+				}
+
 				node.createRelationshipTo(externalIdentifierTypeNode, RelationTypes.hasIdentifier);
 			
 			}
@@ -191,14 +227,29 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 				// an ExternalLinkType may already exist when the respective
 				// RegistryObjectType is created, i.e. the ExternalLinkType
 				// is NOT composed within the RegistryObjectType
+
+				String nid = externalLink.getId();					
+				Node externalLinkTypeNode = ReadManager.getInstance().findNodeByID(nid);
+
+				if (externalLinkTypeNode == null) {
+					
+					if (checkReference == true)
+						throw new UnresolvedReferenceException("[RegistryObjectType] ExternalLinkType node with id '" + nid + "' does not exist.");		
+					
+					else {
+
+						// __DESIGN__
+						
+						// The parent reference MUST be set by the server if the ExternalLinkType 
+						// is submitted as part of the submission of its parent object
+						
+						externalLinkTypeNode = ExternalLinkTypeNEO.toNode(graphDB, externalLink, checkReference);
+						externalLinkTypeNode.setProperty(OASIS_RIM_PARENT, registryObjectType.getId());
+						
+					}
+					
+				}
 				
-				// TODO: externalLink may already exist
-				// TODO: reference to registry object (=parent)
-				
-				// The value MUST be set by the server if the ExternalLink is 
-				// submitted as part of the submission of its parent object
-				
-				Node externalLinkTypeNode = ExternalLinkTypeNEO.toNode(graphDB, externalLink, checkReference);
 				node.createRelationshipTo(externalLinkTypeNode, RelationTypes.hasLink);
 				
 			}

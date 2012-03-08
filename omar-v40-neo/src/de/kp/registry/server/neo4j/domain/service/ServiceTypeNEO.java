@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.domain.service;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,13 +49,22 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
-	// TODO: we have to clarify the respective cascading delete
-
 	public static Node clearNode(Node node) {
 
 		// - SERVICE-ENDPOINT (0..*)
 
-		// TODO
+		// __DESIGN__
+		
+		// ServiceEndpointType nodes are an intrinsic part of a ServiceType
+		// and are therefore removed in addition to the respective relationships
+
+		// clear relationship and referenced ServiceEndpointType nodes (cascading removal)
+		String deletionScope = "";
+		
+		boolean checkReference = false;
+		boolean deleteChildren = false;
+		
+		node = clearServiceEndpoints(node, checkReference, deleteChildren, deletionScope);
 
 		// - SERVICE-INTERFACE (0..1)
 		if (node.hasProperty(OASIS_RIM_SERVICE_INTERFACE)) node.removeProperty(OASIS_RIM_SERVICE_INTERFACE);
@@ -72,6 +82,46 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 		
 		// clear node from RegistryObjectType specific parameters and remove
 		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+		
+	}
+
+	// __CASCADING REMOVAL__
+	
+	// this method is part of the cascading delete strategy for ServiceType nodes
+	
+	private static Node clearServiceEndpoints(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasServiceEndpoint);
+		if (relationships != null) {
+
+			List<Object>removables = new ArrayList<Object>();
+
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+				
+				Relationship relationship = iterator.next();
+				removables.add(relationship);
+				
+				Node endNode = relationship.getEndNode();
+				removables.add(endNode);
+
+			}
+
+			// remove all collected node and relationships
+			while (removables.size() > 0) {
+				
+				Object removable = removables.get(0);
+				if (removable instanceof Node)
+					// this is a dedicated removal of ServiceEndpointType node
+					ServiceEndpointTypeNEO.removeNode((Node)removable, checkReference, deleteChildren, deletionScope);
+				
+				else if (removable instanceof Relationship)
+					((Relationship)removable).delete();
+			}
+
+		}
+
+		return node;
 		
 	}
 

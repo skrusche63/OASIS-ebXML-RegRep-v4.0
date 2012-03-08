@@ -71,7 +71,13 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 	// this is a common wrapper to delete a PartyType node and all of its dependencies
 
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
-		// TODO
+		
+		// clear PartyType specific parameters
+		node = clearNode(node);
+		
+		// clear node fromRegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+
 	}
 
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {

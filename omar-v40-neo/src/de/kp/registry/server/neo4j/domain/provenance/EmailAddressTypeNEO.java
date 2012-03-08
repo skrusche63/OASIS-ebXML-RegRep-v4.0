@@ -48,7 +48,6 @@ public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
 	// this is a common wrapper to delete an EmailAddressType node and all of its dependencies
 
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
-		//TODO
 		node.delete();		
 	}
 	

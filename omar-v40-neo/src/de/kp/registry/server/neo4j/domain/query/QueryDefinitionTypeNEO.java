@@ -1,6 +1,7 @@
 package de.kp.registry.server.neo4j.domain.query;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,11 +51,6 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 
 	}
-
-	// TODO: we have to check whether deleting a certain node
-	// also deletes its relationships and depending nodes
-	
-	// is it a cascading delete?
 	
 	public static Node clearNode(Node node) {
 		
@@ -65,9 +61,14 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 		// ParameterType nodes are an intrinsic part of a QueryDefinitionType
 		// and are therefore removed in addition to the respective relationships
 		
-		// clear relationship and referenced ParameterType nodes
-		node = NEOBase.clearRelationship(node, RelationTypes.hasParameter, true);
-
+		// clear relationship and referenced ParameterType nodes (cascading removal)
+		String deletionScope = "";
+		
+		boolean checkReference = false;
+		boolean deleteChildren = false;
+		
+		node = clearParameters(node, checkReference, deleteChildren, deletionScope);
+		
 		// - QUERY-EXPRESSION (0..1)
 
 		// QueryExpressionType node is an intrinsic part of a QueryDefinitionType
@@ -80,10 +81,65 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 		
 	}
 
-	// TODO: checkReference
+	// this is a common wrapper to delete a QueryDefinitionType node and all of its dependencies
+
+	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		// clear QueryDefinitionType specific parameters
+		node = clearNode(node);
+		
+		// clear node fromRegistryObjectType specific parameters and remove
+		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
+
+	}
+
+	// __CASCADING REMOVAL__
 	
+	// this method is part of the cascading delete strategy for QueryDefinitionType nodes
+	
+	private static Node clearParameters(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
+		
+		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasParameter);
+		if (relationships != null) {
+
+			List<Object>removables = new ArrayList<Object>();
+
+			Iterator<Relationship> iterator = relationships.iterator();
+			while (iterator.hasNext()) {
+				
+				Relationship relationship = iterator.next();
+				removables.add(relationship);
+				
+				Node endNode = relationship.getEndNode();
+				removables.add(endNode);
+
+			}
+
+			// remove all collected node and relationships
+			while (removables.size() > 0) {
+				
+				Object removable = removables.get(0);
+				if (removable instanceof Node)
+					// this is a dedicated removal of a ParameterType node
+					ParameterTypeNEO.removeNode((Node)removable, checkReference, deleteChildren, deletionScope);
+				
+				else if (removable instanceof Relationship)
+					((Relationship)removable).delete();
+			}
+
+		}
+
+		return node;
+		
+	}
 	private static Node fillNodeInternal(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 
+		// __DESIGN__
+		
+		// the parameter 'checkReference' must not be evaluated for QueryDefinitionType
+		// as this node references ExtensibleObjectType nodes only; note, that this
+		// nodes do not have a unique identifier
+		
 		QueryDefinitionType queryDefinitionType = (QueryDefinitionType)binding;
 		
 		// - PARAMETER (0..*)
