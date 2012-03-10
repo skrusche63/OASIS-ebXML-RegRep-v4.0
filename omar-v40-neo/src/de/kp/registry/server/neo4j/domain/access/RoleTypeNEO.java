@@ -1,6 +1,5 @@
 package de.kp.registry.server.neo4j.domain.access;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
@@ -33,21 +32,25 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 	// this method replaces an existing RoleType node in the database
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
+
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {
 		
 		// clear RoleType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, excludeVersion);
 		
 		// clear & fill node with RegistryObjectType specific parameters
-		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference, excludeVersion);
 		
 		// fill node with RoleType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 	
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - TYPE (1..1)
 		node.removeProperty(OASIS_RIM_ROLE_TYPE);		
@@ -60,7 +63,7 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear RoleType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from RegistryObjectType specific parameters and remove
 		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);
@@ -72,8 +75,31 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 		List<UpdateActionType> updateActions = updateActionList.getUpdateAction();
 		
 	}
+	/*
+	 * If an object already exists, server MUST not alter the existing object and instead 
+	 * it MUST create a new version of the existing object using the state of the submitted object
+	 */
 
-	public static void versionNode(Node node, boolean checkReference, String status) {
+	// __DESIGN_
+	
+	// as a first step a clone of an existing node is built that respects all properties
+	// and relations of the original node, except:
+	//
+	// - the existing unique identifier is extended by using the new version name
+	// - the (optionally) existing reference to a VersionInfoType node is replaced
+	//   by a VersionInfoType node that carries the new version name
+	//
+	// as a second step, the fillNode mechanism is used except for the version information
+	
+	public static void versionNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) {
+
+		// clone RoleType specific node
+		Node target = NEOBase.cloneAndVersionNode(graphDB, node);
+		
+		// clear RoleType specific parameters and exclude version information
+		target = clearNode(target, true);
+
+		// TODO
 		
 	}
 	

@@ -28,7 +28,7 @@ public class QueryExpressionTypeNEO  extends ExtensibleObjectTypeNEO {
 		return queryExpressionTypeNode;
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - QUERY-LANGUAGE (1..1)
 		node.removeProperty(OASIS_RIM_QUERY_LANGUAGE);
@@ -39,7 +39,7 @@ public class QueryExpressionTypeNEO  extends ExtensibleObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear QueryExpressionType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from ExtensibleObjectType specific parameters and remove
 		ExtensibleObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

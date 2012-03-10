@@ -35,19 +35,23 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {
 		
 		// clear OrganizationType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, excludeVersion);
 		
 		// clear & fill node with PartyType specific parameters
-		node = PartyTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		node = PartyTypeNEO.fillNode(graphDB, node, binding, checkReference, excludeVersion);
 		
 		// fill node with OrganizationType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - ORGANIZATION (0..*)
 
@@ -70,7 +74,7 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear OrganizationType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from PartyType specific parameters and remove
 		PartyTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

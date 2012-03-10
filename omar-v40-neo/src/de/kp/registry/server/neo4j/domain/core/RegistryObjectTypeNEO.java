@@ -39,13 +39,19 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 	// this method replaces an existing RegistryObjectType node in the database
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
+
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {
 		
 		// clear RegistyObjectType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, excludeVersion);
 		
-		// clear & fill node with IdentifiableType specific parameters
+		// clear & fill node with IdentifiableType specific parameters;
+		// note, that version information is evaluated up to the level
+		// of a registry object
 		node = IdentifiableTypeNEO.fillNode(graphDB, node, binding, checkReference);
 		
 		// fill node with RegistryObjectType specific parameters
@@ -53,7 +59,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - CLASSIFICATION (0..*)
 		
@@ -103,7 +109,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 		// - VERSION-INFO (0..1)
 
 		// clear relationship and referenced VersionInfoType node
-		node = NEOBase.clearRelationship(node, RelationTypes.hasVersion, true);
+		if (excludeVersion == false) node = NEOBase.clearRelationship(node, RelationTypes.hasVersion, true);
 
 		return node;		
 	}
@@ -113,7 +119,7 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear RegistryObjectType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from IdentifiableType specific parameters and remove
 		IdentifiableTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

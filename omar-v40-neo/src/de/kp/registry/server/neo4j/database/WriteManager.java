@@ -13,6 +13,8 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
 import de.kp.registry.server.neo4j.domain.NEOBase;
+import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
+import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
 import de.kp.registry.server.neo4j.domain.util.UpdateActionListType;
@@ -90,6 +92,7 @@ public class WriteManager {
 		
 		try {
 
+			boolean result = false;
 			for (ObjectRefType objectRef:objectRefs) {
 
 				Node node = null;
@@ -103,7 +106,7 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node != null) {
 
-					boolean result = delete(node, checkReference, deleteChildren, deletionScope, registryResponse);
+					result = delete(node, checkReference, deleteChildren, deletionScope, registryResponse);
 					
 					// in case of a creation failure, the respective request
 					// is terminated and the fill error message sent back
@@ -113,9 +116,15 @@ public class WriteManager {
 
 			}
 			
-			tx.success();
-			// this is a successful request, we therefore indicate this status in the registry's response
-			registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			if (result == true) {
+
+				// unless success() is invoked, the transaction will fail upon finish()
+				tx.success();
+
+				// this is a successful request, we therefore indicate this status in the registry's response
+				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			
+			}
 
 		} finally {
 			tx.finish();
@@ -135,7 +144,15 @@ public class WriteManager {
 			 * return an InvalidRequestException
 			 */
 			
-			// TODO
+			RegistryResponseType registryResponse = createResponse();
+			
+			ExceptionManager em = ExceptionManager.getInstance();		
+			registryResponse.setStatus(CanonicalConstants.FAILURE);
+
+			InvalidRequestException exception = new InvalidRequestException("[UpdatetObjectsRequest] The mode '" + modeValue + "' is not allowed.");
+			registryResponse.getException().add(em.toBinding(exception));
+
+			return registryResponse;
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_REPLACE)) {
 			
@@ -160,8 +177,6 @@ public class WriteManager {
 	}
 	
 	// private methods to support the submitObjects request
-	
-	// TODO: transaction rollback
 
 	private RegistryResponseType createOnly(List<RegistryObjectType> registryObjects, Boolean checkReference) {
 
@@ -174,6 +189,8 @@ public class WriteManager {
 		
 		try {
 
+			boolean result = false;
+			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
@@ -199,7 +216,7 @@ public class WriteManager {
 					
 				} else {
 					
-					boolean result = create(graphDB, registryObject, checkReference, registryResponse);
+					result = create(graphDB, registryObject, checkReference, registryResponse);
 					
 					// in case of a creation failure, the respective request
 					// is terminated and the fill error message sent back
@@ -209,9 +226,15 @@ public class WriteManager {
 				
 			}
 			
-			tx.success();
-			// this is a successful request, we therefore indicate this status in the registry's response
-			registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			if (result == true) {
+
+				// unless success() is invoked, the transaction will fail upon finish()
+				tx.success();
+
+				// this is a successful request, we therefore indicate this status in the registry's response
+				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			
+			}
 			
 		} finally {
 			tx.finish();
@@ -219,9 +242,6 @@ public class WriteManager {
 
 		return registryResponse;
 	}
-
-
-	// TODO: transaction rollback
 
 	private RegistryResponseType createOrReplace(List<RegistryObjectType> registryObjects, Boolean checkReference) {
 
@@ -234,10 +254,11 @@ public class WriteManager {
 		
 		try {
 
+			boolean result = false;
+
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
-				boolean result = false;
 				
 				// determine whether the respective registry object already exists
 				String nid = registryObject.getId();
@@ -262,10 +283,15 @@ public class WriteManager {
 				
 			}
 			
-			tx.success();
+			if (result == true) {
 
-			// this is a successful request, we therefore indicate this status in the registry's response
-			registryResponse.setStatus(CanonicalConstants.SUCCESS);
+				// unless success() is invoked, the transaction will fail upon finish()
+				tx.success();
+
+				// this is a successful request, we therefore indicate this status in the registry's response
+				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			
+			}
 			
 		} finally {
 			tx.finish();
@@ -274,9 +300,6 @@ public class WriteManager {
 		return registryResponse;
 		
 	}
-
-
-	// TODO: transaction rollback
 
 	private RegistryResponseType createOrVersion(List<RegistryObjectType> registryObjects, Boolean checkReference) {
 
@@ -289,10 +312,11 @@ public class WriteManager {
 		
 		try {
 
+			boolean result = false;
+			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
-				boolean result = false;
 				
 				// determine whether the respective registry object already exists
 				String nid = registryObject.getId();
@@ -306,8 +330,7 @@ public class WriteManager {
 					// If an object already exists, server MUST not alter the existing 
 					// object and instead it MUST create a new version of the existing 
 					// object using the state of the submitted object
-					String status = registryObject.getStatus();
-					result = version(node, checkReference, status, registryResponse);
+					result = version(graphDB, node, registryObject, checkReference, registryResponse);
 					
 				} else {					
 					// create a node within database for at least a registry object
@@ -321,11 +344,15 @@ public class WriteManager {
 
 			}
 			
-			tx.success();
+			if (result == true) {
+
+				// unless success() is invoked, the transaction will fail upon finish()
+				tx.success();
+
+				// this is a successful request, we therefore indicate this status in the registry's response
+				registryResponse.setStatus(CanonicalConstants.SUCCESS);
 			
-			// this is a successful request, we therefore indicate this status in the registry's response
-			registryResponse.setStatus(CanonicalConstants.SUCCESS);
-			
+			}			
 			
 		} finally {
 			tx.finish();
@@ -419,12 +446,12 @@ public class WriteManager {
 		
 	}
 	
-	private boolean version(Node node, Boolean checkReference, String status, RegistryResponseType response) {
+	private boolean version(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
 
 		try {
 
 			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
-			versionNode(node, checkReference, status);
+			versionNode(graphDB, node, registryObject, checkReference);
 			
 			// fill response with unique identifier of the registry
 			// object that has been successfully removed
@@ -476,8 +503,6 @@ public class WriteManager {
 	 * already exists, server MUST update the existing object without creating a new version.	
 	 */
 
-	// TODO: transaction rollback
-
 	private RegistryResponseType updateOnly(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions) {
 
 		ReadManager rm = ReadManager.getInstance();
@@ -489,6 +514,8 @@ public class WriteManager {
 		
 		try {
 
+			boolean result = false;
+			
 			for (ObjectRefType objectRef:objectRefs) {
 				
 				Node node = null;
@@ -511,7 +538,7 @@ public class WriteManager {
 					
 				} else {
 
-					boolean result = update(node, checkReference, updateActions, registryResponse);
+					result = update(node, checkReference, updateActions, registryResponse);
 
 					// in case of a failure, the respective request
 					// is terminated and the error message sent back
@@ -521,9 +548,15 @@ public class WriteManager {
 				
 			}
 			
-			tx.success();
-			// this is a successful request, we therefore indicate this status in the registry's response
-			registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			if (result == true) {
+
+				// unless success() is invoked, the transaction will fail upon finish()
+				tx.success();
+
+				// this is a successful request, we therefore indicate this status in the registry's response
+				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			
+			}
 			
 		} finally {
 			tx.finish();
@@ -538,8 +571,6 @@ public class WriteManager {
 	 * already exists, server MUST create a new version of the existing object before applying 
 	 * the requested update action.
 	 */
-
-	// TODO: transaction rollback
 	
 	private RegistryResponseType updateAndVersion(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions) {
 
@@ -552,6 +583,8 @@ public class WriteManager {
 		
 		try {
 
+			boolean result = false;
+			
 			for (ObjectRefType objectRef:objectRefs) {
 				
 				Node node = null;
@@ -574,11 +607,7 @@ public class WriteManager {
 					
 				} else {
 
-					boolean result = false;
-					// the status provided with the versioning request is set
-					// to 'null' in order to be compatible with create requests
-					result = version(node, checkReference, null, registryResponse);
-
+					result = version(graphDB, node, null, checkReference, registryResponse);
 					if (result == true) result = update(node, checkReference, updateActions, registryResponse);
 
 					// in case of a failure, the respective request
@@ -589,9 +618,15 @@ public class WriteManager {
 				
 			}
 			
-			tx.success();
-			// this is a successful request, we therefore indicate this status in the registry's response
-			registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			if (result == true) {
+
+				// unless success() is invoked, the transaction will fail upon finish()
+				tx.success();
+
+				// this is a successful request, we therefore indicate this status in the registry's response
+				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+			
+			}
 			
 		} finally {
 			tx.finish();
@@ -640,13 +675,13 @@ public class WriteManager {
 		
 	}
 
-	private void versionNode(Node node, Boolean checkReference, String status) throws Exception {
+	private void versionNode(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference) throws Exception {
 
 		String bindingName = (String)node.getProperty(NEOBase.NEO4J_TYPE);
 		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
 
-	    Method method = clazz.getMethod("versionNode", Node.class, boolean.class, String.class);
-	    method.invoke(null, node, checkReference, status);
+	    Method method = clazz.getMethod("versionNode", graphDB.getClass(), Node.class, Object.class, boolean.class);
+	    method.invoke(null, graphDB, node, registryObject, checkReference);
 	    
 	}
 

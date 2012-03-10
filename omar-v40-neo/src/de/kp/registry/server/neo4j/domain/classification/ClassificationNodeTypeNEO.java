@@ -28,20 +28,24 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 	// this method replaces an existing ClassificationNodeType node in the database
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
+
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {		
 
 		// clear ClassificationNodeType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, excludeVersion);
 
 		// clear & fill node with TaxonomyElementType specific parameters
-		node = TaxonomyElementTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		node = TaxonomyElementTypeNEO.fillNode(graphDB, node, binding, checkReference, excludeVersion);
 		
 		// fill node with ClassificationNodeType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 
 		// - CODE (1..1)
 		node.removeProperty(OASIS_RIM_CODE);
@@ -61,7 +65,7 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear ClassificationNodeType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from TaxonomyElementType specific parameters and remove
 		TaxonomyElementTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

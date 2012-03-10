@@ -44,7 +44,7 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 
 		// - AFFECTED-OBJECT (0..1)
 
@@ -68,7 +68,7 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear ActionType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from ExtensibleObjectType specific parameters and remove
 		ExtensibleObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

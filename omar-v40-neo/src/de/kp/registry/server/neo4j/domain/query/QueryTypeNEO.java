@@ -28,7 +28,7 @@ public class QueryTypeNEO extends ExtensibleObjectTypeNEO {
 		return queryTypeNode;
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - QUERY-DEFINITION (1..1)
 		node.removeProperty(OASIS_RIM_QUERY_DEFINITION);
@@ -39,7 +39,7 @@ public class QueryTypeNEO extends ExtensibleObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear QueryType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from ExtensibleObjectType specific parameters and remove
 		ExtensibleObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

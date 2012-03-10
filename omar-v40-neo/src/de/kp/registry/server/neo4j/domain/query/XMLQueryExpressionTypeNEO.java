@@ -28,7 +28,7 @@ public class XMLQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - OBJECT (1..1)
 		node.removeProperty(OASIS_RIM_QUERY_VALUE);
@@ -39,7 +39,7 @@ public class XMLQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear XMLQueryExpressionType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from QueryExpressionType specific parameters and remove
 		QueryExpressionTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

@@ -25,12 +25,16 @@ public class CommentTypeNEO extends ExtrinsicObjectTypeNEO {
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
-	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {		
-		return null;
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {
+		return ExtrinsicObjectTypeNEO.fillNode(graphDB, node, binding, checkReference, excludeVersion);
 	}
 
-	public static Node clearNode(Node node) {
-		return ExtrinsicObjectTypeNEO.clearNode(node);
+	public static Node clearNode(Node node, boolean excludeVersion) {
+		return node;
 	}
 
 	// this is a common wrapper to delete CommentType node and all of its dependencies
@@ -38,7 +42,7 @@ public class CommentTypeNEO extends ExtrinsicObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear CommentType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from ExtrinsicObjectType specific parameters and remove
 		ExtrinsicObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

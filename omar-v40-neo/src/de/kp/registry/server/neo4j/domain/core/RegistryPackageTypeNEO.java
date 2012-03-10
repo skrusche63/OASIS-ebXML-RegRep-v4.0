@@ -38,19 +38,23 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {
 
 		// clear RegistyPackageType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, excludeVersion);
 		
 		// clear & fill node with RegistryObjectType specific parameters
-		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference, excludeVersion);
 		
 		// fill node with RegistryPackageType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 		
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - REGISTRY-OBJECT-LIST (0..1)
 
@@ -71,7 +75,7 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear RegistryPackageType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from RegistryObjectType specific parameters and remove
 		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

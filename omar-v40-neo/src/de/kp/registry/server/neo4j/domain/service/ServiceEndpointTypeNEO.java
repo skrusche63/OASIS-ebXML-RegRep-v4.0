@@ -28,21 +28,25 @@ public class ServiceEndpointTypeNEO extends RegistryObjectTypeNEO {
 	// this method replaces an existing ServiceEndpointType node in the database
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
+
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+	
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {
 		
 		// clear ServiceEndpointType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, excludeVersion);
 
 		// clear & fill node with RegistryObjectType specific parameters
-		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference, excludeVersion);
 		
 		// fill node with ServiceEndpointType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 	
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - ADDRESS (0..1)
 		if (node.hasProperty(OASIS_RIM_ADDRESS)) node.removeProperty(OASIS_RIM_ADDRESS);
@@ -59,7 +63,7 @@ public class ServiceEndpointTypeNEO extends RegistryObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear ServiceEndpointType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from RegistryObjectType specific parameters and remove
 		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

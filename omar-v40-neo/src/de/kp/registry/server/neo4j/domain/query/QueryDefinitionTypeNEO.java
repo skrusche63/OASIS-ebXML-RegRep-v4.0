@@ -38,21 +38,25 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 	// this method replaces an existing QueryDefinitionType node in the database
 	
 	// __DESIGN__ "replace" means delete and create, maintaining the unique identifier
-	
+
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
+		return fillNode(graphDB, node, binding, checkReference, false);
+	}
+
+	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference, boolean excludeVersion) throws RegistryException {
 		
 		// clear QueryDefinitionType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, excludeVersion);
 		
 		// clear & fill node with RegistryObjectType specific parameters
-		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference);
+		node = RegistryObjectTypeNEO.fillNode(graphDB, node, binding, checkReference, excludeVersion);
 		
 		// fill node with QueryDefinitionType specific parameters
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 
 	}
 	
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - PARAMETER (0..*)
 
@@ -86,7 +90,7 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear QueryDefinitionType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node fromRegistryObjectType specific parameters and remove
 		RegistryObjectTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

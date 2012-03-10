@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ObjectFactory;
 import de.kp.registry.server.neo4j.database.Database;
+import de.kp.registry.server.neo4j.database.VersionProcessor;
 
 // the super class for all classes building the bridge
 // between JAXB binding of the OASIS ebRIM and the
@@ -194,9 +197,88 @@ public class NEOBase {
 		return Database.getInstance().getMapper().get(bindingName);
 	}
 
+	// this method create a new target node from an existing source node
+	// and provides a versioned unique identifier to the target
+	
+	public static Node cloneAndVersionNode(EmbeddedGraphDatabase graphDB, Node source) {
+			
+		Node target = graphDB.createNode();
+		
+		// clone properties
+		cloneProperties(source, target);
+		
+		// clone relationships
+		for (Relationship srel:source.getRelationships()) {
 
-	// this method deletes a certain relationship and optionally
-	// the respective referenced node
+			RelationshipType relType = srel.getType();
+			if (relType.equals(RelationTypes.hasVersion)) continue;
+			
+			Node startNode = srel.getStartNode();
+			Node endNode   = srel.getEndNode();
+			
+			Relationship trel = source.equals(startNode) ? target.createRelationshipTo(endNode, relType) : endNode.createRelationshipTo(target, relType);
+
+			// clone relation properties
+			cloneProperties(srel, trel);
+
+		}
+		
+		// update unique identifier with respective version info
+		VersionProcessor vp = new VersionProcessor();
+		Node sourceVersionInfo = vp.getVersion(source);
+
+		String last = sourceVersionInfo.hasProperty(OASIS_RIM_VERSION_NAME) ? (String)sourceVersionInfo.getProperty(OASIS_RIM_VERSION_NAME) : null;;
+		String next = vp.getNextVersion(last);
+		
+        String id = source.getProperty(OASIS_RIM_LID) + ":" + next;
+        target.setProperty(OASIS_RIM_ID, id);
+		
+        // associate target node with a new version
+        Node targetVersionInfo = graphDB.createNode();
+        cloneProperties(sourceVersionInfo, targetVersionInfo);
+        
+        targetVersionInfo.setProperty(OASIS_RIM_VERSION_NAME, next);
+		target.createRelationshipTo(targetVersionInfo, RelationTypes.hasVersion);
+       
+		return target;
+		
+	}
+
+	public static Node cloneNode(EmbeddedGraphDatabase graphDB, Node source) {
+		
+		Node target = graphDB.createNode();
+		
+		// clone properties
+		cloneProperties(source, target);
+		
+		// clone relationships
+		for (Relationship srel:source.getRelationships()) {
+
+			RelationshipType relType = srel.getType();
+			
+			Node startNode = srel.getStartNode();
+			Node endNode   = srel.getEndNode();
+			
+			Relationship trel = source.equals(startNode) ? target.createRelationshipTo(endNode, relType) : endNode.createRelationshipTo(target, relType);
+
+			// clone relation properties
+			cloneProperties(srel, trel);
+
+		}
+
+		return target;
+		
+	}
+
+	public static void cloneProperties(PropertyContainer source, PropertyContainer target) {
+
+		for (String key:source.getPropertyKeys()) {
+			target.setProperty(key, source.getProperty(key));
+		}
+		
+	}
+	
+	// this method deletes a certain relationship and optionally the respective referenced node
 	
 	public static Node clearRelationship(Node node, RelationshipType relationshipType, boolean reference) {
 		

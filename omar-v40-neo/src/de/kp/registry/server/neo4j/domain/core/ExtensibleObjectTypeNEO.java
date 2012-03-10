@@ -44,12 +44,12 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	
 	public static Node fillNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws RegistryException {
 		
-		node = clearNode(node);
+		node = clearNode(node, false);
 		return fillNodeInternal(graphDB, node, binding, checkReference); 
 
 	}
 	
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// - SLOTS (0..*)
 
@@ -65,7 +65,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear ExtensibleType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		node.delete();
 		
 	}

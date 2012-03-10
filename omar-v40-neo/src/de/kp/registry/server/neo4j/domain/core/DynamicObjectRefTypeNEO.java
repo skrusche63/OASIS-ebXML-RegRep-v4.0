@@ -35,7 +35,7 @@ public class DynamicObjectRefTypeNEO extends ObjectRefTypeNEO {
 		return dynamicObjectRefTypeNode;
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 		
 		// -QUERY (1..1)
 
@@ -51,7 +51,7 @@ public class DynamicObjectRefTypeNEO extends ObjectRefTypeNEO {
 	public static void removeNode(Node node, boolean checkReference, boolean deleteChildren, String deletionScope) {
 		
 		// clear DynamicObjectRefType specific parameters
-		node = clearNode(node);
+		node = clearNode(node, false);
 		
 		// clear node from ObjectRefType specific parameters and remove
 		ObjectRefTypeNEO.removeNode(node, checkReference, deleteChildren, deletionScope);

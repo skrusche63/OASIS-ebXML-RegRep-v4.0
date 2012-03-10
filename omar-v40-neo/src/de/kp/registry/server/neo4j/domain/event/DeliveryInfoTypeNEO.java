@@ -31,7 +31,7 @@ public class DeliveryInfoTypeNEO extends ExtensibleObjectTypeNEO {
 		
 	}
 
-	public static Node clearNode(Node node) {
+	public static Node clearNode(Node node, boolean excludeVersion) {
 
 		// - NOTIFICATION-OPTION (0..1)
 		if (node.hasProperty(OASIS_RIM_NOTIFICATION_OPTION)) node.removeProperty(OASIS_RIM_NOTIFICATION_OPTION);
