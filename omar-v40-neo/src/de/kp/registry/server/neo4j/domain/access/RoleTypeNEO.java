@@ -1,13 +1,9 @@
 package de.kp.registry.server.neo4j.domain.access;
 
-import java.util.List;
-
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
-import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
 import org.oasis.ebxml.registry.bindings.rim.RoleType;
 
-import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.federation.RegistryTypeNEO;
@@ -72,34 +68,7 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 	
 	public static void updateNode(Node node, Boolean checkReference, UpdateActionListType updateActionList) {
 		
-		List<UpdateActionType> updateActions = updateActionList.getUpdateAction();
-		
-	}
-	/*
-	 * If an object already exists, server MUST not alter the existing object and instead 
-	 * it MUST create a new version of the existing object using the state of the submitted object
-	 */
-
-	// __DESIGN_
-	
-	// as a first step a clone of an existing node is built that respects all properties
-	// and relations of the original node, except:
-	//
-	// - the existing unique identifier is extended by using the new version name
-	// - the (optionally) existing reference to a VersionInfoType node is replaced
-	//   by a VersionInfoType node that carries the new version name
-	//
-	// as a second step, the fillNode mechanism is used except for the version information
-	
-	public static void versionNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) {
-
-		// clone RoleType specific node
-		Node target = NEOBase.cloneAndVersionNode(graphDB, node);
-		
-		// clear RoleType specific parameters and exclude version information
-		target = clearNode(target, true);
-
-		// TODO
+		// List<UpdateActionType> updateActions = updateActionList.getUpdateAction();
 		
 	}
 	

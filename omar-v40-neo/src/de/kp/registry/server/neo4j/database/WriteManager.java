@@ -664,24 +664,74 @@ public class WriteManager {
 	    method.invoke(null, node, checkReference, deleteChildren, deletionScope);
 
 	}
+
+	// __DESIGN_
+	
+	// as a first step a binding object is created from the node provided;
+	//
+	// as a second step, the binding object is updated according to the
+	// update actions provided with this request
+	//
+	// as a third step, the node is filled from the binding object generated
+
+	// TODO: hier ist noch nicht klar, wie mit spezifischen modes umgegangen
+	// werden muss; insbesondere DELETE ist eine ziemliche herausforderung
 	
 	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {
 
-		String bindingName = (String)node.getProperty(NEOBase.NEO4J_TYPE);
-		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
-
-	    Method method = clazz.getMethod("updateNode", Node.class, boolean.class, UpdateActionListType.class);
-	    method.invoke(null, node, checkReference, new UpdateActionListType(updateActions));
+		// retrieve binding object from the node provided
+		Object binding = toBinding(node);
 		
 	}
 
-	private void versionNode(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference) throws Exception {
+	// this method create a new binding object from the node provided
+	
+	private Object toBinding(Node node) throws Exception {
 
 		String bindingName = (String)node.getProperty(NEOBase.NEO4J_TYPE);
 		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
 
-	    Method method = clazz.getMethod("versionNode", graphDB.getClass(), Node.class, Object.class, boolean.class);
-	    method.invoke(null, graphDB, node, registryObject, checkReference);
+	    Method method = clazz.getMethod("toBinding", Node.class);
+	    return (Object)method.invoke(null, node);
+    	
+	}
+
+	/*
+	 * If an object already exists, server MUST not alter the existing object and instead 
+	 * it MUST create a new version of the existing object using the state of the submitted object
+	 */
+
+	// __DESIGN_
+	
+	// as a first step a clone of an existing node is built that respects all properties
+	// and relations of the original node, except:
+	//
+	// - the existing unique identifier is extended by using the new version name
+	// - the (optionally) existing reference to a VersionInfoType node is replaced
+	//   by a VersionInfoType node that carries the new version name
+	//
+	// as a second step, the fillNode mechanism is used except for the version information
+	
+	private void versionNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
+
+		Node target = NEOBase.cloneAndVersionNode(graphDB, node);
+		
+		// in case of an update request, the provided binding object may be null
+		if (binding == null) return;
+
+		// in case of a versioning request, the VersionInfoType is excluded from
+		// the fill request, as the respective information is already set with
+		// cloneAndVersionNode
+		
+		boolean excludeVersion = true;
+		
+		String bindingName = (String)target.getProperty(NEOBase.NEO4J_TYPE);
+		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
+
+	    Method method = clazz.getMethod("fillNode", graphDB.getClass(), Node.class, Object.class, boolean.class, boolean.class);
+	    method.invoke(null, graphDB, node, binding, checkReference, excludeVersion);
+
+	    // TODO: indexing
 	    
 	}
 

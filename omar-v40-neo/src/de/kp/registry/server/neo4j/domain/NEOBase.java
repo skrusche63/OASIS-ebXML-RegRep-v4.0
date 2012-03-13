@@ -227,7 +227,7 @@ public class NEOBase {
 		VersionProcessor vp = new VersionProcessor();
 		Node sourceVersionInfo = vp.getVersion(source);
 
-		String last = sourceVersionInfo.hasProperty(OASIS_RIM_VERSION_NAME) ? (String)sourceVersionInfo.getProperty(OASIS_RIM_VERSION_NAME) : null;;
+		String last = sourceVersionInfo.hasProperty(OASIS_RIM_VERSION_NAME) ? (String)sourceVersionInfo.getProperty(OASIS_RIM_VERSION_NAME) : null;
 		String next = vp.getNextVersion(last);
 		
         String id = source.getProperty(OASIS_RIM_LID) + ":" + next;
