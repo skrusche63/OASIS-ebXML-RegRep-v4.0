@@ -15,6 +15,7 @@ import org.oasis.ebxml.registry.bindings.rim.DateTimeValueType;
 import org.oasis.ebxml.registry.bindings.rim.DurationValueType;
 import org.oasis.ebxml.registry.bindings.rim.FloatValueType;
 import org.oasis.ebxml.registry.bindings.rim.IntegerValueType;
+import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
 import org.oasis.ebxml.registry.bindings.rim.InternationalStringValueType;
 import org.oasis.ebxml.registry.bindings.rim.MapType;
 import org.oasis.ebxml.registry.bindings.rim.MapValueType;
@@ -24,6 +25,7 @@ import org.oasis.ebxml.registry.bindings.rim.SlotValueType;
 import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
 import org.oasis.ebxml.registry.bindings.rim.StringValueType;
 import org.oasis.ebxml.registry.bindings.rim.ValueType;
+import org.oasis.ebxml.registry.bindings.rim.VocabularyTermType;
 import org.oasis.ebxml.registry.bindings.rim.VocabularyTermValueType;
 import org.oasis.ebxml.registry.bindings.rim.XMLQueryExpressionType;
 
@@ -79,13 +81,22 @@ public class UpdateProcessor {
 
 		// retrieve value from valueHolder
 		
+		// __DESIGN__
+		
+		// in the actual version of the UpdateProcessor, we except that the
+		// data type of the value provided (by the value holder) is equal to
+		// the data type of the target that is retrieved from the xpath
+		
+		// due to this restriction, the update of list-based & map-based
+		// slot values is actually not supported
+				
 		if (valueHolder instanceof StringValueType) {
 
 			// single value instance
 			String newValue = ((StringValueType)valueHolder).getValue();						
 			String oldValue = (String)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode,oldValue, newValue);
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof DateTimeValueType) {
 
@@ -93,15 +104,23 @@ public class UpdateProcessor {
 			XMLGregorianCalendar newValue = ((DateTimeValueType)valueHolder).getValue();
 			XMLGregorianCalendar oldValue = (XMLGregorianCalendar)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode,oldValue, newValue);
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof InternationalStringValueType) {
 
-			// TODO
+			// single value instance
+			InternationalStringType newValue = ((InternationalStringValueType)valueHolder).getValue();
+			InternationalStringType oldValue = (InternationalStringType)updateContext.getValue(selector);
+
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 			
 		} else if (valueHolder instanceof VocabularyTermValueType) {
 
-			// TODO
+			// single value instance (SlotType only)
+			VocabularyTermType newValue = ((VocabularyTermValueType)valueHolder).getValue();
+			VocabularyTermType oldValue = (VocabularyTermType)updateContext.getValue(selector);
+
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 			
 		} else if (valueHolder instanceof IntegerValueType) {
 
@@ -109,12 +128,15 @@ public class UpdateProcessor {
 			BigInteger newValue = ((IntegerValueType)valueHolder).getValue();
 			BigInteger oldValue = (BigInteger)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode,oldValue, newValue);
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof AnyValueType) {
 
 			// single value instance
 			Object newValue = ((AnyValueType)valueHolder).getAny();
+			Object oldValue = (Object)updateContext.getValue(selector);
+
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof BooleanValueType) {
 
@@ -122,7 +144,7 @@ public class UpdateProcessor {
 			Boolean newValue = ((BooleanValueType)valueHolder).isValue();
 			Boolean oldValue = (Boolean)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode,oldValue, newValue);
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof FloatValueType) {
 			
@@ -130,17 +152,25 @@ public class UpdateProcessor {
 			Float newValue = ((FloatValueType)valueHolder).getValue();
 			Float oldValue = (Float)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode,oldValue, newValue);
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 			
 		} else if (valueHolder instanceof MapValueType) {
 
-			// single value instance
-			MapType value = ((MapValueType)valueHolder).getMap();
+			// single value instance (SlotType only)
+			MapType newValue = ((MapValueType)valueHolder).getMap();
+			MapType oldValue = (MapType)updateContext.getValue(selector);
+
+			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof SlotValueType) {
 
+			// TODO: REVIEW APPROACH
+			
 			// multiple value instance
-			SlotType value = ((SlotValueType)valueHolder).getSlot();
+			SlotType newValue = ((SlotValueType)valueHolder).getSlot();
+			List<SlotType> oldValue = (List<SlotType>)updateContext.getValue(selector);
+
+			updateSlotValue(node, updateContext, selector, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof DurationValueType) {
 
@@ -152,7 +182,11 @@ public class UpdateProcessor {
 
 		} else if (valueHolder instanceof CollectionValueType) {
 
+			// TODO
+			
 			// multiple value instance
+
+			// this is restricted to the update of a certain slot value
 			List<ValueType> value = ((CollectionValueType)valueHolder).getElement();
 			String collectionType = ((CollectionValueType)valueHolder).getCollectionType();
 
@@ -198,6 +232,10 @@ public class UpdateProcessor {
 			if (oldValue != null) updateContext.setValue(selector, null);
 
 		}
+		
+	}
+	
+	private void updateSlotValue(Node node, JXPathContext updateContext, String selector, String mode, Object oldValue, Object newValue) throws RegistryException {
 		
 	}
 }
