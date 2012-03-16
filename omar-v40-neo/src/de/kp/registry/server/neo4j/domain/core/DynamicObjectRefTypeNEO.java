@@ -59,6 +59,10 @@ public class DynamicObjectRefTypeNEO extends ObjectRefTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		DynamicObjectRefType binding = factory.createDynamicObjectRefType();
 

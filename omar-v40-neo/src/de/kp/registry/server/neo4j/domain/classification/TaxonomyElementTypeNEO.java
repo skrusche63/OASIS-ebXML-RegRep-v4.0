@@ -126,9 +126,9 @@ public class TaxonomyElementTypeNEO extends RegistryObjectTypeNEO {
 
 	}
 
-	public static Object fillBinding(Node node, Object binding) {
+	public static Object fillBinding(Node node, Object binding, String language) {
 		
-		TaxonomyElementType taxonomyElementType = (TaxonomyElementType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		TaxonomyElementType taxonomyElementType = (TaxonomyElementType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 		
 		// - CLASSIFICATION-NODE (0..*)
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasChild);

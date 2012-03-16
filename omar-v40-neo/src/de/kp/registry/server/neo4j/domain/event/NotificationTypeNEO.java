@@ -135,9 +135,13 @@ public class NotificationTypeNEO extends RegistryObjectTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		NotificationType binding = factory.createNotificationType();
-		binding = (NotificationType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (NotificationType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - EVENT (1..*)
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasAuditableEvent);

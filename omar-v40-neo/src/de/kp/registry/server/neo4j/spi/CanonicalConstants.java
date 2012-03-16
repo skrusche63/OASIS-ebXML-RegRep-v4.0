@@ -8,4 +8,10 @@ public class CanonicalConstants {
 	public static String SUCCESS 		 = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
 	public static String UNAVAILABLE     = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Unavailable";
 	
+	// the following canonical values represent the return types of a query request
+	public static String LEAF_CLASS 	 = "LeafClass";
+	public static String LEAF_CLASS_RI 	 = "LeafClassWithRepositoryItem";
+	public static String OBJECT_REF      = "ObjectRef";
+	public static String REGISTRY_OBEJCT = "RegistryObject";
+
 }

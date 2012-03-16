@@ -18,6 +18,8 @@ import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;
+import de.kp.registry.server.neo4j.spi.RemoveRequestContext;
+import de.kp.registry.server.neo4j.spi.SubmitRequestContext;
 
 public class WriteManager {
 
@@ -44,16 +46,16 @@ public class WriteManager {
 	 ***********************************************************************/
 
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType submitObjects(List<RegistryObjectType> registryObjects, Boolean checkReference, Mode mode, String comment, RegistryResponseType response) {
+	public RegistryResponseType submitObjects(SubmitRequestContext context, RegistryResponseType response) {
 		
-		String modeValue = mode.value();
+		String modeValue = context.getMode();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
 
 			/*
 			 * If an object does not exist, server MUST create it as a new object. If an object
 			 * already exists, the server MUST return an ObjectExistsException fault message
 			 */
-			return createOnly(registryObjects, checkReference, comment, response);			
+			return createOnly(context, response);			
 					
 		} else if (modeValue.equals(Mode.CREATE_OR_REPLACE)) {
 			
@@ -62,7 +64,7 @@ public class WriteManager {
 			 * If an object already exists, server MUST replace the existing object 
 			 * with the submitted object
 			 */
-			return createOrReplace(registryObjects, checkReference, comment, response);				
+			return createOrReplace(context, response);				
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_VERSION)) {
 			
@@ -71,7 +73,7 @@ public class WriteManager {
 			 * already exists, server MUST not alter the existing object and instead it MUST create
 			 * a new version of the existing object using the state of the submitted object
 			 */
-			return createOrVersion(registryObjects, checkReference, comment, response);				
+			return createOrVersion(context, response);				
 			
 		}
 
@@ -80,7 +82,7 @@ public class WriteManager {
 	}
 	
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType removeObjects(List<ObjectRefType> objectRefs, Boolean checkReference, Boolean deleteChildren, String deletionScope, String comment, RegistryResponseType response) {	
+	public RegistryResponseType removeObjects(RemoveRequestContext context, RegistryResponseType response) {	
 
 		ReadManager rm = ReadManager.getInstance();
 		
@@ -90,6 +92,14 @@ public class WriteManager {
 		try {
 
 			boolean result = false;
+
+			Boolean checkReference = context.isCheckReference();
+			Boolean deleteChildren = context.isDeleteChildren();
+			
+			String comment = context.getComment();
+			String deletionScope = context.getDeletionScope();
+			
+			List<ObjectRefType> objectRefs = context.getList();
 			for (ObjectRefType objectRef:objectRefs) {
 
 				Node node = null;
@@ -173,7 +183,7 @@ public class WriteManager {
 	
 	// private methods to support the submitObjects request
 
-	private RegistryResponseType createOnly(List<RegistryObjectType> registryObjects, Boolean checkReference, String comment, RegistryResponseType response) {
+	private RegistryResponseType createOnly(SubmitRequestContext context, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -184,6 +194,10 @@ public class WriteManager {
 
 			boolean result = false;
 			
+			String comment = context.getComment();
+			Boolean checkReference = context.isCheckReference();
+			
+			List<RegistryObjectType> registryObjects = context.getList();			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
@@ -236,7 +250,7 @@ public class WriteManager {
 		return response;
 	}
 
-	private RegistryResponseType createOrReplace(List<RegistryObjectType> registryObjects, Boolean checkReference, String comment, RegistryResponseType response) {
+	private RegistryResponseType createOrReplace(SubmitRequestContext context, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 		
@@ -246,7 +260,11 @@ public class WriteManager {
 		try {
 
 			boolean result = false;
+			
+			String comment = context.getComment();
+			Boolean checkReference = context.isCheckReference();
 
+			List<RegistryObjectType> registryObjects = context.getList();			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
@@ -292,7 +310,7 @@ public class WriteManager {
 		
 	}
 
-	private RegistryResponseType createOrVersion(List<RegistryObjectType> registryObjects, Boolean checkReference, String comment, RegistryResponseType response) {
+	private RegistryResponseType createOrVersion(SubmitRequestContext context, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -303,6 +321,10 @@ public class WriteManager {
 
 			boolean result = false;
 			
+			String comment = context.getComment();
+			Boolean checkReference = context.isCheckReference();
+			
+			List<RegistryObjectType> registryObjects = context.getList();			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;

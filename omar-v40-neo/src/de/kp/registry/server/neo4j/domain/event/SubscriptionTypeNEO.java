@@ -156,9 +156,13 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		SubscriptionType binding = factory.createSubscriptionType();
-		binding = (SubscriptionType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (SubscriptionType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		Iterable<Relationship> relationships = null;
 

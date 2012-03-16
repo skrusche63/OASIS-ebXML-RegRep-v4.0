@@ -44,6 +44,10 @@ public class InternationalStringTypeNEO extends NEOBase {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		InternationalStringType binding = factory.createInternationalStringType();
 

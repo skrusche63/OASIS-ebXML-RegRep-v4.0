@@ -46,9 +46,9 @@ public class QueryExpressionTypeNEO  extends ExtensibleObjectTypeNEO {
 		
 	}
 	
-	public static Object fillBinding(Node node, Object binding) {
+	public static Object fillBinding(Node node, Object binding, String language) {
 		
-		QueryExpressionType queryExpressionType = (QueryExpressionType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		QueryExpressionType queryExpressionType = (QueryExpressionType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - QUERY-LANGUAGE (1..1)
 		queryExpressionType.setQueryLanguage((String)node.getProperty(OASIS_RIM_QUERY_LANGUAGE));

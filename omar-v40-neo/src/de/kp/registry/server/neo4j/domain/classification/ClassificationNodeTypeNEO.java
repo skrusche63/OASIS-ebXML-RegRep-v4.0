@@ -111,9 +111,13 @@ public class ClassificationNodeTypeNEO extends TaxonomyElementTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		ClassificationNodeType binding = factory.createClassificationNodeType();
-		binding = (ClassificationNodeType)TaxonomyElementTypeNEO.fillBinding(node, binding);
+		binding = (ClassificationNodeType)TaxonomyElementTypeNEO.fillBinding(node, binding, language);
 
 		// - CODE (1..1)
 		binding.setCode((String)node.getProperty(OASIS_RIM_CODE));

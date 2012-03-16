@@ -62,9 +62,9 @@ public class IdentifiableTypeNEO extends ExtensibleObjectTypeNEO {
 
 	}
 
-	public static Object fillBinding(Node node, Object binding) {
+	public static Object fillBinding(Node node, Object binding, String language) {
 		
-		IdentifiableType identifiableType = (IdentifiableType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		IdentifiableType identifiableType = (IdentifiableType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - ID (1..1)
 		identifiableType.setId((String)node.getProperty(OASIS_RIM_ID));		

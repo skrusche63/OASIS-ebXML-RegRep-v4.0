@@ -74,6 +74,10 @@ public class SlotTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		SlotType binding = factory.createSlotType();
 

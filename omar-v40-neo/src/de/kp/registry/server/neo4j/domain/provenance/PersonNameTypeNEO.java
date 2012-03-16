@@ -48,9 +48,13 @@ public class PersonNameTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		PersonNameType binding = factory.createPersonNameType();
-		binding = (PersonNameType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		binding = (PersonNameType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 		
 		// - FIRST-NAME (0..1)
 		if (node.hasProperty(OASIS_RIM_FIRST_NAME)) binding.setFirstName((String)node.getProperty(OASIS_RIM_FIRST_NAME));

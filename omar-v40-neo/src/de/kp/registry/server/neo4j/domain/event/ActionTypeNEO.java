@@ -153,9 +153,13 @@ public class ActionTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		ActionType binding = factory.createActionType();
-		binding = (ActionType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		binding = (ActionType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		Iterable<Relationship> relationships = null;
 		

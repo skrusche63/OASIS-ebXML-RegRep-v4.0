@@ -47,9 +47,13 @@ public class QueryTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		QueryType binding = factory.createQueryType();
-		binding = (QueryType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		binding = (QueryType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - QUERY-DEFINITION (1..1)
 		binding.setQueryDefinition((String)node.getProperty(OASIS_RIM_QUERY_DEFINITION));

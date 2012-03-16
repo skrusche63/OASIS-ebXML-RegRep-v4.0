@@ -135,9 +135,9 @@ public class PartyTypeNEO extends RegistryObjectTypeNEO {
 
 	}
 
-	public static Object fillBinding(Node node, Object binding) {
+	public static Object fillBinding(Node node, Object binding, String language) {
 		
-		PartyType partyType = (PartyType) RegistryObjectTypeNEO.fillBinding(node, binding);
+		PartyType partyType = (PartyType) RegistryObjectTypeNEO.fillBinding(node, binding, language);
 		Iterable<Relationship> relationships = null;
 		
 		// - EMAIL-ADDRESS (0..*)

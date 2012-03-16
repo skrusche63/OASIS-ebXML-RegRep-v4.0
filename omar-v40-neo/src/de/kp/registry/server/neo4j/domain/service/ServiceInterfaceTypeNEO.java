@@ -64,9 +64,13 @@ public class ServiceInterfaceTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		ServiceInterfaceType binding = factory.createServiceInterfaceType();
-		binding = (ServiceInterfaceType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (ServiceInterfaceType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 		
 		return binding;
 		

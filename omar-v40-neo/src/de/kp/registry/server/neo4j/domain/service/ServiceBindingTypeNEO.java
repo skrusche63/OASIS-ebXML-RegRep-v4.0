@@ -95,9 +95,13 @@ public class ServiceBindingTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		ServiceBindingType binding = factory.createServiceBindingType();
-		binding = (ServiceBindingType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (ServiceBindingType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 		
 		// - SERVICE-INTERFACE (0..1)
 		if (node.hasProperty(OASIS_RIM_SERVICE_INTERFACE)) binding.setServiceInterface((String)node.getProperty(OASIS_RIM_SERVICE_INTERFACE));

@@ -50,6 +50,10 @@ public class VersionInfoTypeNEO extends NEOBase {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		VersionInfoType binding = factory.createVersionInfoType();
 		

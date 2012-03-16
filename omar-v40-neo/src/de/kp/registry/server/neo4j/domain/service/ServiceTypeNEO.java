@@ -185,9 +185,13 @@ public class ServiceTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		ServiceType binding = factory.createServiceType();
-		binding = (ServiceType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (ServiceType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - SERVICE-ENDPOINT (0..*)
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasServiceEndpoint);

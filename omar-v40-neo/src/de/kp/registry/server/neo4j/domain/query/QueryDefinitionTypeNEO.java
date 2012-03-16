@@ -187,9 +187,13 @@ public class QueryDefinitionTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		QueryDefinitionType binding = factory.createQueryDefinitionType();
-		binding = (QueryDefinitionType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (QueryDefinitionType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		Iterable<Relationship> relationships = null;
 

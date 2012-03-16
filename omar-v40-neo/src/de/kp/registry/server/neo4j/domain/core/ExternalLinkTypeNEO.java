@@ -108,9 +108,13 @@ public class ExternalLinkTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 
 		ExternalLinkType binding = factory.createExternalLinkType();
-		binding = (ExternalLinkType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (ExternalLinkType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - EXTERNAL-REF (1..1)
 		if (node.hasProperty(OASIS_RIM_URI)) {

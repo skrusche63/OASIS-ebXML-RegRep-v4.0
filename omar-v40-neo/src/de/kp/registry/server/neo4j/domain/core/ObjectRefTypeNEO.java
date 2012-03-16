@@ -39,6 +39,10 @@ public class ObjectRefTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		return fillBinding(node, factory.createObjectRefType());
 	}
 	

@@ -295,12 +295,16 @@ public class RegistryObjectTypeNEO extends IdentifiableTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
-		return fillBinding(node, factory.createRegistryObjectType());
+		return toBinding(node, null);
 	}
 
-	public static Object fillBinding(Node node, Object binding) {
+	public static Object toBinding(Node node, String language) {
+		return fillBinding(node, factory.createRegistryObjectType(), language);
+	}
+
+	public static Object fillBinding(Node node, Object binding, String language) {
 		
-		RegistryObjectType registryObjectType = (RegistryObjectType)IdentifiableTypeNEO.fillBinding(node, binding);
+		RegistryObjectType registryObjectType = (RegistryObjectType)IdentifiableTypeNEO.fillBinding(node, binding, language);
 		Iterable<Relationship> relationships = null;
 		
 		// - CLASSIFICATION (0..*)

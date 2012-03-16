@@ -141,12 +141,16 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
-		return fillBinding(node, factory.createExtrinsicObjectType());
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
+		return fillBinding(node, factory.createExtrinsicObjectType(), language);
 	}
 	
-	public static Object fillBinding(Node node, Object binding) {
+	public static Object fillBinding(Node node, Object binding, String language) {
 		
-		ExtrinsicObjectType extrinsicObjectType = (ExtrinsicObjectType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		ExtrinsicObjectType extrinsicObjectType = (ExtrinsicObjectType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - CONTENT VERSION INFO (0..1)
 		Iterable<Relationship> relationships = null;

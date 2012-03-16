@@ -65,9 +65,13 @@ public class PostalAddressTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 			
 		PostalAddressType binding = factory.createPostalAddressType();
-		binding = (PostalAddressType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		binding = (PostalAddressType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - CITY (0..1)
 		if (node.hasProperty(OASIS_RIM_CITY)) binding.setCity((String)node.getProperty(OASIS_RIM_CITY));

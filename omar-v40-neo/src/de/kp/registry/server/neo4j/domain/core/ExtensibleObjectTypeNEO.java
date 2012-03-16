@@ -97,7 +97,7 @@ public class ExtensibleObjectTypeNEO extends NEOBase {
 	// this method supports query requests and provides the ExtensibleObjectType
 	// of the overall JAXB binding
 	
-	public static Object fillBinding(Node node, Object binding) {
+	public static Object fillBinding(Node node, Object binding, String language) {
 		
 		ExtensibleObjectType extensibleObjectType = (ExtensibleObjectType)binding;
 		

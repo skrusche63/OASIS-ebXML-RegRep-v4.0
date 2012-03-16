@@ -69,9 +69,13 @@ public class TelephoneNumberTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		TelephoneNumberType binding = factory.createTelephoneNumberType();
-		binding = (TelephoneNumberType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		binding = (TelephoneNumberType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - AREA-CODE (0..1)
 		if (node.hasProperty(OASIS_RIM_AREA_CODE)) binding.setAreaCode((String)node.getProperty(OASIS_RIM_AREA_CODE));

@@ -111,9 +111,13 @@ public class AssociationTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		AssociationType binding = factory.createAssociationType();
-		binding = (AssociationType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (AssociationType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - SOURCE-OBJECT (1..1)
 		binding.setSourceObject((String)node.getProperty(OASIS_RIM_SOURCE));

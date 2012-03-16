@@ -95,9 +95,13 @@ public class PersonTypeNEO extends PartyTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		PersonType binding = factory.createPersonType();
-		binding = (PersonType)PartyTypeNEO.fillBinding(node, binding);
+		binding = (PersonType)PartyTypeNEO.fillBinding(node, binding, language);
 		
 		// retrieve personName based relationships
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasPersonName);

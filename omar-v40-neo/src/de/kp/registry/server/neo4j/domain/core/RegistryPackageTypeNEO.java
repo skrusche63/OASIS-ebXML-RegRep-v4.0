@@ -127,9 +127,13 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		RegistryPackageType binding = factory.createRegistryPackageType();
-		binding = (RegistryPackageType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (RegistryPackageType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - REGISTRY-OBJECT-LIST (0..1)
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasMember);

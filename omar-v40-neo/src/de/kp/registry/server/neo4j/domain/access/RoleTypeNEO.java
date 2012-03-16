@@ -91,11 +91,15 @@ public class RoleTypeNEO extends RegistryObjectTypeNEO {
 		return node;
 		
 	}
-	
+
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		RoleType binding = factory.createRoleType();
-		binding = (RoleType)RegistryTypeNEO.fillBinding(node, binding);
+		binding = (RoleType)RegistryTypeNEO.fillBinding(node, binding, language);
 		
 		// - TYPE (1..1)
 		binding.setType((String)node.getProperty(OASIS_RIM_ROLE_TYPE));

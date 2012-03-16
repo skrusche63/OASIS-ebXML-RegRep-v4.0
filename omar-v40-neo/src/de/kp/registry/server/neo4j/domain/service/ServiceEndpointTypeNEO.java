@@ -103,9 +103,13 @@ public class ServiceEndpointTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		ServiceEndpointType binding = factory.createServiceEndpointType();
-		binding = (ServiceEndpointType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (ServiceEndpointType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 		
 		// - ADDRESS (0..1)
 		if (node.hasProperty(OASIS_RIM_ADDRESS)) binding.setAddress((String)node.getProperty(OASIS_RIM_ADDRESS));

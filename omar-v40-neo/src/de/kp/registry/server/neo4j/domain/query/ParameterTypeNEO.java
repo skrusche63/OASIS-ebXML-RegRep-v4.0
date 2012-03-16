@@ -132,9 +132,13 @@ public class ParameterTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		ParameterType binding = factory.createParameterType();
-		binding = (ParameterType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		binding = (ParameterType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		Iterable<Relationship> relationships = null;
 

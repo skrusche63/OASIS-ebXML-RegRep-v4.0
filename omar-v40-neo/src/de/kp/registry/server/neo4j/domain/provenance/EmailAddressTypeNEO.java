@@ -52,9 +52,13 @@ public class EmailAddressTypeNEO extends ExtensibleObjectTypeNEO {
 	}
 	
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		EmailAddressType binding = factory.createEmailAddressType();
-		binding = (EmailAddressType)ExtensibleObjectTypeNEO.fillBinding(node, binding);
+		binding = (EmailAddressType)ExtensibleObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - ADDRESS (1..1)
 		binding.setAddress((String)node.getProperty(OASIS_RIM_EMAIL_ADDRESS));

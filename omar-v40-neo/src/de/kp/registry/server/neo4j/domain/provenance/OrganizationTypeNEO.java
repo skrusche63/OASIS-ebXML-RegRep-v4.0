@@ -138,9 +138,13 @@ public class OrganizationTypeNEO extends PartyTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		OrganizationType binding = factory.createOrganizationType();
-		binding = (OrganizationType)PartyTypeNEO.fillBinding(node, binding);
+		binding = (OrganizationType)PartyTypeNEO.fillBinding(node, binding, language);
 
 		// - ORGANIZATION (0..*)
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasOrganization);

@@ -141,9 +141,13 @@ public class ClassificationTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		ClassificationType binding = factory.createClassificationType();
-		binding = (ClassificationType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (ClassificationType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - CLASSIFICATION NODE (0..1)
 		if (node.hasProperty(OASIS_RIM_CLAS_NODE)) binding.setClassificationNode((String)node.getProperty(OASIS_RIM_CLAS_NODE));

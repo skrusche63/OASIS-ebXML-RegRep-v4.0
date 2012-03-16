@@ -11,8 +11,6 @@ import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
-import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
-import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
 import de.kp.registry.server.neo4j.database.ReadManager;
@@ -28,20 +26,12 @@ public class LifecycleManagerImpl {
 
 	public RegistryResponseType removeObjects(RemoveObjectsRequest request) {
 		
-		// Attribute comment – The comment attribute if specified contains a String that 
-		// describes the request. A server MAY save this comment within a CommentType 
-		// instance and associate it with the AuditableEvent(s) for that request.		
-		String comment = request.getComment();
+		RemoveRequestContext removeContext = new RemoveRequestContext(request);
 		
 		// Attribute id – The id attribute must be specified by the client to uniquely 
 		// identify a request. Its value SHOULD be a UUID URN.	
 		String requestId = request.getId();
-
-		// retrieve request description parameters
-		String deletionScope = request.getDeletionScope();
-		Boolean checkReference = request.isCheckReferences();
-
-		Boolean deleteChildren = request.isDeleteChildren();
+		RegistryResponseType removeResponse = createResponse(requestId);
 				
 		// specifies a query to be invoked; a server MUST remove all objects 
 		// that match the specified query in addition to any other objects 
@@ -72,8 +62,10 @@ public class LifecycleManagerImpl {
 			
 		}
 
+		removeContext.setList(objectRefs);
+		
 		WriteManager wm = WriteManager.getInstance();
-		return wm.removeObjects(objectRefs, checkReference, deleteChildren, deletionScope, comment, createResponse(requestId));
+		return wm.removeObjects(removeContext, removeResponse);
 		
 	}
 
@@ -84,26 +76,16 @@ public class LifecycleManagerImpl {
 	
 	public RegistryResponseType submitObjects(SubmitObjectsRequest request) {
 		
-		// Attribute comment – The comment attribute if specified contains a String that 
-		// describes the request. A server MAY save this comment within a CommentType 
-		// instance and associate it with the AuditableEvent(s) for that request.		
-		String comment = request.getComment();
+		SubmitRequestContext submitContext = new SubmitRequestContext(request);
 		
 		// Attribute id – The id attribute must be specified by the client to uniquely 
 		// identify a request. Its value SHOULD be a UUID URN.	
 		String requestId = request.getId();
-		
-		// retrieve request description parameters
-		Mode mode = request.getMode();
-		Boolean checkReference = request.isCheckReferences();
-
-		// retrieve provided registry object list
-		RegistryObjectListType list = request.getRegistryObjectList();
-		List<RegistryObjectType> objectTypes = list.getRegistryObject();
+		RegistryResponseType submitResponse = createResponse(requestId);
 
 		// process request
 		WriteManager wm = WriteManager.getInstance();
-		return wm.submitObjects(objectTypes, checkReference, mode, comment, createResponse(requestId));
+		return wm.submitObjects(submitContext, submitResponse);
 		
 	}
 
@@ -164,8 +146,7 @@ public class LifecycleManagerImpl {
 		RegistryResponseType registryResponseType = ebRSFactory.createRegistryResponseType();
 		
 		// - REQUEST-ID
-		registryResponseType.setRequestId(requestId);
-		
+		registryResponseType.setRequestId(requestId);		
 		return registryResponseType;
 		
 	}

@@ -178,7 +178,7 @@ public class TestJAXB2Node extends TestCase {
 		 */
 		// get NEO wrapper class from node type
 		// call toBinding()
-		PersonType ebPersonType = (PersonType) rm.toBinding(node);
+		PersonType ebPersonType = (PersonType) rm.toBinding(node, null);
 		assertTrue("Cannot getLastName() from binding: " + node.getProperty(NEOBase.NEO4J_TYPE), 
 				ebPersonType.getPersonName().getLastName().equals("Arwanitis"));
 		

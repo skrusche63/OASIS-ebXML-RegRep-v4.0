@@ -187,9 +187,13 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		AuditableEventType binding = factory.createAuditableEventType();
-		binding = (AuditableEventType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (AuditableEventType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - ACTION (1..*)
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasAction);

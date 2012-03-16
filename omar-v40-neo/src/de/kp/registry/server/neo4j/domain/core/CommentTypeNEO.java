@@ -50,9 +50,13 @@ public class CommentTypeNEO extends ExtrinsicObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		CommentType binding = factory.createCommentType();
-		binding = (CommentType)ExtrinsicObjectTypeNEO.fillBinding(node, binding);
+		binding = (CommentType)ExtrinsicObjectTypeNEO.fillBinding(node, binding, language);
 		
 		return binding;
 		

@@ -46,9 +46,13 @@ public class StringQueryExpressionTypeNEO extends QueryExpressionTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		StringQueryExpressionType binding = factory.createStringQueryExpressionType();
-		binding = (StringQueryExpressionType)QueryExpressionTypeNEO.fillBinding(node, binding);
+		binding = (StringQueryExpressionType)QueryExpressionTypeNEO.fillBinding(node, binding, language);
 
 		// - VALUE (1..1)
 		binding.setValue((String)node.getProperty(OASIS_RIM_QUERY_VALUE));

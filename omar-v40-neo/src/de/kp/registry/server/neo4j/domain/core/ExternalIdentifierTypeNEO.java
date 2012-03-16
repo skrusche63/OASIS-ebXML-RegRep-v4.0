@@ -118,9 +118,13 @@ public class ExternalIdentifierTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		ExternalIdentifierType binding = factory.createExternalIdentifierType();
-		binding = (ExternalIdentifierType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (ExternalIdentifierType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - IDENTIFICATION SCHEME (1..1)
 		binding.setIdentificationScheme((String)node.getProperty(OASIS_RIM_ID_SCHEME));

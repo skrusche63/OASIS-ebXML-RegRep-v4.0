@@ -95,9 +95,13 @@ public class ClassificationSchemeTypeNEO extends TaxonomyElementTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 		
 		ClassificationSchemeType binding = factory.createClassificationSchemeType();
-		binding = (ClassificationSchemeType)TaxonomyElementTypeNEO.fillBinding(node, binding);
+		binding = (ClassificationSchemeType)TaxonomyElementTypeNEO.fillBinding(node, binding, language);
 
 		// - IS-INTERNAL (1..1)
 		binding.setIsInternal((Boolean)node.getProperty(OASIS_RIM_IS_INTERNAL));

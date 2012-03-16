@@ -120,9 +120,13 @@ public class RegistryTypeNEO extends RegistryObjectTypeNEO {
 	}
 
 	public static Object toBinding(Node node) {
+		return toBinding(node, null);
+	}
+
+	public static Object toBinding(Node node, String language) {
 	
 		RegistryType binding = factory.createRegistryType();
-		binding = (RegistryType)RegistryObjectTypeNEO.fillBinding(node, binding);
+		binding = (RegistryType)RegistryObjectTypeNEO.fillBinding(node, binding, language);
 
 		// - CATALOGING-LATENCY (0..1)
 		if (node.hasProperty(OASIS_RIM_CATALOG_LATENCY)) binding.setCatalogingLatency((Duration)node.getProperty(OASIS_RIM_CATALOG_LATENCY));
