@@ -1,11 +1,14 @@
 package de.kp.registry.server.neo4j.database;
 
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.List;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+import org.oasis.ebxml.registry.bindings.query.QueryResponse;
+import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 
@@ -79,4 +82,25 @@ public class ReadManager {
 		return method.invoke(null, node);
 
 	}
+ 	
+ 	public QueryResponse executeQuery(ResponseOptionType responseOption, 
+ 			String comment,
+ 			QueryType query, 
+ 			BigInteger queryDepth,
+ 			String language,
+ 			Boolean matchOlderVersions,
+ 			BigInteger maxResults,
+ 			BigInteger startIndex,
+ 			QueryResponse queryResponse) {
+ 		
+ 		query.getQueryDefinition();
+ 		
+ 		// language :: not relevant for query, but relevant for node.toBinding() calls
+ 		// __DESIGN__ :: no default language is specified as part of specification InternationalStringType
+ 		
+ 		
+ 		
+ 		return queryResponse;
+ 		
+ 	}
 }
