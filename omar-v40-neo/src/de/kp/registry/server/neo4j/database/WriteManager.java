@@ -17,6 +17,7 @@ import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
+import de.kp.registry.server.neo4j.notification.NotificationProcessor;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;
 import de.kp.registry.server.neo4j.spi.RemoveRequestContext;
 import de.kp.registry.server.neo4j.spi.SubmitRequestContext;
@@ -137,6 +138,8 @@ public class WriteManager {
 			tx.finish();
 		}
 
+		// asynchronous invocation of notification service
+		NotificationProcessor.getInstance().notify(response);		
 		return response;
 
 	}
@@ -247,7 +250,10 @@ public class WriteManager {
 			tx.finish();
 		}
 
+		// asynchronous invocation of notification service
+		NotificationProcessor.getInstance().notify(response);		
 		return response;
+		
 	}
 
 	private RegistryResponseType createOrReplace(SubmitRequestContext context, RegistryResponseType response) {
@@ -306,6 +312,8 @@ public class WriteManager {
 			tx.finish();
 		}
 
+		// asynchronous invocation of notification service
+		NotificationProcessor.getInstance().notify(response);		
 		return response;
 		
 	}
@@ -369,6 +377,8 @@ public class WriteManager {
 			tx.finish();
 		}
 
+		// asynchronous invocation of notification service
+		NotificationProcessor.getInstance().notify(response);		
 		return response;
 
 	}
@@ -581,6 +591,8 @@ public class WriteManager {
 			tx.finish();
 		}
 
+		// asynchronous invocation of notification service
+		NotificationProcessor.getInstance().notify(response);		
 		return response;
 
 	}
@@ -649,6 +661,8 @@ public class WriteManager {
 			tx.finish();
 		}
 
+		// asynchronous invocation of notification service
+		NotificationProcessor.getInstance().notify(response);		
 		return response;
 
 	}
