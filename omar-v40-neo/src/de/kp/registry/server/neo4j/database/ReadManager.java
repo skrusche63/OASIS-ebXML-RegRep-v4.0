@@ -1,18 +1,20 @@
 package de.kp.registry.server.neo4j.database;
 
 import java.lang.reflect.Method;
-import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
-import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 
 import de.kp.registry.server.neo4j.domain.NEOBase;
+import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
+import de.kp.registry.server.neo4j.spi.QueryRequestContext;
 
 public class ReadManager {
 
@@ -64,14 +66,7 @@ public class ReadManager {
  		return Database.getInstance().getNodeIndex().get(NEOBase.OASIS_RIM_ID, id).getSingle();
  		
 	}
- 	
-	/**
-	 * Generic wrapper node -> rim binding
-	 * 
-	 * @param node
-	 * @return
-	 */
-
+ 
  	public Object toBinding(Node node) throws Exception {
 
 		String rimClassName = (String) node.getProperty(NEOBase.NEO4J_TYPE);
@@ -83,24 +78,33 @@ public class ReadManager {
 
 	}
  	
- 	public QueryResponse executeQuery(ResponseOptionType responseOption, 
- 			String comment,
- 			QueryType query, 
- 			BigInteger queryDepth,
- 			String language,
- 			Boolean matchOlderVersions,
- 			BigInteger maxResults,
- 			BigInteger startIndex,
- 			QueryResponse queryResponse) {
+ 	public QueryResponse executeQuery(QueryRequestContext queryContext, QueryResponse queryResponse) { 		
  		
- 		query.getQueryDefinition();
+ 		// retrieve cypher query language statement from the query context
+ 		try {
+ 			
+ 			String cypherQuery = queryContext.getCypherQuery();
+ 			if (cypherQuery == null) throw new InvalidRequestException("[QueryRequest] The query expression associated with the request is invalid.");
+
+ 			// the name of the request row is uniquely described as "n"
+ 	 		ExecutionResult result = engine.execute(cypherQuery);
+ 	 		Iterator<Node> nodes = result.columnAs("n");
+
+ 			while (nodes.hasNext()) {
+ 				
+ 			}
+ 			
+ 		} catch (Exception e) {
  		
- 		// language :: not relevant for query, but relevant for node.toBinding() calls
- 		// __DESIGN__ :: no default language is specified as part of specification InternationalStringType
+ 			// TODO
+ 			
+ 			// in case of an exception, we fill the respective exception 
+ 			// into the queryResponse
+ 			
+ 		}
  		
- 		
- 		
- 		return queryResponse;
- 		
+ 		return queryResponse; 		
+ 	
  	}
+ 	
 }

@@ -675,18 +675,6 @@ public class WriteManager {
 	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {		
 	}
 
-	// this method create a new binding object from the node provided
-	
-	private Object toBinding(Node node) throws Exception {
-
-		String bindingName = (String)node.getProperty(NEOBase.NEO4J_TYPE);
-		Class<?> clazz = NEOBase.getClassNEOByName(bindingName);
-
-	    Method method = clazz.getMethod("toBinding", Node.class);
-	    return (Object)method.invoke(null, node);
-    	
-	}
-
 	/*
 	 * If an object already exists, server MUST not alter the existing object and instead 
 	 * it MUST create a new version of the existing object using the state of the submitted object
