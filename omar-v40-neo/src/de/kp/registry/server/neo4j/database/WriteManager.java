@@ -17,7 +17,6 @@ import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
-import de.kp.registry.server.neo4j.domain.util.UpdateActionListType;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;
 
 public class WriteManager {
@@ -45,7 +44,7 @@ public class WriteManager {
 	 ***********************************************************************/
 
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType submitObjects(List<RegistryObjectType> registryObjects, Boolean checkReference, Mode mode) {
+	public RegistryResponseType submitObjects(List<RegistryObjectType> registryObjects, Boolean checkReference, Mode mode, String comment, RegistryResponseType response) {
 		
 		String modeValue = mode.value();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
@@ -54,7 +53,7 @@ public class WriteManager {
 			 * If an object does not exist, server MUST create it as a new object. If an object
 			 * already exists, the server MUST return an ObjectExistsException fault message
 			 */
-			return createOnly(registryObjects, checkReference);			
+			return createOnly(registryObjects, checkReference, comment, response);			
 					
 		} else if (modeValue.equals(Mode.CREATE_OR_REPLACE)) {
 			
@@ -63,7 +62,7 @@ public class WriteManager {
 			 * If an object already exists, server MUST replace the existing object 
 			 * with the submitted object
 			 */
-			return createOrReplace(registryObjects, checkReference);			
+			return createOrReplace(registryObjects, checkReference, comment, response);				
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_VERSION)) {
 			
@@ -72,7 +71,7 @@ public class WriteManager {
 			 * already exists, server MUST not alter the existing object and instead it MUST create
 			 * a new version of the existing object using the state of the submitted object
 			 */
-			return createOrVersion(registryObjects, checkReference);			
+			return createOrVersion(registryObjects, checkReference, comment, response);				
 			
 		}
 
@@ -81,14 +80,12 @@ public class WriteManager {
 	}
 	
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType removeObjects(List<ObjectRefType> objectRefs, Boolean checkReference, Boolean deleteChildren, String deletionScope) {	
+	public RegistryResponseType removeObjects(List<ObjectRefType> objectRefs, Boolean checkReference, Boolean deleteChildren, String deletionScope, String comment, RegistryResponseType response) {	
 
 		ReadManager rm = ReadManager.getInstance();
 		
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
-		
-		RegistryResponseType registryResponse = createResponse();
 		
 		try {
 
@@ -106,7 +103,7 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node != null) {
 
-					result = delete(node, checkReference, deleteChildren, deletionScope, registryResponse);
+					result = delete(node, checkReference, deleteChildren, deletionScope, comment, response);
 					
 					// in case of a creation failure, the respective request
 					// is terminated and the fill error message sent back
@@ -122,7 +119,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalConstants.SUCCESS);
 			
 			}
 
@@ -130,11 +127,11 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return registryResponse;
+		return response;
 
 	}
 	
-	public RegistryResponseType updateObjects(List<ObjectRefType> objectRefs, Boolean checkReference, Mode mode, List<UpdateActionType> updateActions) {
+	public RegistryResponseType updateObjects(List<ObjectRefType> objectRefs, Boolean checkReference, Mode mode, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
 
 		String modeValue = mode.value();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
@@ -144,15 +141,13 @@ public class WriteManager {
 			 * return an InvalidRequestException
 			 */
 			
-			RegistryResponseType registryResponse = createResponse();
-			
 			ExceptionManager em = ExceptionManager.getInstance();		
-			registryResponse.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalConstants.FAILURE);
 
 			InvalidRequestException exception = new InvalidRequestException("[UpdatetObjectsRequest] The mode '" + modeValue + "' is not allowed.");
-			registryResponse.getException().add(em.toBinding(exception));
+			response.getException().add(em.toBinding(exception));
 
-			return registryResponse;
+			return response;
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_REPLACE)) {
 			
@@ -160,7 +155,7 @@ public class WriteManager {
 			 * If an object does not exist, server MUST return ObjectNotFoundException. If an object 
 			 * already exists, server MUST update the existing object without creating a new version.	
 			 */
-			return updateOnly(objectRefs, checkReference, updateActions);
+			return updateOnly(objectRefs, checkReference, updateActions, comment, response);	
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_VERSION)) {
 			
@@ -169,7 +164,7 @@ public class WriteManager {
 			 * already exists, server MUST create a new version of the existing object before applying 
 			 * the requested update action.
 			 */
-			return updateAndVersion(objectRefs, checkReference, updateActions);
+			return updateAndVersion(objectRefs, checkReference, updateActions, comment, response);	
 			
 		}
 
@@ -178,14 +173,12 @@ public class WriteManager {
 	
 	// private methods to support the submitObjects request
 
-	private RegistryResponseType createOnly(List<RegistryObjectType> registryObjects, Boolean checkReference) {
+	private RegistryResponseType createOnly(List<RegistryObjectType> registryObjects, Boolean checkReference, String comment, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
-		
-		RegistryResponseType registryResponse = createResponse();
 		
 		try {
 
@@ -209,14 +202,14 @@ public class WriteManager {
 					// If an object already exists, the server MUST return an 
 					// ObjectExistsException fault message
 				
-					registryResponse.setStatus(CanonicalConstants.FAILURE);
+					response.setStatus(CanonicalConstants.FAILURE);
 
 					ObjectExistsException exception = new ObjectExistsException("[SubmitObjectsRequest] RegistryObjectType node with id '" + nid + "' already exist.");
-					registryResponse.getException().add(em.toBinding(exception));
+					response.getException().add(em.toBinding(exception));
 					
 				} else {
 					
-					result = create(graphDB, registryObject, checkReference, registryResponse);
+					result = create(graphDB, registryObject, checkReference, comment, response);
 					
 					// in case of a creation failure, the respective request
 					// is terminated and the fill error message sent back
@@ -232,7 +225,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalConstants.SUCCESS);
 			
 			}
 			
@@ -240,17 +233,15 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return registryResponse;
+		return response;
 	}
 
-	private RegistryResponseType createOrReplace(List<RegistryObjectType> registryObjects, Boolean checkReference) {
+	private RegistryResponseType createOrReplace(List<RegistryObjectType> registryObjects, Boolean checkReference, String comment, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 		
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
-		
-		RegistryResponseType registryResponse = createResponse();
 		
 		try {
 
@@ -269,11 +260,11 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node != null) {					
 					// if an object already exists, the server MUST replace the existing object with the submitted object
-					result = replace(graphDB, node, registryObject, checkReference, registryResponse);
+					result = replace(graphDB, node, registryObject, checkReference, comment, response);
 					
 				} else {
 					// create a node within database for at least a registry object
-					result = create(graphDB, registryObject, checkReference, registryResponse);
+					result = create(graphDB, registryObject, checkReference, comment, response);
 
 				}
 				
@@ -289,7 +280,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalConstants.SUCCESS);
 			
 			}
 			
@@ -297,18 +288,16 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return registryResponse;
+		return response;
 		
 	}
 
-	private RegistryResponseType createOrVersion(List<RegistryObjectType> registryObjects, Boolean checkReference) {
+	private RegistryResponseType createOrVersion(List<RegistryObjectType> registryObjects, Boolean checkReference, String comment, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
-		
-		RegistryResponseType registryResponse = createResponse();
 		
 		try {
 
@@ -330,11 +319,11 @@ public class WriteManager {
 					// If an object already exists, server MUST not alter the existing 
 					// object and instead it MUST create a new version of the existing 
 					// object using the state of the submitted object
-					result = version(graphDB, node, registryObject, checkReference, registryResponse);
+					result = version(graphDB, node, registryObject, checkReference, comment, response);
 					
 				} else {					
 					// create a node within database for at least a registry object
-					result = create(graphDB, registryObject, checkReference, registryResponse);
+					result = create(graphDB, registryObject, checkReference, comment, response);
 					
 				}
 				
@@ -350,7 +339,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalConstants.SUCCESS);
 			
 			}			
 			
@@ -358,14 +347,16 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return registryResponse;
+		return response;
 
 	}
 
 	// this method expects that no node with the unique identifier provided
 	// with the registryObject exists in the database
 	
-	private boolean create(EmbeddedGraphDatabase graphDB, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
+	private boolean create(EmbeddedGraphDatabase graphDB, RegistryObjectType registryObject, Boolean checkReference, String comment, RegistryResponseType response) {
+		
+		// TODO: comment
 		
 		Node registryObjectTypeNode;
 
@@ -391,8 +382,10 @@ public class WriteManager {
 		
 	}
 
-	private boolean replace(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
+	private boolean replace(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, String comment, RegistryResponseType response) {
 
+		// TODO: comment
+		
 		// in case of a successful replacement of this registry object, the 
 		// respective unique identifier is assigned to the registry response
 
@@ -420,8 +413,10 @@ public class WriteManager {
 
 	}
 
-	private boolean update(Node node, Boolean checkReference, List<UpdateActionType> updateActions, RegistryResponseType response) {
+	private boolean update(Node node, Boolean checkReference, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
 
+		// TODO: comment
+		
 		try {
 
 			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
@@ -446,8 +441,10 @@ public class WriteManager {
 		
 	}
 	
-	private boolean version(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, RegistryResponseType response) {
+	private boolean version(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, String comment, RegistryResponseType response) {
 
+		// TODO: comment
+		
 		try {
 
 			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
@@ -472,7 +469,9 @@ public class WriteManager {
 		
 	}
 
-	private boolean delete(Node node, Boolean checkReference, Boolean deleteChildren, String deletionScope, RegistryResponseType response) {
+	private boolean delete(Node node, Boolean checkReference, Boolean deleteChildren, String deletionScope, String comment, RegistryResponseType response) {
+		
+		// TODO: comment
 		
 		try {
 
@@ -503,14 +502,12 @@ public class WriteManager {
 	 * already exists, server MUST update the existing object without creating a new version.	
 	 */
 
-	private RegistryResponseType updateOnly(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions) {
+	private RegistryResponseType updateOnly(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
-		
-		RegistryResponseType registryResponse = createResponse();
 		
 		try {
 
@@ -531,14 +528,14 @@ public class WriteManager {
 					
 					ExceptionManager em = ExceptionManager.getInstance();
 				
-					registryResponse.setStatus(CanonicalConstants.FAILURE);
+					response.setStatus(CanonicalConstants.FAILURE);
 
 					ObjectNotFoundException exception = new ObjectNotFoundException("[UpdateObjectsRequest] ObjectRefType node with id '" + nid + "' does not exist.");
-					registryResponse.getException().add(em.toBinding(exception));
+					response.getException().add(em.toBinding(exception));
 					
 				} else {
 
-					result = update(node, checkReference, updateActions, registryResponse);
+					result = update(node, checkReference, updateActions, comment, response);
 
 					// in case of a failure, the respective request
 					// is terminated and the error message sent back
@@ -554,7 +551,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalConstants.SUCCESS);
 			
 			}
 			
@@ -562,7 +559,7 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return registryResponse;
+		return response;
 
 	}
 
@@ -572,14 +569,12 @@ public class WriteManager {
 	 * the requested update action.
 	 */
 	
-	private RegistryResponseType updateAndVersion(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions) {
+	private RegistryResponseType updateAndVersion(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
-		
-		RegistryResponseType registryResponse = createResponse();
 		
 		try {
 
@@ -600,15 +595,15 @@ public class WriteManager {
 					
 					ExceptionManager em = ExceptionManager.getInstance();
 				
-					registryResponse.setStatus(CanonicalConstants.FAILURE);
+					response.setStatus(CanonicalConstants.FAILURE);
 
 					ObjectNotFoundException exception = new ObjectNotFoundException("[UpdateObjectsRequest] ObjectRefType node with id '" + nid + "' does not exist.");
-					registryResponse.getException().add(em.toBinding(exception));
+					response.getException().add(em.toBinding(exception));
 					
 				} else {
 
-					result = version(graphDB, node, null, checkReference, registryResponse);
-					if (result == true) result = update(node, checkReference, updateActions, registryResponse);
+					result = version(graphDB, node, null, checkReference, comment, response);
+					if (result == true) result = update(node, checkReference, updateActions, comment, response);
 
 					// in case of a failure, the respective request
 					// is terminated and the error message sent back
@@ -624,7 +619,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				registryResponse.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalConstants.SUCCESS);
 			
 			}
 			
@@ -632,7 +627,7 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return registryResponse;
+		return response;
 
 	}
 	
@@ -677,11 +672,7 @@ public class WriteManager {
 	// TODO: hier ist noch nicht klar, wie mit spezifischen modes umgegangen
 	// werden muss; insbesondere DELETE ist eine ziemliche herausforderung
 	
-	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {
-
-		// retrieve binding object from the node provided
-		Object binding = toBinding(node);
-		
+	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {		
 	}
 
 	// this method create a new binding object from the node provided
@@ -734,21 +725,6 @@ public class WriteManager {
 	    // TODO: indexing
 	    
 	}
-
-	private RegistryResponseType createResponse() {
-
-		
-		RegistryResponseType registryResponseType = ebRSFactory.createRegistryResponseType();
-		
-		// - REQUEST-ID
-		
-		// This attribute contains the id of the request that returned this QueryResponse;
-		// it is not set for submitObjects request
-
-		return registryResponseType;
-		
-	}
-
 
 	// in case of a successful creation of a registry object, the respective
 	// object reference is added to the registry response

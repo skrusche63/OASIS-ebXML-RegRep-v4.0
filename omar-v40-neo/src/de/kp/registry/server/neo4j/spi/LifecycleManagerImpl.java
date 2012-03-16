@@ -20,10 +20,22 @@ import de.kp.registry.server.neo4j.database.WriteManager;
 
 public class LifecycleManagerImpl {
 
+	// reference to OASIS ebRS object factory
+	public static org.oasis.ebxml.registry.bindings.rs.ObjectFactory ebRSFactory = new org.oasis.ebxml.registry.bindings.rs.ObjectFactory();
+
 	public LifecycleManagerImpl() {		
 	}
 
 	public RegistryResponseType removeObjects(RemoveObjectsRequest request) {
+		
+		// Attribute comment – The comment attribute if specified contains a String that 
+		// describes the request. A server MAY save this comment within a CommentType 
+		// instance and associate it with the AuditableEvent(s) for that request.		
+		String comment = request.getComment();
+		
+		// Attribute id – The id attribute must be specified by the client to uniquely 
+		// identify a request. Its value SHOULD be a UUID URN.	
+		String requestId = request.getId();
 
 		// retrieve request description parameters
 		String deletionScope = request.getDeletionScope();
@@ -61,7 +73,7 @@ public class LifecycleManagerImpl {
 		}
 
 		WriteManager wm = WriteManager.getInstance();
-		return wm.removeObjects(objectRefs, checkReference, deleteChildren, deletionScope);
+		return wm.removeObjects(objectRefs, checkReference, deleteChildren, deletionScope, comment, createResponse(requestId));
 		
 	}
 
@@ -71,7 +83,16 @@ public class LifecycleManagerImpl {
 	 */
 	
 	public RegistryResponseType submitObjects(SubmitObjectsRequest request) {
-				
+		
+		// Attribute comment – The comment attribute if specified contains a String that 
+		// describes the request. A server MAY save this comment within a CommentType 
+		// instance and associate it with the AuditableEvent(s) for that request.		
+		String comment = request.getComment();
+		
+		// Attribute id – The id attribute must be specified by the client to uniquely 
+		// identify a request. Its value SHOULD be a UUID URN.	
+		String requestId = request.getId();
+		
 		// retrieve request description parameters
 		Mode mode = request.getMode();
 		Boolean checkReference = request.isCheckReferences();
@@ -82,11 +103,20 @@ public class LifecycleManagerImpl {
 
 		// process request
 		WriteManager wm = WriteManager.getInstance();
-		return wm.submitObjects(objectTypes, checkReference, mode);
+		return wm.submitObjects(objectTypes, checkReference, mode, comment, createResponse(requestId));
 		
 	}
 
 	public RegistryResponseType updateObjects(UpdateObjectsRequest request) {
+		
+		// Attribute comment – The comment attribute if specified contains a String that 
+		// describes the request. A server MAY save this comment within a CommentType 
+		// instance and associate it with the AuditableEvent(s) for that request.		
+		String comment = request.getComment();
+		
+		// Attribute id – The id attribute must be specified by the client to uniquely 
+		// identify a request. Its value SHOULD be a UUID URN.	
+		String requestId = request.getId();
 
 		// retrieve parameters from request
 		Mode mode = request.getMode();
@@ -125,7 +155,20 @@ public class LifecycleManagerImpl {
 		}
 		
 		WriteManager wm = WriteManager.getInstance();
-		return wm.updateObjects(objectRefs, checkReference, mode, updateActions);
+		return wm.updateObjects(objectRefs, checkReference, mode, updateActions, comment, createResponse(requestId));
 
 	}
+	
+	private RegistryResponseType createResponse(String requestId) {
+		
+		RegistryResponseType registryResponseType = ebRSFactory.createRegistryResponseType();
+		
+		// - REQUEST-ID
+		registryResponseType.setRequestId(requestId);
+		
+		return registryResponseType;
+		
+	}
+
+
 }
