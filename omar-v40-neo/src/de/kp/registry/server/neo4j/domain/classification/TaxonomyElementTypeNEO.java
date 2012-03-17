@@ -9,12 +9,12 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
 import org.oasis.ebxml.registry.bindings.rim.TaxonomyElementType;
 
-import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
+import de.kp.registry.server.neo4j.read.ReadManager;
 
 // This abstract type is the common base type for ClassificationSchemeType 
 // and ClassificationNodeType

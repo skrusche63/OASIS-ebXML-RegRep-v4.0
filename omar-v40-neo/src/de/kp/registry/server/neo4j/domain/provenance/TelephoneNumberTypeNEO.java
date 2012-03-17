@@ -4,10 +4,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.TelephoneNumberType;
 
-import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.core.ExtensibleObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
+import de.kp.registry.server.neo4j.read.ReadManager;
 
 public class TelephoneNumberTypeNEO extends ExtensibleObjectTypeNEO {
 

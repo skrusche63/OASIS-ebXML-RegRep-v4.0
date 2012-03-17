@@ -20,10 +20,10 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryPackageType;
 
 import de.kp.registry.server.neo4j.database.Database;
-import de.kp.registry.server.neo4j.database.ReadManager;
-import de.kp.registry.server.neo4j.database.WriteManager;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
+import de.kp.registry.server.neo4j.read.ReadManager;
+import de.kp.registry.server.neo4j.write.WriteManager;
 
 /**
  * To start a clean test delete database folder

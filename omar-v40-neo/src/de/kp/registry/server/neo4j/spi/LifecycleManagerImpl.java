@@ -3,18 +3,16 @@ package de.kp.registry.server.neo4j.spi;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oasis.ebxml.registry.bindings.lcm.Mode;
 import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
-import de.kp.registry.server.neo4j.database.ReadManager;
-import de.kp.registry.server.neo4j.database.WriteManager;
+import de.kp.registry.server.neo4j.read.ReadManager;
+import de.kp.registry.server.neo4j.write.WriteManager;
 
 public class LifecycleManagerImpl {
 
@@ -90,19 +88,13 @@ public class LifecycleManagerImpl {
 	}
 
 	public RegistryResponseType updateObjects(UpdateObjectsRequest request) {
-		
-		// Attribute comment – The comment attribute if specified contains a String that 
-		// describes the request. A server MAY save this comment within a CommentType 
-		// instance and associate it with the AuditableEvent(s) for that request.		
-		String comment = request.getComment();
+
+		UpdateRequestContext updateContext = new UpdateRequestContext(request);
 		
 		// Attribute id – The id attribute must be specified by the client to uniquely 
 		// identify a request. Its value SHOULD be a UUID URN.	
 		String requestId = request.getId();
-
-		// retrieve parameters from request
-		Mode mode = request.getMode();
-		Boolean checkReference = request.isCheckReferences();
+		RegistryResponseType updateResponse = createResponse(requestId);
 		
 		// specifies a query to be invoked; a server MUST use all objects that match 
 		// the specified query in addition to any other objects identified by the
@@ -119,9 +111,6 @@ public class LifecycleManagerImpl {
 		ObjectRefListType list = request.getObjectRefList();
 		if (list != null) objectRefs = list.getObjectRef();
 		
-		// specifies the details of how to update the target objects
-		List<UpdateActionType> updateActions = request.getUpdateAction();
-		
 		// __DESIGN__
 		
 		// in order to remove registry objects, we first have to merge the objects
@@ -135,9 +124,11 @@ public class LifecycleManagerImpl {
 			objectRefs.addAll(queryObjectRefs);
 			
 		}
-		
+
+		updateContext.setList(objectRefs);
+
 		WriteManager wm = WriteManager.getInstance();
-		return wm.updateObjects(objectRefs, checkReference, mode, updateActions, comment, createResponse(requestId));
+		return wm.updateObjects(updateContext, updateResponse);
 
 	}
 	

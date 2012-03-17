@@ -21,9 +21,9 @@ import org.oasis.ebxml.registry.bindings.rim.ValueType;
 import org.oasis.ebxml.registry.bindings.rim.VocabularyTermValueType;
 import org.oasis.ebxml.registry.bindings.rim.VocabularyTermType;
 
-import de.kp.registry.server.neo4j.database.ReadManager;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.exception.UnresolvedReferenceException;
+import de.kp.registry.server.neo4j.read.ReadManager;
 
 // __DESIGN__
 

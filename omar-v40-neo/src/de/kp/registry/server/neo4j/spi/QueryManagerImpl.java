@@ -2,8 +2,9 @@ package de.kp.registry.server.neo4j.spi;
 
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
-import de.kp.registry.server.neo4j.database.FederatedReadManager;
-import de.kp.registry.server.neo4j.database.ReadManager;
+
+import de.kp.registry.server.neo4j.federation.FederatedReadManager;
+import de.kp.registry.server.neo4j.read.ReadManager;
 
 public class QueryManagerImpl {
 

@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.database;
+package de.kp.registry.server.neo4j.write;
 
 import java.util.Iterator;
 

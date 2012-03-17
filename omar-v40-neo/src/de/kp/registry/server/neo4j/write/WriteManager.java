@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.database;
+package de.kp.registry.server.neo4j.write;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -12,15 +12,18 @@ import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
+import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
 import de.kp.registry.server.neo4j.notification.NotificationProcessor;
+import de.kp.registry.server.neo4j.read.ReadManager;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;
 import de.kp.registry.server.neo4j.spi.RemoveRequestContext;
 import de.kp.registry.server.neo4j.spi.SubmitRequestContext;
+import de.kp.registry.server.neo4j.spi.UpdateRequestContext;
 
 public class WriteManager {
 
@@ -144,9 +147,9 @@ public class WriteManager {
 
 	}
 	
-	public RegistryResponseType updateObjects(List<ObjectRefType> objectRefs, Boolean checkReference, Mode mode, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
+	public RegistryResponseType updateObjects(UpdateRequestContext context, RegistryResponseType response) {
 
-		String modeValue = mode.value();
+		String modeValue = context.getMode();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
 
 			/*
@@ -168,7 +171,7 @@ public class WriteManager {
 			 * If an object does not exist, server MUST return ObjectNotFoundException. If an object 
 			 * already exists, server MUST update the existing object without creating a new version.	
 			 */
-			return updateOnly(objectRefs, checkReference, updateActions, comment, response);	
+			return updateOnly(context, response);	
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_VERSION)) {
 			
@@ -177,7 +180,7 @@ public class WriteManager {
 			 * already exists, server MUST create a new version of the existing object before applying 
 			 * the requested update action.
 			 */
-			return updateAndVersion(objectRefs, checkReference, updateActions, comment, response);	
+			return updateAndVersion(context, response);	
 			
 		}
 
@@ -534,7 +537,7 @@ public class WriteManager {
 	 * already exists, server MUST update the existing object without creating a new version.	
 	 */
 
-	private RegistryResponseType updateOnly(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
+	private RegistryResponseType updateOnly(UpdateRequestContext context, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -544,6 +547,12 @@ public class WriteManager {
 		try {
 
 			boolean result = false;
+
+			String comment = context.getComment();			
+			Boolean checkReference = context.isCheckReference();
+			
+			List<ObjectRefType> objectRefs = context.getList();
+			List<UpdateActionType> updateActions = context.getUpdateActions();
 			
 			for (ObjectRefType objectRef:objectRefs) {
 				
@@ -603,7 +612,7 @@ public class WriteManager {
 	 * the requested update action.
 	 */
 	
-	private RegistryResponseType updateAndVersion(List<ObjectRefType> objectRefs, Boolean checkReference, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
+	private RegistryResponseType updateAndVersion(UpdateRequestContext context, RegistryResponseType response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -613,6 +622,12 @@ public class WriteManager {
 		try {
 
 			boolean result = false;
+
+			String comment = context.getComment();			
+			Boolean checkReference = context.isCheckReference();
+			
+			List<ObjectRefType> objectRefs = context.getList();
+			List<UpdateActionType> updateActions = context.getUpdateActions();
 			
 			for (ObjectRefType objectRef:objectRefs) {
 				
@@ -704,11 +719,18 @@ public class WriteManager {
 	// update actions provided with this request
 	//
 	// as a third step, the node is filled from the binding object generated
-
-	// TODO: hier ist noch nicht klar, wie mit spezifischen modes umgegangen
-	// werden muss; insbesondere DELETE ist eine ziemliche herausforderung
 	
-	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {		
+	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {	
+
+		ReadManager rm = ReadManager.getInstance();
+
+		String language = null;
+		Object binding = rm.toBinding(node, language);
+		
+		// update of a certain node is delegated to the UpdateProcessor
+		UpdateProcessor processor = new UpdateProcessor();
+		processor.process(node, binding, checkReference, updateActions);
+		
 	}
 
 	/*

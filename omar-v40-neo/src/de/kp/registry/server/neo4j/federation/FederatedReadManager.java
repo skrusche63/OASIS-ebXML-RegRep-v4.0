@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.database;
+package de.kp.registry.server.neo4j.federation;
 
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 

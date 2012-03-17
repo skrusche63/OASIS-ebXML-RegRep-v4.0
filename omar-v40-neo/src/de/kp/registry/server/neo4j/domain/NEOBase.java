@@ -12,7 +12,7 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ObjectFactory;
 import de.kp.registry.server.neo4j.database.Database;
-import de.kp.registry.server.neo4j.database.VersionProcessor;
+import de.kp.registry.server.neo4j.write.VersionProcessor;
 
 // the super class for all classes building the bridge
 // between JAXB binding of the OASIS ebRIM and the

@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.database;
+package de.kp.registry.server.neo4j.read;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -14,6 +14,7 @@ import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
+import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;

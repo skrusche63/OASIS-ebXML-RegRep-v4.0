@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.database;
+package de.kp.registry.server.neo4j.write;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -38,7 +38,7 @@ public class UpdateProcessor {
 	
 	// each UpdateObjectsRequest defines a specific update action 
 	// to be performed on each target object
-	public void process(Node node, Object binding, List<UpdateActionType> updateActions) throws RegistryException {
+	public void process(Node node, Object binding, Boolean checkReference, List<UpdateActionType> updateActions) throws RegistryException {
 		
 		for (UpdateActionType updateAction:updateActions) {
 			

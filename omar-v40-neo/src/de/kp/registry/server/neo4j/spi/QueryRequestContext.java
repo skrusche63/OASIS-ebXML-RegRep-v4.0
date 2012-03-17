@@ -11,7 +11,7 @@ import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.SlotType;
 import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
 
-import de.kp.registry.server.neo4j.database.ReadManager;
+import de.kp.registry.server.neo4j.read.ReadManager;
 
 public class QueryRequestContext {
 
