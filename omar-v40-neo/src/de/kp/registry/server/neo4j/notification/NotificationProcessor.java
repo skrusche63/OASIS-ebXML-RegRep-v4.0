@@ -6,6 +6,8 @@ import java.util.concurrent.Future;
 
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
+// NOTE: there is a WSDL for a Notification Service
+
 public class NotificationProcessor {
 
 	private static NotificationProcessor instance = new NotificationProcessor();

@@ -6,7 +6,6 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.jxpath.JXPathContext;
-import org.neo4j.graphdb.Node;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
 import org.oasis.ebxml.registry.bindings.rim.AnyValueType;
 import org.oasis.ebxml.registry.bindings.rim.BooleanValueType;
@@ -33,12 +32,19 @@ import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
 public class UpdateProcessor {
-
-	public UpdateProcessor() {}
+	
+	private static UpdateProcessor instance = new UpdateProcessor();
+	
+	private UpdateProcessor() {}
+	
+	public static UpdateProcessor getInstance() {
+		if (instance == null) instance = new UpdateProcessor();
+		return instance;
+	}
 	
 	// each UpdateObjectsRequest defines a specific update action 
 	// to be performed on each target object
-	public void process(Node node, Object binding, Boolean checkReference, List<UpdateActionType> updateActions) throws RegistryException {
+	public Object updateBinding(Object binding, Boolean checkReference, List<UpdateActionType> updateActions) throws RegistryException {
 		
 		for (UpdateActionType updateAction:updateActions) {
 			
@@ -67,14 +73,16 @@ public class UpdateProcessor {
 			// - MODE			
 			String mode = updateAction.getMode();
 
-			// update node from updated binding object with specific value
-			updateNode(node, binding, xpath, valueHolder, mode);
+			// update binding object with specific value
+			binding = updateBinding(binding, xpath, valueHolder, checkReference, mode);
 			
 		}
 		
+		return binding;
+		
 	}
 	
-	private void updateNode(Node node, Object binding, String selector, ValueType valueHolder, String mode) throws RegistryException {
+	private Object updateBinding(Object binding, String selector, ValueType valueHolder, Boolean checkReference, String mode) throws RegistryException {
 		
 		// retrieve xpath context from binding
 		JXPathContext updateContext = JXPathContext.newContext(binding);		
@@ -92,117 +100,137 @@ public class UpdateProcessor {
 				
 		if (valueHolder instanceof StringValueType) {
 
-			// single value instance
+			// String is a single value instance either of
+			// a certain registry object or a specific slot
+			
 			String newValue = ((StringValueType)valueHolder).getValue();						
 			String oldValue = (String)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof DateTimeValueType) {
 
-			// single value instance
+			// DateTime is a single value instance either of
+			// a certain registry object or a specific slot
+
 			XMLGregorianCalendar newValue = ((DateTimeValueType)valueHolder).getValue();
 			XMLGregorianCalendar oldValue = (XMLGregorianCalendar)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof InternationalStringValueType) {
 
-			// single value instance
+			// InternationalString is a single value instance of a
+			// certain registry object; it is NOT supported for slots
+
 			InternationalStringType newValue = ((InternationalStringValueType)valueHolder).getValue();
 			InternationalStringType oldValue = (InternationalStringType)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 			
 		} else if (valueHolder instanceof VocabularyTermValueType) {
 
-			// single value instance (SlotType only)
+			// VocabularyTerm is a single value instance of a
+			// certain slot; it is NOT supported for registry
+			// objects
+
 			VocabularyTermType newValue = ((VocabularyTermValueType)valueHolder).getValue();
 			VocabularyTermType oldValue = (VocabularyTermType)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 			
 		} else if (valueHolder instanceof IntegerValueType) {
 
-			// single value instance
+			// Integer is a single value instance either of
+			// a certain registry object or a specific slot
+
 			BigInteger newValue = ((IntegerValueType)valueHolder).getValue();
 			BigInteger oldValue = (BigInteger)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof AnyValueType) {
 
-			// single value instance
+			// Any (Object) is a single value instance of a
+			// certain slot; it is NOT supported for registry
+			// objects
+
 			Object newValue = ((AnyValueType)valueHolder).getAny();
 			Object oldValue = (Object)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof BooleanValueType) {
 
-			// single value instance
+			// Boolean is a single value instance either of
+			// a certain registry object or a specific slot
+
 			Boolean newValue = ((BooleanValueType)valueHolder).isValue();
 			Boolean oldValue = (Boolean)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof FloatValueType) {
 			
-			// single value instance
+			// Float is a single value instance either of
+			// a certain registry object or a specific slot
+			
 			Float newValue = ((FloatValueType)valueHolder).getValue();
 			Float oldValue = (Float)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 			
 		} else if (valueHolder instanceof MapValueType) {
 
-			// single value instance (SlotType only)
+			// Map is a single value instance of a certain
+			// slot; it is NOT supported for registry objects
+
 			MapType newValue = ((MapValueType)valueHolder).getMap();
 			MapType oldValue = (MapType)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof SlotValueType) {
 
-			// TODO: REVIEW APPROACH
+			// SlotType is a single value instance of a certain
+			// registry object; it is NOT supported for slots
 			
-			// multiple value instance
 			SlotType newValue = ((SlotValueType)valueHolder).getSlot();
+			@SuppressWarnings("unchecked")
 			List<SlotType> oldValue = (List<SlotType>)updateContext.getValue(selector);
 
-			updateSlotValue(node, updateContext, selector, mode, oldValue, newValue);
+			updateSlotValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof DurationValueType) {
 
-			// single value instance
+			// Duration is a single value instance either of
+			// a certain registry object or a specific slot
+
 			Duration newValue = ((DurationValueType)valueHolder).getValue();
 			Duration oldValue = (Duration)updateContext.getValue(selector);
 
-			updateSingleValue(node, updateContext, selector, mode,oldValue, newValue);
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		} else if (valueHolder instanceof CollectionValueType) {
 
-			// TODO
-			
-			// multiple value instance
+			// Collection is a single value instance of a certain 
+			// slot; it is NOT supported for registry object
 
-			// this is restricted to the update of a certain slot value
-			List<ValueType> value = ((CollectionValueType)valueHolder).getElement();
-			String collectionType = ((CollectionValueType)valueHolder).getCollectionType();
+			// for processing, please refer to SlotTypeNEO
+			CollectionValueType newValue = (CollectionValueType)valueHolder;
+			CollectionValueType oldValue = (CollectionValueType)updateContext.getValue(selector);
+
+			updateSingleValue(updateContext, selector, checkReference, mode, oldValue, newValue);
 
 		}
 		
+		binding = updateContext.getContextBean();
+		return binding;
+		
 	}
 
-	
-	// FRAGE: muss man das update ähnlich kaskadierend aufbauen, wie das create, 
-	// d.h. muss ich wissen, welches object betroffen ist?
-	
-	// ebenso unklar: wie wirkt sich der mode auf den node aus? kann man den node
-	// gegebenenfalls direkt aktualisieren?
-
-	private void updateSingleValue(Node node, JXPathContext updateContext, String selector, String mode, Object oldValue, Object newValue) throws RegistryException {
-
+	private void updateSingleValue(JXPathContext updateContext, String selector, Boolean checkReference, String mode, Object oldValue, Object newValue) throws RegistryException {
+		
 		// evaluate mode of request
 		if (mode.equals("Insert")) {
 
@@ -224,6 +252,7 @@ public class UpdateProcessor {
 
 			if (oldValue != null) updateContext.setValue(selector, newValue);
 			
+			
 		} else if (mode.equals("Delete")) {
 			
 			// Indicates that the node identified by selector MUST be deleted from 
@@ -235,7 +264,33 @@ public class UpdateProcessor {
 		
 	}
 	
-	private void updateSlotValue(Node node, JXPathContext updateContext, String selector, String mode, Object oldValue, Object newValue) throws RegistryException {
-		
+	private void updateSlotValue(JXPathContext updateContext, String selector, Boolean checkReference, String mode, List<SlotType> oldValue, SlotType newValue) throws RegistryException {
+
+		// evaluate mode of request
+		if (mode.equals("Insert")) {
+
+			// Indicates that the value provided by ValueHolder MUST be added to the target object.
+			//
+			// If the selector targets a repeated element (maxOccurs > 1), the node MUST be 
+			// added at the end. If the selector targets a non-repeated element (maxOccurrs = 1) 
+			// that already exists, the resource MUST generate an InvalidRequestException with a 
+			// fault detail of NodeAlreadyExistsException.
+			//
+			// If the selector targets an existing item of a repeated element, the value provided
+			// by ValueHolder MUST be added before the existing item.
+
+		} else if (mode.equals("Update")) {
+
+			// Indicates that the node identified by selector MUST be replaced by 
+			// value by the ValueHolder in its place. If the selector resolves to
+			// nothing then there should be no change to the target object.
+			
+		} else if (mode.equals("Delete")) {
+			
+			// Indicates that the node identified by selector MUST be deleted from 
+			// the target object if it is present.
+
+		}
+
 	}
 }

@@ -6,9 +6,8 @@ import org.oasis.ebxml.registry.bindings.lcm.Mode;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
-public class SubmitRequestContext {
+public class SubmitRequestContext extends RequestContext {
 
-	private String comment;
 	private Mode mode;
 	
 	private Boolean checkReference;
@@ -30,14 +29,6 @@ public class SubmitRequestContext {
 
 		this.list = request.getRegistryObjectList().getRegistryObject();
 
-	}
-	
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-	
-	public String getComment() {
-		return this.comment;
 	}
 
 	public void setMode(Mode mode) {

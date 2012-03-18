@@ -12,9 +12,10 @@ import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
+import de.kp.registry.server.neo4j.auditing.AuditContext;
+import de.kp.registry.server.neo4j.auditing.AuditProcessor;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
-import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
@@ -22,8 +23,21 @@ import de.kp.registry.server.neo4j.notification.NotificationProcessor;
 import de.kp.registry.server.neo4j.read.ReadManager;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;
 import de.kp.registry.server.neo4j.spi.RemoveRequestContext;
+import de.kp.registry.server.neo4j.spi.RequestContext;
+import de.kp.registry.server.neo4j.spi.ResponseContext;
 import de.kp.registry.server.neo4j.spi.SubmitRequestContext;
 import de.kp.registry.server.neo4j.spi.UpdateRequestContext;
+
+// TODO: fillNode mechanism
+// ------------------------
+
+// we have to evaluate whether a certain parameter, not provided
+// with the binding object is present with the respective node
+// this is due to the support of UpdateObjectsRequest and the
+// 'delete' mode described there
+
+// hint: fillNode invokes fillNodeInternal (which is also used
+// by toNode)
 
 public class WriteManager {
 
@@ -50,16 +64,16 @@ public class WriteManager {
 	 ***********************************************************************/
 
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType submitObjects(SubmitRequestContext context, RegistryResponseType response) {
+	public RegistryResponseType submitObjects(SubmitRequestContext request, ResponseContext response) {
 		
-		String modeValue = context.getMode();
+		String modeValue = request.getMode();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
 
 			/*
 			 * If an object does not exist, server MUST create it as a new object. If an object
 			 * already exists, the server MUST return an ObjectExistsException fault message
 			 */
-			return createOnly(context, response);			
+			return createOnly(request, response);			
 					
 		} else if (modeValue.equals(Mode.CREATE_OR_REPLACE)) {
 			
@@ -68,7 +82,7 @@ public class WriteManager {
 			 * If an object already exists, server MUST replace the existing object 
 			 * with the submitted object
 			 */
-			return createOrReplace(context, response);				
+			return createOrReplace(request, response);				
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_VERSION)) {
 			
@@ -77,7 +91,7 @@ public class WriteManager {
 			 * already exists, server MUST not alter the existing object and instead it MUST create
 			 * a new version of the existing object using the state of the submitted object
 			 */
-			return createOrVersion(context, response);				
+			return createOrVersion(request, response);				
 			
 		}
 
@@ -86,7 +100,7 @@ public class WriteManager {
 	}
 	
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType removeObjects(RemoveRequestContext context, RegistryResponseType response) {	
+	public RegistryResponseType removeObjects(RemoveRequestContext request, ResponseContext response) {	
 
 		ReadManager rm = ReadManager.getInstance();
 		
@@ -97,13 +111,12 @@ public class WriteManager {
 
 			boolean result = false;
 
-			Boolean checkReference = context.isCheckReference();
-			Boolean deleteChildren = context.isDeleteChildren();
+			Boolean checkReference = request.isCheckReference();
+			Boolean deleteChildren = request.isDeleteChildren();
 			
-			String comment = context.getComment();
-			String deletionScope = context.getDeletionScope();
+			String deletionScope = request.getDeletionScope();
 			
-			List<ObjectRefType> objectRefs = context.getList();
+			List<ObjectRefType> objectRefs = request.getList();
 			for (ObjectRefType objectRef:objectRefs) {
 
 				Node node = null;
@@ -117,7 +130,7 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node != null) {
 
-					result = delete(node, checkReference, deleteChildren, deletionScope, comment, response);
+					result = delete(node, checkReference, deleteChildren, deletionScope, response);
 					
 					// in case of a creation failure, the respective request
 					// is terminated and the fill error message sent back
@@ -141,15 +154,13 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		// asynchronous invocation of notification service
-		NotificationProcessor.getInstance().notify(response);		
-		return response;
+		return response.getResponse();
 
 	}
 	
-	public RegistryResponseType updateObjects(UpdateRequestContext context, RegistryResponseType response) {
+	public RegistryResponseType updateObjects(UpdateRequestContext request, ResponseContext response) {
 
-		String modeValue = context.getMode();
+		String modeValue = request.getMode();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
 
 			/*
@@ -157,13 +168,12 @@ public class WriteManager {
 			 * return an InvalidRequestException
 			 */
 			
-			ExceptionManager em = ExceptionManager.getInstance();		
 			response.setStatus(CanonicalConstants.FAILURE);
 
 			InvalidRequestException exception = new InvalidRequestException("[UpdatetObjectsRequest] The mode '" + modeValue + "' is not allowed.");
-			response.getException().add(em.toBinding(exception));
-
-			return response;
+			response.addException(exception);
+			
+			return response.getResponse();
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_REPLACE)) {
 			
@@ -171,7 +181,7 @@ public class WriteManager {
 			 * If an object does not exist, server MUST return ObjectNotFoundException. If an object 
 			 * already exists, server MUST update the existing object without creating a new version.	
 			 */
-			return updateOnly(context, response);	
+			return updateOnly(request, response);	
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_VERSION)) {
 			
@@ -180,7 +190,7 @@ public class WriteManager {
 			 * already exists, server MUST create a new version of the existing object before applying 
 			 * the requested update action.
 			 */
-			return updateAndVersion(context, response);	
+			return updateAndVersion(request, response);	
 			
 		}
 
@@ -189,7 +199,7 @@ public class WriteManager {
 	
 	// private methods to support the submitObjects request
 
-	private RegistryResponseType createOnly(SubmitRequestContext context, RegistryResponseType response) {
+	private RegistryResponseType createOnly(SubmitRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -200,10 +210,9 @@ public class WriteManager {
 
 			boolean result = false;
 			
-			String comment = context.getComment();
-			Boolean checkReference = context.isCheckReference();
+			Boolean checkReference = request.isCheckReference();
 			
-			List<RegistryObjectType> registryObjects = context.getList();			
+			List<RegistryObjectType> registryObjects = request.getList();			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
@@ -217,19 +226,17 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node != null) {
 					
-					ExceptionManager em = ExceptionManager.getInstance();
-					
 					// If an object already exists, the server MUST return an 
 					// ObjectExistsException fault message
 				
 					response.setStatus(CanonicalConstants.FAILURE);
 
 					ObjectExistsException exception = new ObjectExistsException("[SubmitObjectsRequest] RegistryObjectType node with id '" + nid + "' already exist.");
-					response.getException().add(em.toBinding(exception));
+					response.addException(exception);
 					
 				} else {
 					
-					result = create(graphDB, registryObject, checkReference, comment, response);
+					result = create(graphDB, registryObject, checkReference, response);
 					
 					// in case of a creation failure, the respective request
 					// is terminated and the fill error message sent back
@@ -253,13 +260,19 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		// asynchronous invocation of notification service
-		NotificationProcessor.getInstance().notify(response);		
-		return response;
+		// audit the result of this request
+		request.setEvent(CanonicalConstants.CREATED);
+		audit(request, response);
+
+		// notify subscribers
+		notify(response);
+		
+		// return response
+		return response.getResponse();
 		
 	}
 
-	private RegistryResponseType createOrReplace(SubmitRequestContext context, RegistryResponseType response) {
+	private RegistryResponseType createOrReplace(SubmitRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 		
@@ -270,10 +283,9 @@ public class WriteManager {
 
 			boolean result = false;
 			
-			String comment = context.getComment();
-			Boolean checkReference = context.isCheckReference();
+			Boolean checkReference = request.isCheckReference();
 
-			List<RegistryObjectType> registryObjects = context.getList();			
+			List<RegistryObjectType> registryObjects = request.getList();			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
@@ -287,11 +299,11 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node != null) {					
 					// if an object already exists, the server MUST replace the existing object with the submitted object
-					result = replace(graphDB, node, registryObject, checkReference, comment, response);
+					result = replace(graphDB, node, registryObject, checkReference, response);
 					
 				} else {
 					// create a node within database for at least a registry object
-					result = create(graphDB, registryObject, checkReference, comment, response);
+					result = create(graphDB, registryObject, checkReference, response);
 
 				}
 				
@@ -315,13 +327,11 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		// asynchronous invocation of notification service
-		NotificationProcessor.getInstance().notify(response);		
-		return response;
+		return response.getResponse();
 		
 	}
 
-	private RegistryResponseType createOrVersion(SubmitRequestContext context, RegistryResponseType response) {
+	private RegistryResponseType createOrVersion(SubmitRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -332,10 +342,9 @@ public class WriteManager {
 
 			boolean result = false;
 			
-			String comment = context.getComment();
-			Boolean checkReference = context.isCheckReference();
+			Boolean checkReference = request.isCheckReference();
 			
-			List<RegistryObjectType> registryObjects = context.getList();			
+			List<RegistryObjectType> registryObjects = request.getList();			
 			for (RegistryObjectType registryObject:registryObjects) {
 				
 				Node node = null;
@@ -352,11 +361,11 @@ public class WriteManager {
 					// If an object already exists, server MUST not alter the existing 
 					// object and instead it MUST create a new version of the existing 
 					// object using the state of the submitted object
-					result = version(graphDB, node, registryObject, checkReference, comment, response);
+					result = version(graphDB, node, registryObject, checkReference, response);
 					
 				} else {					
 					// create a node within database for at least a registry object
-					result = create(graphDB, registryObject, checkReference, comment, response);
+					result = create(graphDB, registryObject, checkReference, response);
 					
 				}
 				
@@ -380,36 +389,49 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		// asynchronous invocation of notification service
-		NotificationProcessor.getInstance().notify(response);		
-		return response;
+		return response.getResponse();
 
 	}
 
+	// TODO: hier muss wohl die Liste der Objekte mit den
+	// entsprechenden Events passieren... create kann
+	// auch ein replace sein und ist damit ein update
+	
+	private void audit(RequestContext request, ResponseContext response) {
+		
+		AuditContext auditContext = new AuditContext();
+		
+		auditContext.setEvent(request.getEvent());
+		auditContext.setUser(request.getUser());
+
+		auditContext.setResponse(response.getResponse());
+		AuditProcessor.getInstance().audit(auditContext);
+
+	}
+	
+	private void notify(ResponseContext response) {
+		NotificationProcessor.getInstance().notify(response.getResponse());				
+	}
+	
 	// this method expects that no node with the unique identifier provided
 	// with the registryObject exists in the database
 	
-	private boolean create(EmbeddedGraphDatabase graphDB, RegistryObjectType registryObject, Boolean checkReference, String comment, RegistryResponseType response) {
+	private boolean create(EmbeddedGraphDatabase graphDB, RegistryObjectType registryObject, Boolean checkReference, ResponseContext response) {
 		
-		// TODO: comment
-		
-		Node registryObjectTypeNode;
+		Node node;
 
 		try {
+
 			// create new node within database
-			registryObjectTypeNode = toNode(graphDB, registryObject, checkReference);
-
-			String id = (String)registryObjectTypeNode.getProperty(NEOBase.OASIS_RIM_ID);
-			addIdToResponse(id, response);
-
+			node = toNode(graphDB, registryObject, checkReference);
+			response.addNode(node);
+			
 			return true;
 			
 		} catch (Exception e) {
-						
-			ExceptionManager em = ExceptionManager.getInstance();
-			
+									
 			response.setStatus(CanonicalConstants.FAILURE);
-			response.getException().add(em.toBinding(e));
+			response.addException(e);
 		
 		}
 		
@@ -417,30 +439,20 @@ public class WriteManager {
 		
 	}
 
-	private boolean replace(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, String comment, RegistryResponseType response) {
-
-		// TODO: comment
-		
-		// in case of a successful replacement of this registry object, the 
-		// respective unique identifier is assigned to the registry response
-
-		Node registryObjectTypeNode;
+	private boolean replace(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, ResponseContext response) {
 
 		try {
+
 			// replace existing node within database
-			registryObjectTypeNode = fillNode(graphDB, node, registryObject, checkReference);
-
-			String id = (String)registryObjectTypeNode.getProperty(NEOBase.OASIS_RIM_ID);
-			addIdToResponse(id, response);
+			node = fillNode(graphDB, node, registryObject, checkReference);
+			response.addNode(node);
 
 			return true;
 			
 		} catch (Exception e) {
 			
-			ExceptionManager em = ExceptionManager.getInstance();
-			
 			response.setStatus(CanonicalConstants.FAILURE);
-			response.getException().add(em.toBinding(e));
+			response.addException(e);
 			
 		}
 		
@@ -448,55 +460,41 @@ public class WriteManager {
 
 	}
 
-	private boolean update(Node node, Boolean checkReference, List<UpdateActionType> updateActions, String comment, RegistryResponseType response) {
-
-		// TODO: comment
+	private boolean update(EmbeddedGraphDatabase graphDB, Node node, Boolean checkReference, List<UpdateActionType> updateActions, ResponseContext response) {
+		
+		boolean result = false;
 		
 		try {
 
-			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
-			updateNode(node, checkReference, updateActions);
-			
-			// fill response with unique identifier of the registry
-			// object that has been successfully removed
-			
-			addIdToResponse(id, response);
+			updateNode(graphDB, node, checkReference, updateActions);
+			response.addNode(node);
+
 			return true;
 			
 		} catch (Exception e) {
-						
-			ExceptionManager em = ExceptionManager.getInstance();
-			
+									
 			response.setStatus(CanonicalConstants.FAILURE);
-			response.getException().add(em.toBinding(e));
+			response.addException(e);
 
 		}
 
-		return false;
+		return result;
 		
 	}
 	
-	private boolean version(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, String comment, RegistryResponseType response) {
-
-		// TODO: comment
+	private boolean version(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, ResponseContext response) {
 		
 		try {
 
-			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
 			versionNode(graphDB, node, registryObject, checkReference);
-			
-			// fill response with unique identifier of the registry
-			// object that has been successfully removed
-			
-			addIdToResponse(id, response);
+			response.addNode(node);
+
 			return true;
 			
 		} catch (Exception e) {
-						
-			ExceptionManager em = ExceptionManager.getInstance();
 			
 			response.setStatus(CanonicalConstants.FAILURE);
-			response.getException().add(em.toBinding(e));
+			response.addException(e);
 
 		}
 
@@ -504,27 +502,19 @@ public class WriteManager {
 		
 	}
 
-	private boolean delete(Node node, Boolean checkReference, Boolean deleteChildren, String deletionScope, String comment, RegistryResponseType response) {
-		
-		// TODO: comment
-		
-		try {
+	private boolean delete(Node node, Boolean checkReference, Boolean deleteChildren, String deletionScope, ResponseContext response) {
 
-			String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
+			try {
+
 			removeNode(node, checkReference, deleteChildren, deletionScope);
+			response.addNode(node);
 			
-			// fill response with unique identifier of the registry
-			// object that has been successfully removed
-			
-			addIdToResponse(id, response);
 			return true;
 			
 		} catch (Exception e) {
-						
-			ExceptionManager em = ExceptionManager.getInstance();
 			
 			response.setStatus(CanonicalConstants.FAILURE);
-			response.getException().add(em.toBinding(e));
+			response.addException(e);
 
 		}
 
@@ -537,7 +527,7 @@ public class WriteManager {
 	 * already exists, server MUST update the existing object without creating a new version.	
 	 */
 
-	private RegistryResponseType updateOnly(UpdateRequestContext context, RegistryResponseType response) {
+	private RegistryResponseType updateOnly(UpdateRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -548,11 +538,10 @@ public class WriteManager {
 
 			boolean result = false;
 
-			String comment = context.getComment();			
-			Boolean checkReference = context.isCheckReference();
+			Boolean checkReference = request.isCheckReference();
 			
-			List<ObjectRefType> objectRefs = context.getList();
-			List<UpdateActionType> updateActions = context.getUpdateActions();
+			List<ObjectRefType> objectRefs = request.getList();
+			List<UpdateActionType> updateActions = request.getUpdateActions();
 			
 			for (ObjectRefType objectRef:objectRefs) {
 				
@@ -566,17 +555,15 @@ public class WriteManager {
 				// it is expected, that the registry object is provided with a unique identifier
 				node = rm.findNodeByID(nid);
 				if (node == null) {
-					
-					ExceptionManager em = ExceptionManager.getInstance();
 				
 					response.setStatus(CanonicalConstants.FAILURE);
 
 					ObjectNotFoundException exception = new ObjectNotFoundException("[UpdateObjectsRequest] ObjectRefType node with id '" + nid + "' does not exist.");
-					response.getException().add(em.toBinding(exception));
+					response.addException(exception);
 					
 				} else {
 
-					result = update(node, checkReference, updateActions, comment, response);
+					result = update(graphDB, node, checkReference, updateActions, response);
 
 					// in case of a failure, the respective request
 					// is terminated and the error message sent back
@@ -600,9 +587,7 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		// asynchronous invocation of notification service
-		NotificationProcessor.getInstance().notify(response);		
-		return response;
+		return response.getResponse();
 
 	}
 
@@ -612,7 +597,7 @@ public class WriteManager {
 	 * the requested update action.
 	 */
 	
-	private RegistryResponseType updateAndVersion(UpdateRequestContext context, RegistryResponseType response) {
+	private RegistryResponseType updateAndVersion(UpdateRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -623,11 +608,10 @@ public class WriteManager {
 
 			boolean result = false;
 
-			String comment = context.getComment();			
-			Boolean checkReference = context.isCheckReference();
+			Boolean checkReference = request.isCheckReference();
 			
-			List<ObjectRefType> objectRefs = context.getList();
-			List<UpdateActionType> updateActions = context.getUpdateActions();
+			List<ObjectRefType> objectRefs = request.getList();
+			List<UpdateActionType> updateActions = request.getUpdateActions();
 			
 			for (ObjectRefType objectRef:objectRefs) {
 				
@@ -641,18 +625,16 @@ public class WriteManager {
 				// it is expected, that the registry object is provided with a unique identifier
 				node = rm.findNodeByID(nid);
 				if (node == null) {
-					
-					ExceptionManager em = ExceptionManager.getInstance();
 				
 					response.setStatus(CanonicalConstants.FAILURE);
 
 					ObjectNotFoundException exception = new ObjectNotFoundException("[UpdateObjectsRequest] ObjectRefType node with id '" + nid + "' does not exist.");
-					response.getException().add(em.toBinding(exception));
+					response.addException(exception);
 					
 				} else {
 
-					result = version(graphDB, node, null, checkReference, comment, response);
-					if (result == true) result = update(node, checkReference, updateActions, comment, response);
+					result = version(graphDB, node, null, checkReference, response);
+					if (result == true) result = update(graphDB, node, checkReference, updateActions, response);
 
 					// in case of a failure, the respective request
 					// is terminated and the error message sent back
@@ -676,9 +658,7 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		// asynchronous invocation of notification service
-		NotificationProcessor.getInstance().notify(response);		
-		return response;
+		return response.getResponse();
 
 	}
 	
@@ -720,16 +700,20 @@ public class WriteManager {
 	//
 	// as a third step, the node is filled from the binding object generated
 	
-	private void updateNode(Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {	
+	private void updateNode(EmbeddedGraphDatabase graphDB, Node node, Boolean checkReference, List<UpdateActionType> updateActions) throws Exception {	
 
 		ReadManager rm = ReadManager.getInstance();
 
-		String language = null;
+		// retrieve the object binding from the node provided
+		String language = null;		
 		Object binding = rm.toBinding(node, language);
 		
-		// update of a certain node is delegated to the UpdateProcessor
-		UpdateProcessor processor = new UpdateProcessor();
-		processor.process(node, binding, checkReference, updateActions);
+		// update the binding of a certain node
+		UpdateProcessor up = UpdateProcessor.getInstance();
+		binding = up.updateBinding(binding, checkReference, updateActions);
+
+		// finally fill the node from the modified binding
+		fillNode(graphDB, node, binding, checkReference);
 		
 	}
 
@@ -770,19 +754,6 @@ public class WriteManager {
 
 	    // TODO: indexing
 	    
-	}
-
-	// in case of a successful creation of a registry object, the respective
-	// object reference is added to the registry response
-
-	private void addIdToResponse(String id, RegistryResponseType response) {
-		
-		ObjectRefType objectRef = ebRIMFactory.createObjectRefType();
-		objectRef.setId(id);
-		
-		if (response.getObjectRefList() == null) response.setObjectRefList(ebRIMFactory.createObjectRefListType());
-		response.getObjectRefList().getObjectRef().add(objectRef);
-
 	}
 
 	/************************************************************************
