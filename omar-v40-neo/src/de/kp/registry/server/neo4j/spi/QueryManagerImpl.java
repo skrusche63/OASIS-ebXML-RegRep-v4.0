@@ -19,16 +19,8 @@ public class QueryManagerImpl {
 	
 	public QueryResponse executeQuery(QueryRequest request) {
 
-		QueryRequestContext queryContext = new QueryRequestContext(request);
-				
-		// Attribute id – The id attribute must be specified by the client to uniquely identify a request. Its 
-		// value SHOULD be a UUID URN like “urn:uuid:a2345678-1234-1234-123456789012”.
-		
-		String requestId = request.getId();
-
-		// initialize query response; as a first step, we make sure, that
-		// the request id provided by the incoming request is returned
-		QueryResponse queryResponse = createQueryResponse(requestId);
+		QueryRequestContext queryRequest = new QueryRequestContext(request);
+		QueryResponseContext queryResponse = new QueryResponseContext(request.getId());
 						
 		// Attribute federated – This optional attribute specifies that the server must 
 		// process this query as a federated query. By default its value is false. 
@@ -44,23 +36,19 @@ public class QueryManagerImpl {
 		if (federated == true) {
 			
 			FederatedReadManager rm = FederatedReadManager.getInstance();
-			return rm.executeQuery(queryContext, queryResponse);
+			queryResponse = rm.executeQuery(queryRequest, queryResponse);
 
+			return queryResponse.getQueryResponse();
 
 		} else {
 			
 			ReadManager rm = ReadManager.getInstance();
-			return rm.executeQuery(queryContext, queryResponse);
+			queryResponse = rm.executeQuery(queryRequest, queryResponse);
+
+			return queryResponse.getQueryResponse();
 
 		}
 		
 	}
-	
-	private QueryResponse createQueryResponse(String requestId) {
 
-		QueryResponse queryResponse = ebQueryFactory.createQueryResponse();		
-		queryResponse.setRequestId(requestId);
-		
-		return queryResponse;
-	}
 }

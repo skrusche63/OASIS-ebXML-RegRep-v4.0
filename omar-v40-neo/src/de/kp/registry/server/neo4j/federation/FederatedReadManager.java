@@ -1,8 +1,7 @@
 package de.kp.registry.server.neo4j.federation;
 
-import org.oasis.ebxml.registry.bindings.query.QueryResponse;
-
 import de.kp.registry.server.neo4j.spi.QueryRequestContext;
+import de.kp.registry.server.neo4j.spi.QueryResponseContext;
 
 public class FederatedReadManager {
 
@@ -16,7 +15,7 @@ public class FederatedReadManager {
 		return instance;
 	}
 	
- 	public QueryResponse executeQuery(QueryRequestContext queryContext, QueryResponse queryResponse) { 		
+ 	public QueryResponseContext executeQuery(QueryRequestContext queryRequest, QueryResponseContext queryResponse) { 		
  		
  		// The FederationManager MUST invoke the OASIS ebXML RegRep v4.0 WS Client functionality
  		return queryResponse; 		

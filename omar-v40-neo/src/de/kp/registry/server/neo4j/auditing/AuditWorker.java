@@ -20,8 +20,6 @@ public class AuditWorker implements Runnable {
 
 	public void run() {
 		
-		// The server MUST create a single AuditableEvent object as follows:
-		// 
 		// * If RegistryObjects were created by the request, it contain a single 
 		//   Action sub-element with eventType Created for all the RegistryObjects 
 		//   created during processing of the request
@@ -29,19 +27,16 @@ public class AuditWorker implements Runnable {
 			create(this.context.getAuditableEvent(CanonicalConstants.CREATED));			
 		}
 		
-		//
 		// * If RegistryObjects were updated by the request, it contain a single 
 		//   Action sub-element with eventType Updated for all the RegistryObjects
 		//   updated during processing of the request
-
 		if (this.context.isUpdated()) {
 			create(this.context.getAuditableEvent(CanonicalConstants.UPDATED));			
 		}
 		
 		//	* If RegistryObjects were removed by the request, it contain a single 
 		//    Action sub-element with eventType Deleted for all the RegistryObjects 
-		//    removed during processing of the request
-		
+		//    removed during processing of the request		
 		if (this.context.isDeleted()) {
 			create(this.context.getAuditableEvent(CanonicalConstants.DELETED));
 		}

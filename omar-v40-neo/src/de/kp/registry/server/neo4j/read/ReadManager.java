@@ -9,7 +9,6 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
-import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
@@ -19,6 +18,7 @@ import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.spi.CanonicalConstants;
 import de.kp.registry.server.neo4j.spi.QueryRequestContext;
+import de.kp.registry.server.neo4j.spi.QueryResponseContext;
 
 public class ReadManager {
 
@@ -66,16 +66,16 @@ public class ReadManager {
 
 	}
  	
- 	public QueryResponse executeQuery(QueryRequestContext context, QueryResponse response) { 		
+ 	public QueryResponseContext executeQuery(QueryRequestContext request, QueryResponseContext response) { 		
  		
  		// retrieve cypher query language statement from the query context
  		try {
  			
- 			String cypherQuery = context.getCypherQuery();
+ 			String cypherQuery = request.getCypherQuery();
  			if (cypherQuery == null) throw new InvalidRequestException("[QueryRequest] The query expression associated with the request is invalid.");
  			 
  			// reflect the incoming parameter 'startIndex'
- 			response.setStartIndex(context.getStartIndex());
+ 			response.setStartIndex(request.getStartIndex());
 
  			// the name of the request row is uniquely described as "n"
  	 		ExecutionResult result = engine.execute(cypherQuery);
@@ -83,9 +83,9 @@ public class ReadManager {
 
  	 		// the result depends on the response option and the 
  	 		// return type defined there
- 	 		String returnType = context.getReturnType();
+ 	 		String returnType = request.getReturnType();
  	 		if (returnType.equals(CanonicalConstants.LEAF_CLASS)) {
- 	 			addLeafClassToResponse(context, nodes, response);
+ 	 			addLeafClassToResponse(request, nodes, response);
  	 		
  	 		} else if (returnType.equals(CanonicalConstants.LEAF_CLASS_RI)) {
  
@@ -93,21 +93,21 @@ public class ReadManager {
  	 			// requirement that the response include the RepositoryItems, if any, 
  	 			// for every rim:ExtrinsicObjectType instance in the <rim:RegistryObjectList> 
  	 			// element.
- 	 			addLeafClassRIToResponse(context, nodes, response);
+ 	 			addLeafClassRIToResponse(request, nodes, response);
  	 		
  	 		} else if (returnType.equals(CanonicalConstants.OBJECT_REF)) {
 
  	 			// This option specifies that the QueryResponse MUST contain a 
  	 			// <rim:ObjectRefList> element. The purpose of this option is to 
  	 			// return references to objects rather than the actual objects.
- 	 			addObjectRefToResponse(context, nodes, response);
+ 	 			addObjectRefToResponse(request, nodes, response);
  	 			
  	 		} else if (returnType.equals(CanonicalConstants.REGISTRY_OBEJCT)) {
 
  	 			// This option specifies that the QueryResponse MUST contain a 
  	 			// <rim:RegistryObjectList> element containing <rim:RegistryObject> 
  	 			// elements with xsi:type=“rim:RegistryObjectType”.
- 	 			addRegistryObjectToResponse(context, nodes, response);
+ 	 			addRegistryObjectToResponse(request, nodes, response);
  	 			
  	 		}
  			
@@ -133,12 +133,10 @@ public class ReadManager {
 
  	// TODO: matchOlderVersions
  	
- 	private void addLeafClassToResponse(QueryRequestContext context, Iterator<Node> nodes, QueryResponse response) {
-
-		if (response.getRegistryObjectList() == null) response.setRegistryObjectList(ebRIMFactory.createRegistryObjectListType());
+ 	private void addLeafClassToResponse(QueryRequestContext request, Iterator<Node> nodes, QueryResponseContext response) {
 
 		// the language provided is used to evaluate internal strings
-		String language = context.getLanguage();
+		String language = request.getLanguage();
 		
 		int totalResultCount = 0;
 		try {
@@ -152,7 +150,7 @@ public class ReadManager {
 
 	 			// TODO
 	 			
-	 			response.getRegistryObjectList().getRegistryObject().add(binding);
+	 			response.addRegistryObject(binding);
 	
 	 		}
 
@@ -166,12 +164,10 @@ public class ReadManager {
  			
  	}
 
- 	private void addLeafClassRIToResponse(QueryRequestContext context, Iterator<Node> nodes, QueryResponse response) {
-
-		if (response.getRegistryObjectList() == null) response.setRegistryObjectList(ebRIMFactory.createRegistryObjectListType());
+ 	private void addLeafClassRIToResponse(QueryRequestContext request, Iterator<Node> nodes, QueryResponseContext response) {
 
 		// the language provided is used to evaluate internal strings
-		String language = context.getLanguage();
+		String language = request.getLanguage();
 
 		int totalResultCount = 0;		
 		try {
@@ -185,8 +181,8 @@ public class ReadManager {
 	 			RegistryObjectType binding = (RegistryObjectType)toBinding(node, language);
 
 	 			// TODO
-	 			
-	 			response.getRegistryObjectList().getRegistryObject().add(binding);
+	 				 			
+	 			response.addRegistryObject(binding);
 
 	 		}
 			
@@ -201,9 +197,7 @@ public class ReadManager {
  			
  	}
 
- 	private void addObjectRefToResponse(QueryRequestContext context, Iterator<Node> nodes, QueryResponse response) {
-
-		if (response.getObjectRefList() == null) response.setObjectRefList(ebRIMFactory.createObjectRefListType());
+ 	private void addObjectRefToResponse(QueryRequestContext request, Iterator<Node> nodes, QueryResponseContext response) {
 
 		int totalResultCount = 0;
  		while (nodes.hasNext()) {
@@ -217,7 +211,7 @@ public class ReadManager {
  			ObjectRefType objectRef = ebRIMFactory.createObjectRefType();
  			objectRef.setId(id);
  			
- 			response.getObjectRefList().getObjectRef().add(objectRef);
+ 			response.addObjectRef(objectRef);
 
  		}
 
@@ -226,12 +220,10 @@ public class ReadManager {
  		
  	}
  	
- 	private void addRegistryObjectToResponse(QueryRequestContext context, Iterator<Node> nodes, QueryResponse response) {
-
-		if (response.getRegistryObjectList() == null) response.setRegistryObjectList(ebRIMFactory.createRegistryObjectListType());
+ 	private void addRegistryObjectToResponse(QueryRequestContext request, Iterator<Node> nodes, QueryResponseContext response) {
 
 		// the language provided is used to evaluate internal strings
-		String language = context.getLanguage();
+		String language = request.getLanguage();
 
 		int totalResultCount = 0;		
 		try {
@@ -244,7 +236,7 @@ public class ReadManager {
 	 			Node node = nodes.next();
 	 			RegistryObjectType binding = (RegistryObjectType)toBinding(node, language);
 	 			
-	 			response.getRegistryObjectList().getRegistryObject().add(binding);
+	 			response.addRegistryObject(binding);
 	
 	 		}
 
