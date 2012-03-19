@@ -5,7 +5,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
 import de.kp.registry.server.neo4j.domain.NEOBase;
-import de.kp.registry.server.neo4j.write.VersionProcessor;
+import de.kp.registry.server.neo4j.write.VersionHandler;
 
 public class VersionInfoTypeNEO extends NEOBase {
 
@@ -42,7 +42,7 @@ public class VersionInfoTypeNEO extends NEOBase {
 		// __DESIGN__
 		
 		// the versionName is automatically set by the server
-		versionName = new VersionProcessor().getNextVersion(null);
+		versionName = VersionHandler.getInstance().getNextVersion(null);
 		versionInfoTypeNode.setProperty(OASIS_RIM_VERSION_NAME, versionName);
 		
 		return versionInfoTypeNode;

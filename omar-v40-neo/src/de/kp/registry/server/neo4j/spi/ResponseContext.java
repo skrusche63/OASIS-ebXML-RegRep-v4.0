@@ -1,5 +1,8 @@
 package de.kp.registry.server.neo4j.spi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.neo4j.graphdb.Node;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
@@ -16,9 +19,19 @@ public class ResponseContext {
 	public static org.oasis.ebxml.registry.bindings.rs.ObjectFactory ebRSFactory = new org.oasis.ebxml.registry.bindings.rs.ObjectFactory();
 
 	private RegistryResponseType response;
+
+	private List<ObjectRefType> created;
+	private List<ObjectRefType> updated;
+	private List<ObjectRefType> deleted;
 	
 	public ResponseContext(String requestId) {
 
+		// initialize audit support data structures
+		created = new ArrayList<ObjectRefType>();
+		
+		updated = new ArrayList<ObjectRefType>();
+		deleted = new ArrayList<ObjectRefType>();
+		
 		this.response = ebRSFactory.createRegistryResponseType();
 		
 		// - REQUEST-ID
@@ -28,9 +41,13 @@ public class ResponseContext {
 
 		this.response.setRequestId(requestId);		
 
+		// - OBJECTREF-LIST
+		
+		if (this.response.getObjectRefList() == null) this.response.setObjectRefList(ebRIMFactory.createObjectRefListType());
+
 	}
 	
-	public RegistryResponseType getResponse() {
+	public RegistryResponseType getRegistryResponse() {
 		return this.response;
 	}
 	
@@ -49,18 +66,53 @@ public class ResponseContext {
 
 	}
 	
-	public void addNode(Node node) {
+	public void addCreated(Node node) {
+
+		ObjectRefType objectRef = createObjectRef(node);
+		created.add(objectRef);
+		
+		this.response.getObjectRefList().getObjectRef().add(objectRef);
+		
+	}
+
+	public List<ObjectRefType> getCreated() {		
+		return (created.size() == 0) ? null : created;
+	}
+	
+	public void addUpdated(Node node) {
+
+		ObjectRefType objectRef = createObjectRef(node);
+		updated.add(objectRef);
+		
+		this.response.getObjectRefList().getObjectRef().add(objectRef);
+		
+	}
+
+	public List<ObjectRefType> getUpdated() {		
+		return (updated.size() == 0) ? null : updated;
+	}
+
+	public void addDeleted(Node node) {
+
+		ObjectRefType objectRef = createObjectRef(node);
+		deleted.add(objectRef);
+		
+		this.response.getObjectRefList().getObjectRef().add(objectRef);
+		
+	}
+
+	public List<ObjectRefType> getDeleted() {		
+		return (deleted.size() == 0) ? null : deleted;
+	}
+
+	private ObjectRefType createObjectRef(Node node) {
 
 		String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
-
-		// in case of a successful creation of a registry object, the respective
-		// object reference is added to the registry response
 			
 		ObjectRefType objectRef = ebRIMFactory.createObjectRefType();
 		objectRef.setId(id);
 		
-		if (this.response.getObjectRefList() == null) this.response.setObjectRefList(ebRIMFactory.createObjectRefListType());
-		this.response.getObjectRefList().getObjectRef().add(objectRef);
-
+		return objectRef;
+		
 	}
 }

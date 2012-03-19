@@ -85,12 +85,6 @@ public class ReadManager {
  	 		// return type defined there
  	 		String returnType = context.getReturnType();
  	 		if (returnType.equals(CanonicalConstants.LEAF_CLASS)) {
- 	 			
- 	 			// This option specifies that the QueryResponse MUST contain a collection of
- 	 			// <rim:RegistryObjectList> element containing <rim:RegistryObject> elements 
- 	 			// that have an xsi:type attribute that corresponds to leaf classes as defined 
- 	 			// in [regrep-xsd-v4.0]. No RepositoryItems SHOULD be included for any 
- 	 			// rim:ExtrinsicObjectType instance in the <rim:Registry-ObjectList> element.
  	 			addLeafClassToResponse(context, nodes, response);
  	 		
  	 		} else if (returnType.equals(CanonicalConstants.LEAF_CLASS_RI)) {
@@ -130,6 +124,15 @@ public class ReadManager {
  	
  	}
 
+		
+	// This option specifies that the QueryResponse MUST contain a collection of
+	// <rim:RegistryObjectList> element containing <rim:RegistryObject> elements 
+	// that have an xsi:type attribute that corresponds to leaf classes as defined 
+	// in [regrep-xsd-v4.0]. No RepositoryItems SHOULD be included for any 
+	// rim:ExtrinsicObjectType instance in the <rim:Registry-ObjectList> element.
+
+ 	// TODO: matchOlderVersions
+ 	
  	private void addLeafClassToResponse(QueryRequestContext context, Iterator<Node> nodes, QueryResponse response) {
 
 		if (response.getRegistryObjectList() == null) response.setRegistryObjectList(ebRIMFactory.createRegistryObjectListType());

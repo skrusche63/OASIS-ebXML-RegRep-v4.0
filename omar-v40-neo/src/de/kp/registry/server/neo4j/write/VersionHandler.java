@@ -7,13 +7,20 @@ import org.neo4j.graphdb.Relationship;
 
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 
-public class VersionProcessor {
+public class VersionHandler {
 	    
 	private static String INITIAL_VERSION = "1.0";
 	
-	public VersionProcessor() {
+	private static VersionHandler instance = new VersionHandler();
+	
+	private VersionHandler() {
 	}
 	    
+	public static VersionHandler getInstance() {
+		if (instance == null) instance = new VersionHandler();
+		return instance;
+	}
+	
 	public Node getVersion(Node node) {
 
 		Iterable<Relationship> relationships = node.getRelationships(RelationTypes.hasVersion);

@@ -4,14 +4,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class AuditProcessor {
+public class AuditHandler {
 
-	private static AuditProcessor instance = new AuditProcessor();
+	private static AuditHandler instance = new AuditHandler();
 	
-	private AuditProcessor() {}
+	private AuditHandler() {}
 	
-	public static AuditProcessor getInstance() {
-		if (instance == null) instance = new AuditProcessor();
+	public static AuditHandler getInstance() {
+		if (instance == null) instance = new AuditHandler();
 		return instance;
 	}
 	

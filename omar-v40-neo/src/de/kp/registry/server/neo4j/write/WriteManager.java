@@ -10,10 +10,8 @@ import org.oasis.ebxml.registry.bindings.lcm.Mode;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
-import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
-
 import de.kp.registry.server.neo4j.auditing.AuditContext;
-import de.kp.registry.server.neo4j.auditing.AuditProcessor;
+import de.kp.registry.server.neo4j.auditing.AuditHandler;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
@@ -64,7 +62,7 @@ public class WriteManager {
 	 ***********************************************************************/
 
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType submitObjects(SubmitRequestContext request, ResponseContext response) {
+	public ResponseContext submitObjects(SubmitRequestContext request, ResponseContext response) {
 		
 		String modeValue = request.getMode();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
@@ -100,7 +98,7 @@ public class WriteManager {
 	}
 	
 	// this public method is used by the LifecycleManager
-	public RegistryResponseType removeObjects(RemoveRequestContext request, ResponseContext response) {	
+	public ResponseContext removeObjects(RemoveRequestContext request, ResponseContext response) {	
 
 		ReadManager rm = ReadManager.getInstance();
 		
@@ -154,11 +152,18 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return response.getResponse();
+		// audit the result
+		audit(request, response);
+
+		// notify subscribers
+		notify(response);
+		
+		// return response
+		return response;
 
 	}
 	
-	public RegistryResponseType updateObjects(UpdateRequestContext request, ResponseContext response) {
+	public ResponseContext updateObjects(UpdateRequestContext request, ResponseContext response) {
 
 		String modeValue = request.getMode();
 		if (modeValue.equals(Mode.CREATE_ONLY)) {
@@ -173,7 +178,7 @@ public class WriteManager {
 			InvalidRequestException exception = new InvalidRequestException("[UpdatetObjectsRequest] The mode '" + modeValue + "' is not allowed.");
 			response.addException(exception);
 			
-			return response.getResponse();
+			return response;
 			
 		} else if (modeValue.equals(Mode.CREATE_OR_REPLACE)) {
 			
@@ -199,8 +204,8 @@ public class WriteManager {
 	
 	// private methods to support the submitObjects request
 
-	private RegistryResponseType createOnly(SubmitRequestContext request, ResponseContext response) {
-
+	private ResponseContext createOnly(SubmitRequestContext request, ResponseContext response) {
+		
 		ReadManager rm = ReadManager.getInstance();
 
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
@@ -260,19 +265,18 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		// audit the result of this request
-		request.setEvent(CanonicalConstants.CREATED);
+		// audit the result
 		audit(request, response);
 
 		// notify subscribers
 		notify(response);
 		
 		// return response
-		return response.getResponse();
+		return response;
 		
 	}
 
-	private RegistryResponseType createOrReplace(SubmitRequestContext request, ResponseContext response) {
+	private ResponseContext createOrReplace(SubmitRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 		
@@ -327,11 +331,18 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return response.getResponse();
+		// audit the result
+		audit(request, response);
+
+		// notify subscribers
+		notify(response);
+		
+		// return response
+		return response;
 		
 	}
 
-	private RegistryResponseType createOrVersion(SubmitRequestContext request, ResponseContext response) {
+	private ResponseContext createOrVersion(SubmitRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -389,42 +400,38 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return response.getResponse();
+		// audit the result
+		audit(request, response);
+
+		// notify subscribers
+		notify(response);
+		
+		// return response
+		return response;
 
 	}
-
-	// TODO: hier muss wohl die Liste der Objekte mit den
-	// entsprechenden Events passieren... create kann
-	// auch ein replace sein und ist damit ein update
 	
 	private void audit(RequestContext request, ResponseContext response) {
 		
-		AuditContext auditContext = new AuditContext();
-		
-		auditContext.setEvent(request.getEvent());
-		auditContext.setUser(request.getUser());
-
-		auditContext.setResponse(response.getResponse());
-		AuditProcessor.getInstance().audit(auditContext);
+		AuditContext auditContext = new AuditContext(request, response);
+		AuditHandler.getInstance().audit(auditContext);
 
 	}
 	
 	private void notify(ResponseContext response) {
-		NotificationProcessor.getInstance().notify(response.getResponse());				
+		NotificationProcessor.getInstance().notify(response.getRegistryResponse());				
 	}
 	
 	// this method expects that no node with the unique identifier provided
 	// with the registryObject exists in the database
 	
 	private boolean create(EmbeddedGraphDatabase graphDB, RegistryObjectType registryObject, Boolean checkReference, ResponseContext response) {
-		
-		Node node;
 
 		try {
 
 			// create new node within database
-			node = toNode(graphDB, registryObject, checkReference);
-			response.addNode(node);
+			Node node = toNode(graphDB, registryObject, checkReference);
+			response.addCreated(node);
 			
 			return true;
 			
@@ -445,7 +452,7 @@ public class WriteManager {
 
 			// replace existing node within database
 			node = fillNode(graphDB, node, registryObject, checkReference);
-			response.addNode(node);
+			response.addUpdated(node);
 
 			return true;
 			
@@ -467,7 +474,7 @@ public class WriteManager {
 		try {
 
 			updateNode(graphDB, node, checkReference, updateActions);
-			response.addNode(node);
+			response.addUpdated(node);
 
 			return true;
 			
@@ -482,12 +489,14 @@ public class WriteManager {
 		
 	}
 	
+	// this version method is used for createOrVersion requests
+	
 	private boolean version(EmbeddedGraphDatabase graphDB, Node node, RegistryObjectType registryObject, Boolean checkReference, ResponseContext response) {
 		
 		try {
 
-			versionNode(graphDB, node, registryObject, checkReference);
-			response.addNode(node);
+			Node target = versionNode(graphDB, node, registryObject, checkReference);
+			response.addCreated(target);
 
 			return true;
 			
@@ -502,12 +511,33 @@ public class WriteManager {
 		
 	}
 
+	// this version method is used for updateAndVersion requests
+	
+	private Node version(EmbeddedGraphDatabase graphDB, Node node, Boolean checkReference, ResponseContext response) {
+		
+		Node target = null;
+
+		try {
+			target = versionNode(graphDB, node, null, checkReference);
+			
+		} catch (Exception e) {
+			
+			response.setStatus(CanonicalConstants.FAILURE);
+			response.addException(e);
+
+		}
+		
+		return target;
+
+	}
+
+	
 	private boolean delete(Node node, Boolean checkReference, Boolean deleteChildren, String deletionScope, ResponseContext response) {
 
 			try {
 
 			removeNode(node, checkReference, deleteChildren, deletionScope);
-			response.addNode(node);
+			response.addDeleted(node);
 			
 			return true;
 			
@@ -527,7 +557,7 @@ public class WriteManager {
 	 * already exists, server MUST update the existing object without creating a new version.	
 	 */
 
-	private RegistryResponseType updateOnly(UpdateRequestContext request, ResponseContext response) {
+	private ResponseContext updateOnly(UpdateRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -587,7 +617,14 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return response.getResponse();
+		// audit the result
+		audit(request, response);
+
+		// notify subscribers
+		notify(response);
+		
+		// return response
+		return response;
 
 	}
 
@@ -597,7 +634,7 @@ public class WriteManager {
 	 * the requested update action.
 	 */
 	
-	private RegistryResponseType updateAndVersion(UpdateRequestContext request, ResponseContext response) {
+	private ResponseContext updateAndVersion(UpdateRequestContext request, ResponseContext response) {
 
 		ReadManager rm = ReadManager.getInstance();
 
@@ -633,8 +670,8 @@ public class WriteManager {
 					
 				} else {
 
-					result = version(graphDB, node, null, checkReference, response);
-					if (result == true) result = update(graphDB, node, checkReference, updateActions, response);
+					Node target = version(graphDB, node, checkReference, response);
+					if (target != null) result = update(graphDB, target, checkReference, updateActions, response);
 
 					// in case of a failure, the respective request
 					// is terminated and the error message sent back
@@ -658,7 +695,14 @@ public class WriteManager {
 			tx.finish();
 		}
 
-		return response.getResponse();
+		// audit the result
+		audit(request, response);
+
+		// notify subscribers
+		notify(response);
+		
+		// return response
+		return response;
 
 	}
 	
@@ -709,7 +753,7 @@ public class WriteManager {
 		Object binding = rm.toBinding(node, language);
 		
 		// update the binding of a certain node
-		UpdateProcessor up = UpdateProcessor.getInstance();
+		UpdateHandler up = UpdateHandler.getInstance();
 		binding = up.updateBinding(binding, checkReference, updateActions);
 
 		// finally fill the node from the modified binding
@@ -733,12 +777,15 @@ public class WriteManager {
 	//
 	// as a second step, the fillNode mechanism is used except for the version information
 	
-	private void versionNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
+	private Node versionNode(EmbeddedGraphDatabase graphDB, Node node, Object binding, boolean checkReference) throws Exception {
 
 		Node target = NEOBase.cloneAndVersionNode(graphDB, node);
+
+		// index target object
+		Database.getInstance().getNodeIndex().add(target, NEOBase.OASIS_RIM_ID, target.getProperty(NEOBase.OASIS_RIM_ID));			    
 		
 		// in case of an update request, the provided binding object may be null
-		if (binding == null) return;
+		if (binding == null) return target;
 
 		// in case of a versioning request, the VersionInfoType is excluded from
 		// the fill request, as the respective information is already set with
@@ -752,7 +799,7 @@ public class WriteManager {
 	    Method method = clazz.getMethod("fillNode", graphDB.getClass(), Node.class, Object.class, boolean.class, boolean.class);
 	    method.invoke(null, graphDB, node, binding, checkReference, excludeVersion);
 
-	    // TODO: indexing
+	    return target;
 	    
 	}
 

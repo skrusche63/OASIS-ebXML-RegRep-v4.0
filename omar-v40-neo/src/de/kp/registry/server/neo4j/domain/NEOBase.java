@@ -12,7 +12,7 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ObjectFactory;
 import de.kp.registry.server.neo4j.database.Database;
-import de.kp.registry.server.neo4j.write.VersionProcessor;
+import de.kp.registry.server.neo4j.write.VersionHandler;
 
 // the super class for all classes building the bridge
 // between JAXB binding of the OASIS ebRIM and the
@@ -224,11 +224,11 @@ public class NEOBase {
 		}
 		
 		// update unique identifier with respective version info
-		VersionProcessor vp = new VersionProcessor();
-		Node sourceVersionInfo = vp.getVersion(source);
+		VersionHandler vh = VersionHandler.getInstance();
+		Node sourceVersionInfo = vh.getVersion(source);
 
 		String last = sourceVersionInfo.hasProperty(OASIS_RIM_VERSION_NAME) ? (String)sourceVersionInfo.getProperty(OASIS_RIM_VERSION_NAME) : null;
-		String next = vp.getNextVersion(last);
+		String next = vh.getNextVersion(last);
 		
         String id = source.getProperty(OASIS_RIM_LID) + ":" + next;
         target.setProperty(OASIS_RIM_ID, id);

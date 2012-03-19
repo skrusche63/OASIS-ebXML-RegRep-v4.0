@@ -5,6 +5,7 @@ import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
+import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.write.WriteManager;
 
 public class LifecycleManagerImpl {
@@ -12,42 +13,67 @@ public class LifecycleManagerImpl {
 	// reference to OASIS ebRS object factory
 	public static org.oasis.ebxml.registry.bindings.rs.ObjectFactory ebRSFactory = new org.oasis.ebxml.registry.bindings.rs.ObjectFactory();
 
+	// reference to authorization handler
+	private static AuthorizationHandler ah = AuthorizationHandler.getInstance();
+	
 	public LifecycleManagerImpl() {		
 	}
 
 	public RegistryResponseType removeObjects(RemoveObjectsRequest request) {
 		
-		RemoveRequestContext  removeContext = new RemoveRequestContext(request);
+		RemoveRequestContext  removeRequest = new RemoveRequestContext(request);
 		RemoveResponseContext removeResponse = new RemoveResponseContext(request.getId());
+
+		// Authorization of RemoveObjectsRequest
+		boolean result = ah.authorizeRemoveRequest(removeRequest);
+		if (result == false) {			
+			// TODO
+			return null;
+		}
 						
 		WriteManager wm = WriteManager.getInstance();
-		return wm.removeObjects(removeContext, removeResponse);
+		removeResponse = (RemoveResponseContext)wm.removeObjects(removeRequest, removeResponse);
+		
+		return removeResponse.getRegistryResponse();
 		
 	}
-
-	/*
-	 * The SubmitObjects protocol allows a client to submit RegistryObjects to the server. 
-	 * It also allows a client to completely replace existing RegistryObjects in the server.
-	 */
 	
 	public RegistryResponseType submitObjects(SubmitObjectsRequest request) {
 		
 		SubmitRequestContext submitRequest = new SubmitRequestContext(request);
 		SubmitResponseContext submitResponse = new SubmitResponseContext(request.getId());
 
+		// Authorization of SubmitObjectsRequest
+		boolean result = ah.authorizeSubmitRequest(submitRequest);
+		if (result == false) {			
+			// TODO
+			return null;
+		}
+		
 		WriteManager wm = WriteManager.getInstance();
-		return wm.submitObjects(submitRequest, submitResponse);
+		submitResponse = (SubmitResponseContext) wm.submitObjects(submitRequest, submitResponse);
+		
+		return submitResponse.getRegistryResponse();
 		
 	}
 
 	public RegistryResponseType updateObjects(UpdateObjectsRequest request) {
 
-		UpdateRequestContext updateContext = new UpdateRequestContext(request);
+		UpdateRequestContext updateRequest = new UpdateRequestContext(request);
 		UpdateResponseContext updateResponse = new UpdateResponseContext(request.getId());
+
+		// Authorization of UpdateObjectsRequest
+		boolean result = ah.authorizeUpdateRequest(updateRequest);
+		if (result == false) {			
+			// TODO
+			return null;
+		}
 		
 		WriteManager wm = WriteManager.getInstance();
-		return wm.updateObjects(updateContext, updateResponse);
+		updateResponse = (UpdateResponseContext) wm.updateObjects(updateRequest, updateResponse);
 
+		return updateResponse.getRegistryResponse();
+		
 	}
 
 }

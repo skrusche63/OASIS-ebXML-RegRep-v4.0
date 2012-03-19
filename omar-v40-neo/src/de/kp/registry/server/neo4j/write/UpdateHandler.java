@@ -31,14 +31,14 @@ import org.oasis.ebxml.registry.bindings.rim.XMLQueryExpressionType;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
-public class UpdateProcessor {
+public class UpdateHandler {
 	
-	private static UpdateProcessor instance = new UpdateProcessor();
+	private static UpdateHandler instance = new UpdateHandler();
 	
-	private UpdateProcessor() {}
+	private UpdateHandler() {}
 	
-	public static UpdateProcessor getInstance() {
-		if (instance == null) instance = new UpdateProcessor();
+	public static UpdateHandler getInstance() {
+		if (instance == null) instance = new UpdateHandler();
 		return instance;
 	}
 	
