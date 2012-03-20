@@ -1,4 +1,9 @@
-package de.kp.registry.server.neo4j.spi;
+package de.kp.registry.server.neo4j.qm;
+
+import javax.annotation.Resource;
+import javax.jws.HandlerChain;
+import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
 
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
@@ -8,8 +13,18 @@ import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.federation.FederatedReadManager;
 import de.kp.registry.server.neo4j.read.ReadManager;
+import de.kp.registry.server.neo4j.service.MsgRegistryException;
+import de.kp.registry.server.neo4j.service.QueryManager;
 
-public class QueryManagerImpl {
+@WebService(name = "QueryManager", serviceName = "QueryManager", portName = "QueryManagerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
+endpointInterface = "de.kp.registry.server.neo4j.service.QueryManager")
+
+@HandlerChain(file="handler-chain.xml")
+
+public class QueryManagerImpl implements QueryManager {
+
+	@Resource 
+	WebServiceContext wsContext;
 
 	// reference to OASIS ebQuery object factory
 	public static org.oasis.ebxml.registry.bindings.query.ObjectFactory ebQueryFactory = new org.oasis.ebxml.registry.bindings.query.ObjectFactory();
@@ -23,7 +38,7 @@ public class QueryManagerImpl {
 	public QueryManagerImpl() {
 	}
 	
-	public QueryResponse executeQuery(QueryRequest request) {
+	public QueryResponse executeQuery(QueryRequest request) throws MsgRegistryException {
 
 		QueryRequestContext queryRequest = new QueryRequestContext(request);
 		QueryResponseContext queryResponse = new QueryResponseContext(request.getId());

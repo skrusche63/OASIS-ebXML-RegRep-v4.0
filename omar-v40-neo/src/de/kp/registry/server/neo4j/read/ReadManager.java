@@ -13,12 +13,12 @@ import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
+import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
-import de.kp.registry.server.neo4j.spi.CanonicalConstants;
-import de.kp.registry.server.neo4j.spi.QueryRequestContext;
-import de.kp.registry.server.neo4j.spi.QueryResponseContext;
+import de.kp.registry.server.neo4j.qm.QueryRequestContext;
+import de.kp.registry.server.neo4j.qm.QueryResponseContext;
 
 public class ReadManager {
 
@@ -113,10 +113,9 @@ public class ReadManager {
  			
  		} catch (Exception e) {
  		
- 			// TODO
- 			
- 			// in case of an exception, we fill the respective exception 
- 			// into the queryResponse
+ 			// this exception describes an InvalidQueryException
+ 			// due to an invalid query expression
+ 			response.addException(e);
  			
  		}
  		
@@ -156,7 +155,9 @@ public class ReadManager {
 
 		} catch (Exception e) {
 			
-			// TODO
+			// add exception to response
+			response.addException(e);
+			
 		}
 		
  		// add total result count to response
@@ -188,7 +189,8 @@ public class ReadManager {
 			
 		} catch (Exception e) {
 			
-			// TODO
+			// add exception to response
+			response.addException(e);
 			
 		}
 
@@ -241,8 +243,9 @@ public class ReadManager {
 	 		}
 
 		} catch(Exception e) {
-		
-			// TODO
+			
+			// add exception to response
+			response.addException(e);
 		}
  		
 		// add total result count to response

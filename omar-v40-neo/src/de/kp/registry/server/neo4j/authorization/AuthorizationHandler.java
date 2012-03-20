@@ -1,9 +1,9 @@
 package de.kp.registry.server.neo4j.authorization;
 
-import de.kp.registry.server.neo4j.spi.QueryResponseContext;
-import de.kp.registry.server.neo4j.spi.RemoveRequestContext;
-import de.kp.registry.server.neo4j.spi.SubmitRequestContext;
-import de.kp.registry.server.neo4j.spi.UpdateRequestContext;
+import de.kp.registry.server.neo4j.lcm.RemoveRequestContext;
+import de.kp.registry.server.neo4j.lcm.SubmitRequestContext;
+import de.kp.registry.server.neo4j.lcm.UpdateRequestContext;
+import de.kp.registry.server.neo4j.qm.QueryResponseContext;
 
 public class AuthorizationHandler {
 

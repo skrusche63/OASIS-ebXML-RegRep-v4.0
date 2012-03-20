@@ -5,10 +5,10 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 
+import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.event.AuditableEventTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
-import de.kp.registry.server.neo4j.spi.CanonicalConstants;
 
 public class AuditWorker implements Runnable {
 	

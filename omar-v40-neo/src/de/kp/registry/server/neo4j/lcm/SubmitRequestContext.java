@@ -1,10 +1,12 @@
-package de.kp.registry.server.neo4j.spi;
+package de.kp.registry.server.neo4j.lcm;
 
 import java.util.List;
 
 import org.oasis.ebxml.registry.bindings.lcm.Mode;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
+
+import de.kp.registry.server.neo4j.common.RequestContext;
 
 public class SubmitRequestContext extends RequestContext {
 

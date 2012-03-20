@@ -1,4 +1,9 @@
-package de.kp.registry.server.neo4j.spi;
+package de.kp.registry.server.neo4j.lcm;
+
+import javax.annotation.Resource;
+import javax.jws.HandlerChain;
+import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
 
 import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
@@ -9,9 +14,19 @@ import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
+import de.kp.registry.server.neo4j.service.LifecycleManager;
+import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.write.WriteManager;
 
-public class LifecycleManagerImpl {
+@WebService(name = "LifecycleManager", serviceName = "LifecycleManager", portName = "LifecycleManagerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
+endpointInterface = "de.kp.registry.server.neo4j.service.LifecycleManager")
+
+@HandlerChain(file="handler-chain.xml")
+
+public class LifecycleManagerImpl implements LifecycleManager {
+
+	@Resource 
+	WebServiceContext wsContext;
 
 	// reference to OASIS ebRS object factory
 	public static org.oasis.ebxml.registry.bindings.rs.ObjectFactory ebRSFactory = new org.oasis.ebxml.registry.bindings.rs.ObjectFactory();
@@ -22,7 +37,7 @@ public class LifecycleManagerImpl {
 	public LifecycleManagerImpl() {		
 	}
 
-	public RegistryResponseType removeObjects(RemoveObjectsRequest request) {
+	public RegistryResponseType removeObjects(RemoveObjectsRequest request) throws MsgRegistryException {
 		
 		RemoveRequestContext  removeRequest = new RemoveRequestContext(request);
 		RemoveResponseContext removeResponse = new RemoveResponseContext(request.getId());
@@ -57,7 +72,7 @@ public class LifecycleManagerImpl {
 		
 	}
 	
-	public RegistryResponseType submitObjects(SubmitObjectsRequest request) {
+	public RegistryResponseType submitObjects(SubmitObjectsRequest request) throws MsgRegistryException {
 		
 		SubmitRequestContext submitRequest = new SubmitRequestContext(request);
 		SubmitResponseContext submitResponse = new SubmitResponseContext(request.getId());
@@ -92,7 +107,7 @@ public class LifecycleManagerImpl {
 		
 	}
 
-	public RegistryResponseType updateObjects(UpdateObjectsRequest request) {
+	public RegistryResponseType updateObjects(UpdateObjectsRequest request) throws MsgRegistryException {
 
 		UpdateRequestContext updateRequest = new UpdateRequestContext(request);
 		UpdateResponseContext updateResponse = new UpdateResponseContext(request.getId());

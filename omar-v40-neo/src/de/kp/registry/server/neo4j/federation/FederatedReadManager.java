@@ -1,7 +1,7 @@
 package de.kp.registry.server.neo4j.federation;
 
-import de.kp.registry.server.neo4j.spi.QueryRequestContext;
-import de.kp.registry.server.neo4j.spi.QueryResponseContext;
+import de.kp.registry.server.neo4j.qm.QueryRequestContext;
+import de.kp.registry.server.neo4j.qm.QueryResponseContext;
 
 public class FederatedReadManager {
 

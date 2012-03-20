@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.spi;
+package de.kp.registry.server.neo4j.qm;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -11,11 +11,11 @@ import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.SlotType;
 import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
 
+import de.kp.registry.server.neo4j.common.RequestContext;
 import de.kp.registry.server.neo4j.read.ReadManager;
 
-public class QueryRequestContext {
+public class QueryRequestContext extends RequestContext {
 
-	private String comment;
 	private String federation;
 	private String format;
 	private String language;
@@ -38,11 +38,10 @@ public class QueryRequestContext {
 	public QueryRequestContext(QueryRequest request) {
 		
 		this.request = request;
-		
-		// Attribute comment – The comment attribute if specified contains a String that describes the re-
-		// quest. A server MAY save this comment within a CommentType instance and associate it with 
-		// the AuditableEvent(s) for that request as described by [regrep-rim-v4.0].
 
+		// Attribute comment – The comment attribute if specified contains a String that 
+		// describes the request. A server MAY save this comment within a CommentType 
+		// instance and associate it with the AuditableEvent(s) for that request.		
 		this.comment = request.getComment();
 
 		// Element ResponseOption - This required element allows the client to control 
@@ -138,14 +137,6 @@ public class QueryRequestContext {
 		
 		this.startIndex = request.getStartIndex();
 
-	}
-	
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-	
-	public String getComment() {
-		return this.comment;
 	}
 
 	public void setFederation(String federation) {
@@ -277,6 +268,8 @@ public class QueryRequestContext {
 		// * A server MUST NOT treat the order of parameters as significant.	
 		
 		List<SlotType> queryParameters = query.getSlot();
+		
+		// TODO
 		
 		return null;
 	}

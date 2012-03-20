@@ -5,7 +5,7 @@ import java.util.concurrent.Callable;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 import org.oasis.ebxml.registry.bindings.rim.RegistryType;
 
-import de.kp.registry.server.neo4j.spi.QueryRequestContext;
+import de.kp.registry.server.neo4j.qm.QueryRequestContext;
 
 public class FederationWorker implements Callable<QueryResponse> {
 	

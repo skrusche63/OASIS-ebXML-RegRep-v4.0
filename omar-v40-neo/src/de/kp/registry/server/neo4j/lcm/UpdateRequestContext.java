@@ -1,56 +1,59 @@
-package de.kp.registry.server.neo4j.spi;
+package de.kp.registry.server.neo4j.lcm;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
+import org.oasis.ebxml.registry.bindings.lcm.Mode;
+import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
+import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 
+import de.kp.registry.server.neo4j.common.RequestContext;
 import de.kp.registry.server.neo4j.read.ReadManager;
 
-public class RemoveRequestContext extends RequestContext {
-	
-	private Boolean checkReference;
+public class UpdateRequestContext extends RequestContext {
 
-	private String deletionScope;
-	private Boolean deleteChildren;
+	private Mode mode;
+
+	private Boolean checkReference;
+	private List<UpdateActionType> updateActions;
 
 	private List<ObjectRefType> list;
+	UpdateObjectsRequest request;
 	
-	RemoveObjectsRequest request;
-	
-	public RemoveRequestContext(RemoveObjectsRequest request) {
+	public UpdateRequestContext(UpdateObjectsRequest request) {
 		
 		this.request = request;
-				
+		
 		// Attribute comment – The comment attribute if specified contains a String that 
 		// describes the request. A server MAY save this comment within a CommentType 
 		// instance and associate it with the AuditableEvent(s) for that request.		
-		
 		this.comment = request.getComment();
 
-		this.deletionScope = request.getDeletionScope();
-		
+		// retrieve parameters from request
+		this.mode = request.getMode();
 		this.checkReference = request.isCheckReferences();
-		this.deleteChildren = request.isDeleteChildren();
+	
+		// specifies the details of how to update the target objects
+		this.updateActions = request.getUpdateAction();
 
-		// specifies a query to be invoked; a server MUST remove all objects 
-		// that match the specified query in addition to any other objects 
-		// identified by the ObjectRefList element
+		// specifies a query to be invoked; a server MUST use all objects that match 
+		// the specified query in addition to any other objects identified by the
+		// ObjectRefList element as targets of the update action
 		QueryType query = request.getQuery();
 		
-		// specifies a collection of references to existing RegistryObject 
-		// instances in the server; a server MUST remove all objects that are 
-		// referenced by this element in addition to any other objects identified 
-		// by the Query element
+		// specifies a collection of references to existing RegistryObject instances
+		// in the server; a server MUST use all objects that are referenced by this 
+		// element in addition to any other objects identified by the Query element 
+		// as targets of the update action
 		
 		List<ObjectRefType> objectRefs = null;
-		
+
 		ObjectRefListType list = request.getObjectRefList();
 		if (list != null) objectRefs = list.getObjectRef();
-
+		
 		// __DESIGN__
 		
 		// in order to remove registry objects, we first have to merge the objects
@@ -69,6 +72,14 @@ public class RemoveRequestContext extends RequestContext {
 
 	}
 
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
+	
+	public String getMode() {
+		return this.mode.value();
+	}
+
 	public void setCheckReference(Boolean checkReference) {
 		this.checkReference = checkReference;
 	}
@@ -77,22 +88,14 @@ public class RemoveRequestContext extends RequestContext {
 		return this.checkReference;
 	}
 
-	public void setDeleteChildren(Boolean deleteChildren) {
-		this.deleteChildren = deleteChildren;
+	public void setUpdateAction(List<UpdateActionType> updateActions) {
+		this.updateActions = updateActions;
 	}
 	
-	public Boolean isDeleteChildren() {
-		return this.deleteChildren;
-	}
-
-	public void setDeletionScope(String deletionScope) {
-		this.deletionScope = deletionScope;
+	public List<UpdateActionType> getUpdateActions() {
+		return this.updateActions;
 	}
 	
-	public String getDeletionScope() {
-		return this.deletionScope;
-	}
-
 	public void setList(List<ObjectRefType> list) {
 		this.list = list;
 	}
@@ -100,4 +103,5 @@ public class RemoveRequestContext extends RequestContext {
 	public List<ObjectRefType> getList() {
 		return list;
 	}
+
 }
