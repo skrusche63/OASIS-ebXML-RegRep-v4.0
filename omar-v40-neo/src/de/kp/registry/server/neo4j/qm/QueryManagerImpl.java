@@ -4,13 +4,16 @@ import javax.annotation.Resource;
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
+import org.opensaml.saml2.core.Assertion;
 
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
+import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.federation.FederatedReadManager;
 import de.kp.registry.server.neo4j.read.ReadManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
@@ -41,6 +44,11 @@ public class QueryManagerImpl implements QueryManager {
 	public QueryResponse executeQuery(QueryRequest request) throws MsgRegistryException {
 
 		QueryRequestContext queryRequest = new QueryRequestContext(request);
+		
+		// add SAML assertion to remove request
+		MessageContext context = wsContext.getMessageContext();
+		queryRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+
 		QueryResponseContext queryResponse = new QueryResponseContext(request.getId());
 						
 		// Attribute federated – This optional attribute specifies that the server must 

@@ -4,15 +4,18 @@ import javax.annotation.Resource;
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
 import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
+import org.opensaml.saml2.core.Assertion;
 
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
+import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
@@ -38,8 +41,13 @@ public class LifecycleManagerImpl implements LifecycleManager {
 	}
 
 	public RegistryResponseType removeObjects(RemoveObjectsRequest request) throws MsgRegistryException {
-		
+		  
 		RemoveRequestContext  removeRequest = new RemoveRequestContext(request);
+		
+		// add SAML assertion to remove request
+		MessageContext context = wsContext.getMessageContext();
+		removeRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+		
 		RemoveResponseContext removeResponse = new RemoveResponseContext(request.getId());
 
 		// Authorization of RemoveObjectsRequest
@@ -75,6 +83,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
 	public RegistryResponseType submitObjects(SubmitObjectsRequest request) throws MsgRegistryException {
 		
 		SubmitRequestContext submitRequest = new SubmitRequestContext(request);
+		
+		// add SAML assertion to remove request
+		MessageContext context = wsContext.getMessageContext();
+		submitRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+
 		SubmitResponseContext submitResponse = new SubmitResponseContext(request.getId());
 
 		// Authorization of SubmitObjectsRequest
@@ -110,6 +123,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
 	public RegistryResponseType updateObjects(UpdateObjectsRequest request) throws MsgRegistryException {
 
 		UpdateRequestContext updateRequest = new UpdateRequestContext(request);
+		
+		// add SAML assertion to remove request
+		MessageContext context = wsContext.getMessageContext();
+		updateRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+
 		UpdateResponseContext updateResponse = new UpdateResponseContext(request.getId());
 
 		// Authorization of UpdateObjectsRequest

@@ -1,11 +1,16 @@
 package de.kp.registry.server.neo4j.common;
 
+import org.opensaml.saml2.core.Assertion;
+
 public class RequestContext {
 
 	public String comment;
 	public String user;
 	
 	public String event;
+	
+	// SAML assertion
+	public Assertion assertion;
 	
 	public RequestContext() {	
 	}
@@ -34,4 +39,12 @@ public class RequestContext {
 		return this.user;
 	}
 
+	public void setAssertion(Assertion assertion) {
+		this.assertion = assertion;
+	}
+	
+	public Assertion getAssertion() {
+		return this.assertion;
+	}
+	
 }

@@ -19,4 +19,6 @@ public class CanonicalConstants {
 	public static String OBJECT_REF      = "ObjectRef";
 	public static String REGISTRY_OBEJCT = "RegistryObject";
 
+	public static String SAML_USER_ASSERTION = "urn:oasis:names:tc:ebxml-regrep:saml:user:assertion";
+
 }
