@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.authorization;
 
+import de.kp.registry.server.neo4j.spi.QueryResponseContext;
 import de.kp.registry.server.neo4j.spi.RemoveRequestContext;
 import de.kp.registry.server.neo4j.spi.SubmitRequestContext;
 import de.kp.registry.server.neo4j.spi.UpdateRequestContext;
@@ -16,15 +17,27 @@ public class AuthorizationHandler {
 		return instance;
 	}
 	
-	public boolean authorizeSubmitRequest(SubmitRequestContext request) {
-		return false;
+	// authorize an incoming SubmitObjectsRequest
+	public AuthorizationResult authorizeSubmitRequest(SubmitRequestContext request) {
+		// TODO
+		return null;
 	}
 	
-	public boolean authorizeUpdateRequest(UpdateRequestContext request) {
-		return false;
+	// authorize an incoming UpdateObjectsRequest
+	public AuthorizationResult authorizeUpdateRequest(UpdateRequestContext request) {
+		// TODO
+		return null;
 	}
 	
-	public boolean authorizeRemoveRequest(RemoveRequestContext request) {
-		return false;
+	// authorize an incoming RemoveObjectsRequest
+	public AuthorizationResult authorizeRemoveRequest(RemoveRequestContext request) {
+		// TODO
+		return null;
+	}
+	
+	// authorize an outgoing QueryResponse
+	public AuthorizationResult authorizeQueryResponse(QueryResponseContext response) {
+		// TODO
+		return null;
 	}
 }

@@ -69,4 +69,13 @@ public class QueryResponseContext {
 
 	}
 
+	// this method clears all registry objects from the response
+	public void clearRegistryObject() {
+		this.response.getRegistryObjectList().getRegistryObject().clear();
+	}
+
+	// this method clears all object refs from the response
+	public void clearObjectRef() {
+		this.response.getObjectRefList().getObjectRef().clear();
+	}
 }
