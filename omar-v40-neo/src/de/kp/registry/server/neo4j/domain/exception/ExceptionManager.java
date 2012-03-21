@@ -3,7 +3,7 @@ package de.kp.registry.server.neo4j.domain.exception;
 import org.oasis.ebxml.registry.bindings.rs.RegistryExceptionType;
 
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
-import de.kp.registry.server.neo4j.lcm.ResponseContext;
+import de.kp.registry.server.neo4j.common.ResponseContext;
 
 public class ExceptionManager {
 

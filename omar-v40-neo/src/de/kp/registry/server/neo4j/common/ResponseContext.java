@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.lcm;
+package de.kp.registry.server.neo4j.common;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,9 @@ public class ResponseContext {
 	private List<ObjectRefType> updated;
 	private List<ObjectRefType> deleted;
 	
+	public ResponseContext() {	
+	}
+	
 	public ResponseContext(String requestId) {
 
 		// initialize audit support data structures
@@ -45,6 +48,10 @@ public class ResponseContext {
 		
 		if (this.response.getObjectRefList() == null) this.response.setObjectRefList(ebRIMFactory.createObjectRefListType());
 
+	}
+	
+	public void setRegistryResponse(RegistryResponseType response) {
+		this.response = response;
 	}
 	
 	public RegistryResponseType getRegistryResponse() {

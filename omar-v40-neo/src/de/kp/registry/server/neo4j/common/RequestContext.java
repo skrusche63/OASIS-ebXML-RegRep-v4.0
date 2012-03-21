@@ -7,8 +7,6 @@ public class RequestContext {
 	public String comment;
 	public String user;
 	
-	public String event;
-	
 	// SAML assertion
 	public Assertion assertion;
 	
@@ -21,14 +19,6 @@ public class RequestContext {
 	
 	public String getComment() {
 		return this.comment;
-	}
-
-	public void setEvent(String event) {
-		this.event = event;
-	}
-	
-	public String getEvent() {
-		return this.event;
 	}
 	
 	public void setUser(String user) {

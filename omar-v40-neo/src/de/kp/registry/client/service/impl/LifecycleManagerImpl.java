@@ -1,4 +1,4 @@
-package de.kp.registry.client.lcm;
+package de.kp.registry.client.service.impl;
 
 import java.net.URL;
 import java.util.Map;
@@ -11,8 +11,8 @@ import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
-import de.kp.registry.client.LifecycleManagerSOAPService;
 import de.kp.registry.client.security.ConnectionImpl;
+import de.kp.registry.client.service.LifecycleManagerSOAPService;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 
@@ -21,7 +21,7 @@ public class LifecycleManagerImpl {
 	private static String SAML_USER_ASSERTION = "urn:oasis:names:tc:ebxml-regrep:saml:user:assertion";
 	private static QName QNAME = new QName("urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0", "LifecycleManager");
 
-	private LifecycleManagerSOAPService lcm;
+	private LifecycleManagerSOAPService service;
 	private LifecycleManager port;
 	
 	private ConnectionImpl connection;
@@ -32,8 +32,8 @@ public class LifecycleManagerImpl {
 		this.connection = connection;
 		URL wsdlLocation = this.connection.getLifecyleManagerURL();
 		
-		lcm = new LifecycleManagerSOAPService(wsdlLocation, QNAME);
-		port = lcm.getLifecycleManagerPort();
+		service = new LifecycleManagerSOAPService(wsdlLocation, QNAME);
+		port = service.getLifecycleManagerPort();
 	}
 	
 	public RegistryResponseType removeObjects(RemoveObjectsRequest request) throws MsgRegistryException {

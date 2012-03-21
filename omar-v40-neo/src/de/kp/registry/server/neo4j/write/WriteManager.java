@@ -14,16 +14,15 @@ import de.kp.registry.server.neo4j.auditing.AuditContext;
 import de.kp.registry.server.neo4j.auditing.AuditHandler;
 import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.common.RequestContext;
+import de.kp.registry.server.neo4j.common.ResponseContext;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
 import de.kp.registry.server.neo4j.lcm.RemoveRequestContext;
-import de.kp.registry.server.neo4j.lcm.ResponseContext;
 import de.kp.registry.server.neo4j.lcm.SubmitRequestContext;
 import de.kp.registry.server.neo4j.lcm.UpdateRequestContext;
-import de.kp.registry.server.neo4j.notification.NotificationProcessor;
 import de.kp.registry.server.neo4j.read.ReadManager;
 
 // TODO: fillNode mechanism
@@ -154,9 +153,6 @@ public class WriteManager {
 
 		// audit the result
 		audit(request, response);
-
-		// notify subscribers
-		notify(response);
 		
 		// return response
 		return response;
@@ -267,9 +263,6 @@ public class WriteManager {
 
 		// audit the result
 		audit(request, response);
-
-		// notify subscribers
-		notify(response);
 		
 		// return response
 		return response;
@@ -333,9 +326,6 @@ public class WriteManager {
 
 		// audit the result
 		audit(request, response);
-
-		// notify subscribers
-		notify(response);
 		
 		// return response
 		return response;
@@ -402,9 +392,6 @@ public class WriteManager {
 
 		// audit the result
 		audit(request, response);
-
-		// notify subscribers
-		notify(response);
 		
 		// return response
 		return response;
@@ -416,10 +403,6 @@ public class WriteManager {
 		AuditContext auditContext = new AuditContext(request, response);
 		AuditHandler.getInstance().audit(auditContext);
 
-	}
-	
-	private void notify(ResponseContext response) {
-		NotificationProcessor.getInstance().notify(response.getRegistryResponse());				
 	}
 	
 	// this method expects that no node with the unique identifier provided
@@ -619,9 +602,6 @@ public class WriteManager {
 
 		// audit the result
 		audit(request, response);
-
-		// notify subscribers
-		notify(response);
 		
 		// return response
 		return response;
@@ -697,9 +677,6 @@ public class WriteManager {
 
 		// audit the result
 		audit(request, response);
-
-		// notify subscribers
-		notify(response);
 		
 		// return response
 		return response;

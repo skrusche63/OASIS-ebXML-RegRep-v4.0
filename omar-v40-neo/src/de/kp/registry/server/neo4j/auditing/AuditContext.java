@@ -10,7 +10,7 @@ import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 
 import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.common.RequestContext;
-import de.kp.registry.server.neo4j.lcm.ResponseContext;
+import de.kp.registry.server.neo4j.common.ResponseContext;
 import de.kp.registry.server.neo4j.util.CalendarUtil;
 
 public class AuditContext {

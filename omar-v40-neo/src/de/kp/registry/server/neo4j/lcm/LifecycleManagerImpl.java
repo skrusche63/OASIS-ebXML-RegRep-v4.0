@@ -17,6 +17,7 @@ import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
+import de.kp.registry.server.neo4j.notification.NotificationProcessor;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.write.WriteManager;
@@ -64,6 +65,10 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			WriteManager wm = WriteManager.getInstance();
 			removeResponse = (RemoveResponseContext)wm.removeObjects(removeRequest, removeResponse);
 
+			// notify subscriber
+			NotificationProcessor np = NotificationProcessor.getInstance();				
+			np.notify(removeRequest, removeResponse);
+
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 
 			ExceptionManager em = ExceptionManager.getInstance();
@@ -104,6 +109,10 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			WriteManager wm = WriteManager.getInstance();
 			submitResponse = (SubmitResponseContext) wm.submitObjects(submitRequest, submitResponse);
 
+			// notify subscriber
+			NotificationProcessor np = NotificationProcessor.getInstance();				
+			np.notify(submitRequest, submitResponse);
+
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 
 			ExceptionManager em = ExceptionManager.getInstance();
@@ -143,6 +152,10 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			
 			WriteManager wm = WriteManager.getInstance();
 			updateResponse = (UpdateResponseContext) wm.updateObjects(updateRequest, updateResponse);
+
+			// notify subscriber
+			NotificationProcessor np = NotificationProcessor.getInstance();				
+			np.notify(updateRequest, updateResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 

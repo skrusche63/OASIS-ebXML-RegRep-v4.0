@@ -4,9 +4,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
-
-// NOTE: there is a WSDL for a Notification Service
+import de.kp.registry.server.neo4j.common.RequestContext;
+import de.kp.registry.server.neo4j.common.ResponseContext;
 
 public class NotificationProcessor {
 
@@ -21,10 +20,10 @@ public class NotificationProcessor {
 	}
 	
 	@SuppressWarnings("unused")
-	public void notify(RegistryResponseType response) {
+	public void notify(RequestContext request, ResponseContext response) {
 		
 		ExecutorService executor = Executors.newCachedThreadPool();
-		Future<?> f = executor.submit(new NotificationWorker(response));
+		Future<?> f = executor.submit(new NotificationWorker(request, response));
 		
 		executor.shutdown();
 		

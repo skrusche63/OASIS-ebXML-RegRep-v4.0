@@ -1,4 +1,4 @@
-package de.kp.registry.client;
+package de.kp.registry.client.service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,7 +30,7 @@ wsdlLocation = "WEB-INF/wsdl/regrep-server-service.wsdl")
 public class NotificationListenerSOAPService extends Service {
 
     private final static URL NOTIFICATIONLISTENERSOAPSERVICE_WSDL_LOCATION;
-    private final static Logger logger = Logger.getLogger(de.kp.registry.client.NotificationListenerSOAPService.class.getName());
+    private final static Logger logger = Logger.getLogger(de.kp.registry.client.service.NotificationListenerSOAPService.class.getName());
 
     private final static String TARGET_NAMESPACE = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0";
 
@@ -39,7 +39,7 @@ public class NotificationListenerSOAPService extends Service {
         URL url = null;       
         try {
         	
-            URL baseUrl = de.kp.registry.client.NotificationListenerSOAPService.class.getResource(".");
+            URL baseUrl = de.kp.registry.client.service.NotificationListenerSOAPService.class.getResource(".");
             url = new URL(baseUrl, "WEB-INF/wsdl/regrep-server-service.wsdl");
         
         } catch (MalformedURLException e) {
