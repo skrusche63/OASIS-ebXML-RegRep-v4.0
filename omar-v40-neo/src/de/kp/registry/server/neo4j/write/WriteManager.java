@@ -13,17 +13,17 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import de.kp.registry.server.neo4j.auditing.AuditContext;
 import de.kp.registry.server.neo4j.auditing.AuditHandler;
 import de.kp.registry.server.neo4j.common.CanonicalConstants;
-import de.kp.registry.server.neo4j.common.RequestContext;
-import de.kp.registry.server.neo4j.common.ResponseContext;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
-import de.kp.registry.server.neo4j.lcm.RemoveRequestContext;
-import de.kp.registry.server.neo4j.lcm.SubmitRequestContext;
-import de.kp.registry.server.neo4j.lcm.UpdateRequestContext;
 import de.kp.registry.server.neo4j.read.ReadManager;
+import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
+import de.kp.registry.server.neo4j.service.context.RequestContext;
+import de.kp.registry.server.neo4j.service.context.ResponseContext;
+import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
+import de.kp.registry.server.neo4j.service.context.UpdateRequestContext;
 
 // TODO: fillNode mechanism
 // ------------------------

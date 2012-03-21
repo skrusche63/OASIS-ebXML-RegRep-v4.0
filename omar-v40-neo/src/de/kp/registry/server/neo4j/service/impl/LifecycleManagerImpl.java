@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.lcm;
+package de.kp.registry.server.neo4j.service.impl;
 
 import javax.annotation.Resource;
 import javax.jws.HandlerChain;
@@ -20,6 +20,12 @@ import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.notification.NotificationProcessor;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
+import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
+import de.kp.registry.server.neo4j.service.context.RemoveResponseContext;
+import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
+import de.kp.registry.server.neo4j.service.context.SubmitResponseContext;
+import de.kp.registry.server.neo4j.service.context.UpdateRequestContext;
+import de.kp.registry.server.neo4j.service.context.UpdateResponseContext;
 import de.kp.registry.server.neo4j.write.WriteManager;
 
 @WebService(name = "LifecycleManager", serviceName = "LifecycleManager", portName = "LifecycleManagerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",

@@ -1,8 +1,7 @@
-package de.kp.registry.server.neo4j.cataloging.validation;
+package de.kp.registry.server.neo4j.service.context;
 
 import org.oasis.ebxml.registry.bindings.spi.ValidateObjectsRequest;
 
-import de.kp.registry.server.neo4j.common.RequestContext;
 
 public class ValidatorRequestContext extends RequestContext {
 

@@ -1,6 +1,5 @@
-package de.kp.registry.server.neo4j.lcm;
+package de.kp.registry.server.neo4j.service.context;
 
-import de.kp.registry.server.neo4j.common.ResponseContext;
 
 
 public class SubmitResponseContext extends ResponseContext {

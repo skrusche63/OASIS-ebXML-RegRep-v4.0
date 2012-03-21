@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.common;
+package de.kp.registry.server.neo4j.service.context;
 
 import org.opensaml.saml2.core.Assertion;
 

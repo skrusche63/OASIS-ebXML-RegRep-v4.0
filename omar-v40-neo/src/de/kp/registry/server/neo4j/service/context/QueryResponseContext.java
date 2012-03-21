@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.qm;
+package de.kp.registry.server.neo4j.service.context;
 
 import java.math.BigInteger;
 

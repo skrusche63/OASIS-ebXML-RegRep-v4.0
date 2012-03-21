@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.cataloging.validation;
+package de.kp.registry.server.neo4j.service.impl;
 
 import javax.annotation.Resource;
 import javax.jws.HandlerChain;

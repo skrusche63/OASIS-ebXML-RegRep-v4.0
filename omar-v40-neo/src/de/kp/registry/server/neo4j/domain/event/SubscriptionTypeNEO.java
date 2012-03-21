@@ -78,7 +78,7 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		// __DESIGN__
 		
 		// A QueryType node is NOT an intrinsic information
-		// that us ultimately related with a SubscriptionType node
+		// that is ultimately related with a SubscriptionType node
 
 		// clear relationship only
 		node = NEOBase.clearRelationship(node, RelationTypes.hasSelector, false);

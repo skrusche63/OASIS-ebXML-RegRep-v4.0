@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.qm;
+package de.kp.registry.server.neo4j.service.context;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -11,7 +11,6 @@ import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.SlotType;
 import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
 
-import de.kp.registry.server.neo4j.common.RequestContext;
 import de.kp.registry.server.neo4j.read.ReadManager;
 
 public class QueryRequestContext extends RequestContext {

@@ -1,7 +1,7 @@
 package de.kp.registry.server.neo4j.notification;
 
-import de.kp.registry.server.neo4j.common.RequestContext;
-import de.kp.registry.server.neo4j.common.ResponseContext;
+import de.kp.registry.server.neo4j.service.context.RequestContext;
+import de.kp.registry.server.neo4j.service.context.ResponseContext;
 
 // the notification mechanism invoked by this worker depends on the
 // delivery info assigned to a certain subscription; actually two

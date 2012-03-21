@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.common;
+package de.kp.registry.server.neo4j.service.context;
 
 import java.util.ArrayList;
 import java.util.List;

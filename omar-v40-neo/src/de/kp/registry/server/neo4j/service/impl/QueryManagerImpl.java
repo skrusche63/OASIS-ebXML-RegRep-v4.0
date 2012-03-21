@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.qm;
+package de.kp.registry.server.neo4j.service.impl;
 
 import javax.annotation.Resource;
 import javax.jws.HandlerChain;
@@ -18,6 +18,8 @@ import de.kp.registry.server.neo4j.federation.FederatedReadManager;
 import de.kp.registry.server.neo4j.read.ReadManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.QueryManager;
+import de.kp.registry.server.neo4j.service.context.QueryRequestContext;
+import de.kp.registry.server.neo4j.service.context.QueryResponseContext;
 
 @WebService(name = "QueryManager", serviceName = "QueryManager", portName = "QueryManagerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
 endpointInterface = "de.kp.registry.server.neo4j.service.QueryManager")

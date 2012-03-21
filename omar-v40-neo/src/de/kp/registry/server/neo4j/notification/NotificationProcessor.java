@@ -4,8 +4,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import de.kp.registry.server.neo4j.common.RequestContext;
-import de.kp.registry.server.neo4j.common.ResponseContext;
+import de.kp.registry.server.neo4j.service.context.RequestContext;
+import de.kp.registry.server.neo4j.service.context.ResponseContext;
 
 public class NotificationProcessor {
 
