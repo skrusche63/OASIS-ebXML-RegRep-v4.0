@@ -46,7 +46,7 @@ public class MsgRegistryException extends Exception {
     /**
      * 
      * @return
-     *     returns fault bean: oasis.names.tc.ebxml_regrep.xsd.rs._4.RegistryExceptionType
+     *     returns fault bean: org.oasis.ebxml.registry.bindings.rs.RegistryExceptionType
      */
     public RegistryExceptionType getFaultInfo() {
         return faultInfo;

@@ -9,8 +9,8 @@ import org.oasis.ebxml.registry.bindings.rim.NotificationType;
 
 import de.kp.registry.server.neo4j.service.NotificationListener;
 
-@WebService(name = "Cataloger", serviceName = "Cataloger", portName = "CatalogerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
-endpointInterface = "de.kp.registry.server.neo4j.service.Cataloger")
+@WebService(name = "NotificationListener", serviceName = "NotificationListener", portName = "NotificationListenerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
+endpointInterface = "de.kp.registry.server.neo4j.service.NotificationListener")
 
 @HandlerChain(file="handler-chain.xml")
 
