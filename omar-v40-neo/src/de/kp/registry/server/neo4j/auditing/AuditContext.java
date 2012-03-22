@@ -8,7 +8,7 @@ import org.oasis.ebxml.registry.bindings.rim.ActionType;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 
-import de.kp.registry.server.neo4j.common.CanonicalConstants;
+import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.service.context.RequestContext;
 import de.kp.registry.server.neo4j.service.context.ResponseContext;
 import de.kp.registry.server.neo4j.util.CalendarUtil;

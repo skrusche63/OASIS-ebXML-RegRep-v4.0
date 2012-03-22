@@ -1,4 +1,4 @@
-package de.kp.registry.client.security;
+package de.kp.registry.common;
 
 import java.net.MalformedURLException;
 import java.net.URL;

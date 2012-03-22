@@ -8,12 +8,11 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
-import org.opensaml.saml2.core.Assertion;
-
+import de.kp.registry.common.CanonicalConstants;
+import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
-import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.federation.FederatedReadManager;
 import de.kp.registry.server.neo4j.read.ReadManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
@@ -49,7 +48,7 @@ public class QueryManagerImpl implements QueryManager {
 		
 		// add SAML assertion to remove request
 		MessageContext context = wsContext.getMessageContext();
-		queryRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+		queryRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
 
 		QueryResponseContext queryResponse = new QueryResponseContext(request.getId());
 						

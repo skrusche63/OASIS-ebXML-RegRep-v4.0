@@ -9,8 +9,8 @@ import javax.xml.ws.BindingProvider;
 import org.oasis.ebxml.registry.bindings.spi.ValidateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.spi.ValidateObjectsResponse;
 
-import de.kp.registry.client.security.ConnectionImpl;
 import de.kp.registry.client.service.ValidatorSOAPService;
+import de.kp.registry.common.ConnectionImpl;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.Validator;
 

@@ -10,9 +10,10 @@ import org.oasis.ebxml.registry.bindings.lcm.Mode;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
+
+import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.auditing.AuditContext;
 import de.kp.registry.server.neo4j.auditing.AuditHandler;
-import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;

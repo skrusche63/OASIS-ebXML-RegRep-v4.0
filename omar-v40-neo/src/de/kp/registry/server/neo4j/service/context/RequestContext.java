@@ -1,14 +1,14 @@
 package de.kp.registry.server.neo4j.service.context;
 
-import org.opensaml.saml2.core.Assertion;
+import de.kp.registry.common.CredentialInfo;
 
 public class RequestContext {
 
 	public String comment;
 	public String user;
 	
-	// SAML assertion
-	public Assertion assertion;
+	// CredentialInfo
+	public CredentialInfo credentialInfo;
 	
 	public RequestContext() {	
 	}
@@ -29,12 +29,12 @@ public class RequestContext {
 		return this.user;
 	}
 
-	public void setAssertion(Assertion assertion) {
-		this.assertion = assertion;
+	public void setCredentialInfo(CredentialInfo credentialInfo) {
+		this.credentialInfo = credentialInfo;
 	}
 	
-	public Assertion getAssertion() {
-		return this.assertion;
+	public CredentialInfo getCredentailInfo() {
+		return this.credentialInfo;
 	}
 	
 }

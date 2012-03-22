@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.common;
+package de.kp.registry.common;
 
 public class CanonicalConstants {
 
@@ -19,6 +19,16 @@ public class CanonicalConstants {
 	public static String OBJECT_REF      = "ObjectRef";
 	public static String REGISTRY_OBEJCT = "RegistryObject";
 
-	public static String SAML_USER_ASSERTION = "urn:oasis:names:tc:ebxml-regrep:saml:user:assertion";
+	public static String CREDENTIAL_INFO = "urn:oasis:names:tc:ebxml-regrep:credential:info";
 
+	public static String MAX_CLOCK_SKEW = "300";
+	
+	// global constants that are used to access the crypto module of
+	// the identity provider (idp) used for securing request
+	
+	public static String IDP_CRYPTO  = "";
+	public static String IDP_ALIAS   = "";
+	public static String IDP_KEYPASS = "";
+
+	public final static String CANONICAL_URI_SENDER_CERT = "urn:oasis:names:tc:ebxml-regrep:rs:security:SenderCert";
 }

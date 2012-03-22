@@ -11,8 +11,8 @@ import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
-import de.kp.registry.client.security.ConnectionImpl;
 import de.kp.registry.client.service.LifecycleManagerSOAPService;
+import de.kp.registry.common.ConnectionImpl;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 
@@ -37,8 +37,6 @@ public class LifecycleManagerImpl {
 	}
 	
 	public RegistryResponseType removeObjects(RemoveObjectsRequest request) throws MsgRegistryException {
-
-		// TODO:
 		
 		// assign SAML credentials to request context; this is a mechanism
 		// to share the respective assertion with the SOAP message handler
@@ -51,8 +49,6 @@ public class LifecycleManagerImpl {
 	}
 
 	public RegistryResponseType submitObjects(SubmitObjectsRequest request) throws MsgRegistryException {
-
-		// TODO:
 		
 		// assign SAML credentials to request context; this is a mechanism
 		// to share the respective assertion with the SOAP message handler
@@ -65,8 +61,6 @@ public class LifecycleManagerImpl {
 	}
 	
 	public RegistryResponseType updateObjects(UpdateObjectsRequest request) throws MsgRegistryException {
-
-		// TODO:
 		
 		// assign SAML credentials to request context; this is a mechanism
 		// to share the respective assertion with the SOAP message handler

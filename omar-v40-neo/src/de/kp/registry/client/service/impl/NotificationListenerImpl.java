@@ -8,8 +8,8 @@ import javax.xml.ws.BindingProvider;
 
 import org.oasis.ebxml.registry.bindings.rim.NotificationType;
 
-import de.kp.registry.client.security.ConnectionImpl;
 import de.kp.registry.client.service.NotificationListenerSOAPService;
+import de.kp.registry.common.ConnectionImpl;
 import de.kp.registry.server.neo4j.service.NotificationListener;
 
 public class NotificationListenerImpl {

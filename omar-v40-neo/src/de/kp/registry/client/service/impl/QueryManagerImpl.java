@@ -8,8 +8,8 @@ import javax.xml.ws.BindingProvider;
 
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
-import de.kp.registry.client.security.ConnectionImpl;
 import de.kp.registry.client.service.QueryManagerSOAPService;
+import de.kp.registry.common.ConnectionImpl;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.QueryManager;
 

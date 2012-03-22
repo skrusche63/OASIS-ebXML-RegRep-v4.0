@@ -10,12 +10,11 @@ import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
-import org.opensaml.saml2.core.Assertion;
-
+import de.kp.registry.common.CanonicalConstants;
+import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
-import de.kp.registry.server.neo4j.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.notification.NotificationProcessor;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
@@ -53,7 +52,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
 		
 		// add SAML assertion to remove request
 		MessageContext context = wsContext.getMessageContext();
-		removeRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+		removeRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
 		
 		RemoveResponseContext removeResponse = new RemoveResponseContext(request.getId());
 
@@ -97,7 +96,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
 		
 		// add SAML assertion to remove request
 		MessageContext context = wsContext.getMessageContext();
-		submitRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+		submitRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
 
 		SubmitResponseContext submitResponse = new SubmitResponseContext(request.getId());
 
@@ -141,7 +140,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
 		
 		// add SAML assertion to remove request
 		MessageContext context = wsContext.getMessageContext();
-		updateRequest.setAssertion((Assertion)context.get(CanonicalConstants.SAML_USER_ASSERTION));
+		updateRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
 
 		UpdateResponseContext updateResponse = new UpdateResponseContext(request.getId());
 

@@ -9,8 +9,8 @@ import javax.xml.ws.BindingProvider;
 import org.oasis.ebxml.registry.bindings.spi.CatalogObjectsRequest;
 import org.oasis.ebxml.registry.bindings.spi.CatalogObjectsResponse;
 
-import de.kp.registry.client.security.ConnectionImpl;
 import de.kp.registry.client.service.CatalogerSOAPService;
+import de.kp.registry.common.ConnectionImpl;
 import de.kp.registry.server.neo4j.service.Cataloger;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 
