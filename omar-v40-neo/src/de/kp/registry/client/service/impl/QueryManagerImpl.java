@@ -9,13 +9,14 @@ import javax.xml.ws.BindingProvider;
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 import de.kp.registry.client.service.QueryManagerSOAPService;
+import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.ConnectionImpl;
+import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.QueryManager;
 
 public class QueryManagerImpl {
 
-	private static String SAML_USER_ASSERTION = "urn:oasis:names:tc:ebxml-regrep:saml:user:assertion";
 	private static QName QNAME = new QName("urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0", "QueryManager");
 
 	private QueryManagerSOAPService service;
@@ -35,15 +36,16 @@ public class QueryManagerImpl {
 	}
 
 	public QueryResponse executeQuery(QueryRequest request) throws MsgRegistryException {
-
-		// TODO:
 		
 		// assign SAML credentials to request context; this is a mechanism
 		// to share the respective assertion with the SOAP message handler
 		
 		Map<String, Object> context = ((BindingProvider) port).getRequestContext();
-		context.put(SAML_USER_ASSERTION, this.connection.getAssertion());
-
+		
+		CredentialInfo credentialInfo = new CredentialInfo();
+		credentialInfo.setAssertion(this.connection.getAssertion());
+		
+		context.put(CanonicalConstants.CREDENTIAL_INFO, credentialInfo);
 		return port.executeQuery(request);
 
 	}

@@ -40,21 +40,28 @@ public class SecurityUtilSAML extends SecurityUtilBase {
 	 * signed SOAP request with a SAML Assertion attached
 	 */
 
-    public static void verifySOAPEnvelopeOnServerSAML(SOAPEnvelope soapEnv, CredentialInfo credentialInfo) throws WSSecurityException {
+    public static void verifySOAPEnvelopeOnServerSAML(SOAPEnvelope soapEnv, CredentialInfo credentialInfo) {
 		
 		WSSecurityEngine secEngine = new WSSecurityEngine();
         WSSConfig.init();
         
 		Document doc = soapEnv.getOwnerDocument();
         
-		List<WSSecurityEngineResult> results = secEngine.processSecurityHeader(doc, null, null, getIssuerCrypto());
-		
-		WSSecurityEngineResult actionResult = WSSecurityUtil.fetchActionResult(results, WSConstants.ST_UNSIGNED);
-        AssertionWrapper assertionWrapper = (AssertionWrapper) actionResult.get(WSSecurityEngineResult.TAG_SAML_ASSERTION);
-        
-        Assertion assertion = assertionWrapper.getSaml2();                
-        credentialInfo.setAssertion(assertion);
-        
+		List<WSSecurityEngineResult> results;
+		try {
+	
+			results = secEngine.processSecurityHeader(doc, null, null, getIssuerCrypto());
+			
+			WSSecurityEngineResult actionResult = WSSecurityUtil.fetchActionResult(results, WSConstants.ST_UNSIGNED);
+	        AssertionWrapper assertionWrapper = (AssertionWrapper) actionResult.get(WSSecurityEngineResult.TAG_SAML_ASSERTION);
+	        
+	        Assertion assertion = assertionWrapper.getSaml2();                
+	        credentialInfo.setAssertion(assertion);
+	 
+		} catch (WSSecurityException e) {
+			e.printStackTrace();
+		}
+       
 	}
 	
 	/*

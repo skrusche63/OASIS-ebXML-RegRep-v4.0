@@ -3,43 +3,73 @@ package de.kp.registry.client.soap;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.handler.Handler;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import de.kp.registry.common.CanonicalConstants;
+import de.kp.registry.common.CredentialInfo;
+import de.kp.registry.common.security.SecurityUtilSAML;
+
 public class SOAPMessageHandler implements SOAPHandler<SOAPMessageContext>  {
 
-	@Override
 	public void close(MessageContext context) {
-		// TODO Auto-generated method stub
-
+		// TODO
 	}
 
-	@Override
-	public boolean handleMessage(SOAPMessageContext context) {
-		// TODO Auto-generated method stub
+	public boolean handleMessage(SOAPMessageContext wsContext) {
 				
-		Boolean outboundProperty = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);  
+		// this flag is used to distinguish between outgoing
+		// and incoming messages
+
+		Boolean outboundProperty = (Boolean) wsContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);  
+
+    	SOAPMessage soapMsg  = wsContext.getMessage();
+   	    SOAPEnvelope soapEnv;
 		 
         if (outboundProperty.booleanValue()) {  
-            System.out.println("Outgoing client message:");  
+        	
+        	// this is an outgoing SAML based SOAP request
+
+       	    try {
+       	    	
+				soapEnv = soapMsg.getSOAPPart().getEnvelope();
+
+				CredentialInfo credentialInfo = (CredentialInfo)wsContext.get(CanonicalConstants.CREDENTIAL_INFO);    	    
+				SecurityUtilSAML.signSOAPEnvelopeOnClientSAML(soapEnv, credentialInfo);
+				
+			} catch (SOAPException e) {
+				e.printStackTrace();
+				
+			}
+        
         } else {  
-            System.out.println("Incoming client message:");  
+           	
+        	// this is an incoming BST based SOAP request
+        	// invoked by a OASIS ebXML RegRep server
+
+        	try {
+       	    	
+				soapEnv = soapMsg.getSOAPPart().getEnvelope();
+
+	            CredentialInfo credentialInfo = new CredentialInfo();
+				SecurityUtilSAML.verifySOAPEnvelopeOnClientBST(soapEnv, credentialInfo);
+
+			} catch (SOAPException e) {
+				e.printStackTrace();
+				
+			}
+        
         }  
-        
-        
-		//Assertion ASSERTION = (Assertion) context.get("assertion");
-        
-		//System.out.println("---> assertion: " + ASSERTION);
 		
 		return true;
+		
 	}
 
-	@Override
 	public boolean handleFault(SOAPMessageContext context) {
-		// TODO Auto-generated method stub
-		
 		throw new UnsupportedOperationException("Not supported yet.");
 		
 //		return false;

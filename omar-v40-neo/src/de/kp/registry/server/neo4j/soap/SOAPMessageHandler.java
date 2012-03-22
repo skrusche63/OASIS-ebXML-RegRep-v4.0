@@ -1,5 +1,8 @@
 package de.kp.registry.server.neo4j.soap;
 
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -10,10 +13,9 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.apache.ws.security.WSSecurityException;
-
 import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.CredentialInfo;
+import de.kp.registry.common.security.CertificateUtil;
 import de.kp.registry.common.security.SecurityUtilSAML;
 
 public class SOAPMessageHandler implements SOAPHandler<SOAPMessageContext> {
@@ -33,19 +35,51 @@ public class SOAPMessageHandler implements SOAPHandler<SOAPMessageContext> {
 		// and incoming messages
 		
 		Boolean outboundProperty = (Boolean) wsContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);  
+
+		SOAPMessage soapMsg  = wsContext.getMessage();
+   	    SOAPEnvelope soapEnv;
 		
         if (outboundProperty.booleanValue()) {  
-            System.out.println("Outgoing server message:");  
+        	
+        	// this is an outgoing SOAP message that is signed and
+        	// secured by a Binary Security Token (BST); please
+        	// not the asymmetric security handling of incoming
+        	// and outgoing SOAP messages
+
+       	    try {
+       	    	
+				soapEnv = soapMsg.getSOAPPart().getEnvelope();
+
+	            CredentialInfo credentialInfo = new CredentialInfo();
+	            CertificateUtil certificateUtil = new CertificateUtil(CanonicalConstants.REGISTRY_OPERATOR);
+	            
+	            // certificate
+	            X509Certificate certificate = certificateUtil.getCertificate();
+	            credentialInfo.setCertificate(certificate);
+	            
+	            // certificate chain
+	            Certificate[] certificateChain = certificateUtil.getCertificateChain();
+	            credentialInfo.setCertificateChain(certificateChain);
+	            
+	            // private key
+	            PrivateKey privateKey = certificateUtil.getPrivateKey();
+	            credentialInfo.setPrivateKey(privateKey);
+	            
+	            SecurityUtilSAML.signSOAPEnvelopeOnServerBST(soapEnv, credentialInfo);
+
+       	    } catch (SOAPException e) {
+				e.printStackTrace();
+
+			}
         
         } else {  
 
         	// this is an incoming SAML-based SOAP request; the actually
         	// supported protection level is integrity, so we MUST
         	// verify the respective SOAP envelope
-    	    SOAPMessage soapMsg  = wsContext.getMessage();
-       	    SOAPEnvelope soapEnv;
 			
        	    try {
+       	    	
 				soapEnv = soapMsg.getSOAPPart().getEnvelope();
 
 				// verify security header and fill respective credential info
@@ -61,9 +95,6 @@ public class SOAPMessageHandler implements SOAPHandler<SOAPMessageContext> {
 	    		wsContext.setScope(CanonicalConstants.CREDENTIAL_INFO, MessageContext.Scope.APPLICATION);      
 			
 			} catch (SOAPException e) {
-				e.printStackTrace();
-
-			} catch (WSSecurityException e) {
 				e.printStackTrace();
 
 			}

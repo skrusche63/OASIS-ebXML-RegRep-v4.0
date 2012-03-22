@@ -10,13 +10,14 @@ import org.oasis.ebxml.registry.bindings.spi.ValidateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.spi.ValidateObjectsResponse;
 
 import de.kp.registry.client.service.ValidatorSOAPService;
+import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.ConnectionImpl;
+import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.Validator;
 
 public class ValidatorImpl {
 
-	private static String SAML_USER_ASSERTION = "urn:oasis:names:tc:ebxml-regrep:saml:user:assertion";
 	private static QName QNAME = new QName("urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0", "NotificationListener");
 	
 	private ValidatorSOAPService service;
@@ -36,15 +37,16 @@ public class ValidatorImpl {
 	}
 
     public ValidateObjectsResponse validateObjects(ValidateObjectsRequest request) throws MsgRegistryException {
-
-		// TODO:
 		
 		// assign SAML credentials to request context; this is a mechanism
 		// to share the respective assertion with the SOAP message handler
 		
 		Map<String, Object> context = ((BindingProvider) port).getRequestContext();
-		context.put(SAML_USER_ASSERTION, this.connection.getAssertion());
-
+		
+		CredentialInfo credentialInfo = new CredentialInfo();
+		credentialInfo.setAssertion(this.connection.getAssertion());
+		
+		context.put(CanonicalConstants.CREDENTIAL_INFO, credentialInfo);
 		return port.validateObjects(request);
 
     }

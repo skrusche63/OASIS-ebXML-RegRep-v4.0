@@ -9,12 +9,13 @@ import javax.xml.ws.BindingProvider;
 import org.oasis.ebxml.registry.bindings.rim.NotificationType;
 
 import de.kp.registry.client.service.NotificationListenerSOAPService;
+import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.ConnectionImpl;
+import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.service.NotificationListener;
 
 public class NotificationListenerImpl {
 
-	private static String SAML_USER_ASSERTION = "urn:oasis:names:tc:ebxml-regrep:saml:user:assertion";
 	private static QName QNAME = new QName("urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0", "NotificationListener");
 	
 	private NotificationListenerSOAPService service;
@@ -34,15 +35,16 @@ public class NotificationListenerImpl {
 	}
 
 	public void onNotification(NotificationType notification) {
-
-		// TODO:
 		
 		// assign SAML credentials to request context; this is a mechanism
 		// to share the respective assertion with the SOAP message handler
 		
 		Map<String, Object> context = ((BindingProvider) port).getRequestContext();
-		context.put(SAML_USER_ASSERTION, this.connection.getAssertion());
-
+		
+		CredentialInfo credentialInfo = new CredentialInfo();
+		credentialInfo.setAssertion(this.connection.getAssertion());
+		
+		context.put(CanonicalConstants.CREDENTIAL_INFO, credentialInfo);
 		port.onNotification(notification);
 		
 	}

@@ -12,13 +12,14 @@ import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
 import de.kp.registry.client.service.LifecycleManagerSOAPService;
+import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.ConnectionImpl;
+import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 
 public class LifecycleManagerImpl {
 
-	private static String SAML_USER_ASSERTION = "urn:oasis:names:tc:ebxml-regrep:saml:user:assertion";
 	private static QName QNAME = new QName("urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0", "LifecycleManager");
 
 	private LifecycleManagerSOAPService service;
@@ -42,8 +43,11 @@ public class LifecycleManagerImpl {
 		// to share the respective assertion with the SOAP message handler
 		
 		Map<String, Object> context = ((BindingProvider) port).getRequestContext();
-		context.put(SAML_USER_ASSERTION, this.connection.getAssertion());
-
+		
+		CredentialInfo credentialInfo = new CredentialInfo();
+		credentialInfo.setAssertion(this.connection.getAssertion());
+		
+		context.put(CanonicalConstants.CREDENTIAL_INFO, credentialInfo);
 		return port.removeObjects(request);
 
 	}
@@ -54,8 +58,11 @@ public class LifecycleManagerImpl {
 		// to share the respective assertion with the SOAP message handler
 		
 		Map<String, Object> context = ((BindingProvider) port).getRequestContext();
-		context.put(SAML_USER_ASSERTION, this.connection.getAssertion());
-
+		
+		CredentialInfo credentialInfo = new CredentialInfo();
+		credentialInfo.setAssertion(this.connection.getAssertion());
+		
+		context.put(CanonicalConstants.CREDENTIAL_INFO, credentialInfo);
 		return port.submitObjects(request);
 
 	}
@@ -66,8 +73,11 @@ public class LifecycleManagerImpl {
 		// to share the respective assertion with the SOAP message handler
 		
 		Map<String, Object> context = ((BindingProvider) port).getRequestContext();
-		context.put(SAML_USER_ASSERTION, this.connection.getAssertion());
-
+		
+		CredentialInfo credentialInfo = new CredentialInfo();
+		credentialInfo.setAssertion(this.connection.getAssertion());
+		
+		context.put(CanonicalConstants.CREDENTIAL_INFO, credentialInfo);
 		return port.updateObjects(request);
 
 	}
