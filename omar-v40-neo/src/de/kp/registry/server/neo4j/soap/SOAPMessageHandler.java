@@ -3,6 +3,7 @@ package de.kp.registry.server.neo4j.soap;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -107,8 +108,14 @@ public class SOAPMessageHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 
 	public Set<QName> getHeaders() {
-		// TODO
-		return null;
+		
+		QName securityHeader = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security", "wsse");
+			  
+		HashSet<QName> headers = new HashSet<QName>();
+		headers.add(securityHeader);
+		
+		return headers;	
+		
 	}
 
 }

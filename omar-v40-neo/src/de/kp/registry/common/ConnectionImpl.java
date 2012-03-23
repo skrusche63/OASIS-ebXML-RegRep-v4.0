@@ -7,7 +7,7 @@ import org.opensaml.saml2.core.Assertion;
 
 public class ConnectionImpl {
 
-	private Assertion assertion;
+	private CredentialInfo credentialInfo;
 	private String registryURL;
 	
 	// postfix of the respective WSDL locations
@@ -17,12 +17,15 @@ public class ConnectionImpl {
 	public ConnectionImpl() {
 	}
 	
-	public void setAssertion(Assertion assertion) {
-		this.assertion = assertion;
+	public void setCredentialInfo(CredentialInfo credentialInfo) {
+		this.credentialInfo = credentialInfo;
 	}
 	
 	public Assertion getAssertion() {
-		return this.assertion;
+		
+		if (this.credentialInfo == null) return null;
+		return this.credentialInfo.getAssertion();
+		
 	}
 	
 	public void setRegistryUrl(String registryURL) {

@@ -41,6 +41,12 @@ public class CanonicalConstants {
 	public static String IDP_ALIAS   = "";
 	public static String IDP_KEYPASS = "";
 
+	// endpoint of the user registry used to retrieve
+	// user data for registering users that do not yet
+	// exist in the database
+	
+	public static String USER_REGISTRY_URL = "";
+	
 	private static boolean initialized = false;
 	
     static {

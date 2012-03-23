@@ -319,7 +319,7 @@ public class NEOBase {
 	// to uniquely identify a certain node with the Neo4J database
 	
 	public static String getNID() {		
-		return UUID.randomUUID().toString();
+		return "urn:uuid:" + UUID.randomUUID().toString();
 	}
 	
 	public static String getNType() {

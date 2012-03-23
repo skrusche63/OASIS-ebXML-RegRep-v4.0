@@ -18,10 +18,6 @@ import de.kp.registry.server.neo4j.service.context.RequestContext;
 
 public class UserUtil {
 
-	// reference to OASIS ebRIM object factory
-	public static org.oasis.ebxml.registry.bindings.rim.ObjectFactory ebRIMFactory = new org.oasis.ebxml.registry.bindings.rim.ObjectFactory();
-
-
     // this method sets the user of the current request from the 
 	// provided SAML assertion; if the user instance is locally 
 	// not existing, it is created as a replica from the respective 
@@ -59,15 +55,17 @@ public class UserUtil {
 		
 	}
 	
-	// register an authenticated user within the
-	// NEO4J database
+	// register an authenticated user within the NEO4J database;
+	// the associated person binding is retrieved from a remote
+	// user registry
 	
 	public static String register(RequestContext request) throws RegistryException {
-
-		String user = null;
+				
+		// retrieve user from remote user registry
+		UserProvider up = new UserProvider(request);
 		
-		// as a first step create a person binding
-		PersonType binding = createPerson();
+		PersonType binding = up.getPerson();
+		if (binding == null) return null;
 		
 		// as a second step create node for person
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
@@ -84,7 +82,8 @@ public class UserUtil {
 			tx.finish();
 		}		
 
-		return user;
+		// return unique identifier for the caller's user
+		return binding.getId();
 	
 	}
 
@@ -93,6 +92,20 @@ public class UserUtil {
 
     public static String get(RequestContext request) {
     	
+    	String user = getUser(request);
+    	if (user != null) {
+			// search user in the database
+			Node node = getById(user);
+			if (node == null) return null;
+			
+		}
+
+        return user;
+        
+    }
+  
+    private static String getUser(RequestContext request) {
+
     	String user = null;
     	
     	CredentialInfo credentialInfo = request.getCredentialInfo();
@@ -102,27 +115,12 @@ public class UserUtil {
     	if (assertion == null) return user;
 
 		NameID nameId = assertion.getSubject().getNameID();
-		if (nameId.getFormat().equals(CanonicalConstants.SAML2_NAME_FORMAT)) {
-			
+		if (nameId.getFormat().equals(CanonicalConstants.SAML2_NAME_FORMAT)) {			
 			user = nameId.getValue();
-			
-			// search user in the database
-			Node node = getById(user);
-			if (node == null) return null;
-			
-			
 		}
 
         return user;
-        
-    }
-  
-	private static PersonType createPerson() {
 
-		PersonType person = ebRIMFactory.createPersonType();
-		// TODO
-		return person;
-	
-	}
+    }
 
 }
