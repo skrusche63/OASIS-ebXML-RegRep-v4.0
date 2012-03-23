@@ -33,7 +33,7 @@ public class RequestContext {
 		this.credentialInfo = credentialInfo;
 	}
 	
-	public CredentialInfo getCredentailInfo() {
+	public CredentialInfo getCredentialInfo() {
 		return this.credentialInfo;
 	}
 	

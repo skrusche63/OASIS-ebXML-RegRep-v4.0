@@ -25,6 +25,7 @@ import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
 import de.kp.registry.server.neo4j.service.context.SubmitResponseContext;
 import de.kp.registry.server.neo4j.service.context.UpdateRequestContext;
 import de.kp.registry.server.neo4j.service.context.UpdateResponseContext;
+import de.kp.registry.server.neo4j.user.UserUtil;
 import de.kp.registry.server.neo4j.write.WriteManager;
 
 @WebService(name = "LifecycleManager", serviceName = "LifecycleManager", portName = "LifecycleManagerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
@@ -54,6 +55,10 @@ public class LifecycleManagerImpl implements LifecycleManager {
 		MessageContext context = wsContext.getMessageContext();
 		removeRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
 		
+		// set caller's user to the remove request
+		UserUtil.setCallersUser(removeRequest);
+		
+		// build request response
 		RemoveResponseContext removeResponse = new RemoveResponseContext(request.getId());
 
 		// Authorization of RemoveObjectsRequest
@@ -97,7 +102,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
 		// add SAML assertion to remove request
 		MessageContext context = wsContext.getMessageContext();
 		submitRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
-
+		
+		// set caller's user to the submit request
+		UserUtil.setCallersUser(submitRequest);
+		
+		// build request response
 		SubmitResponseContext submitResponse = new SubmitResponseContext(request.getId());
 
 		// Authorization of SubmitObjectsRequest
@@ -141,7 +150,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
 		// add SAML assertion to remove request
 		MessageContext context = wsContext.getMessageContext();
 		updateRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
-
+		
+		// set caller's user to the update request
+		UserUtil.setCallersUser(updateRequest);
+		
+		// build request response
 		UpdateResponseContext updateResponse = new UpdateResponseContext(request.getId());
 
 		// Authorization of UpdateObjectsRequest

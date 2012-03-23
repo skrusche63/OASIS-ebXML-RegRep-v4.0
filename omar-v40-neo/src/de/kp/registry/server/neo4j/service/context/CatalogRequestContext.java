@@ -5,11 +5,11 @@ import org.oasis.ebxml.registry.bindings.spi.CatalogObjectsRequest;
 
 // TODO: Should we restrict to client service invocation
 
-public class CatalogerRequestContext extends RequestContext {
+public class CatalogRequestContext extends RequestContext {
 
 	CatalogObjectsRequest request;
 	
-	public CatalogerRequestContext(CatalogObjectsRequest request) {
+	public CatalogRequestContext(CatalogObjectsRequest request) {
 		
 		this.request = request;
 

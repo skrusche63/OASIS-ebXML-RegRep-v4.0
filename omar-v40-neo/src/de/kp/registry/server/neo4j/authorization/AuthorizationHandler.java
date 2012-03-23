@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.authorization;
 
+import de.kp.registry.server.neo4j.service.context.CatalogRequestContext;
 import de.kp.registry.server.neo4j.service.context.QueryResponseContext;
 import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
 import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
@@ -15,6 +16,12 @@ public class AuthorizationHandler {
 	public static AuthorizationHandler getInstance() {
 		if (instance == null) instance = new AuthorizationHandler();
 		return instance;
+	}
+
+	// authorize an incoming CatalogObjectsRequest
+	public AuthorizationResult authorizeCatalogRequest(CatalogRequestContext request) {
+		// TODO
+		return null;
 	}
 	
 	// authorize an incoming SubmitObjectsRequest

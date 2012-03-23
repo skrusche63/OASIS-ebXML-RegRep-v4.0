@@ -3,13 +3,27 @@ package de.kp.registry.server.neo4j.service.context;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.neo4j.graphdb.Node;
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
+import org.oasis.ebxml.registry.bindings.rim.AnyValueType;
+import org.oasis.ebxml.registry.bindings.rim.BooleanValueType;
+import org.oasis.ebxml.registry.bindings.rim.CollectionValueType;
+import org.oasis.ebxml.registry.bindings.rim.DateTimeValueType;
+import org.oasis.ebxml.registry.bindings.rim.DurationValueType;
+import org.oasis.ebxml.registry.bindings.rim.FloatValueType;
+import org.oasis.ebxml.registry.bindings.rim.IntegerValueType;
+import org.oasis.ebxml.registry.bindings.rim.MapValueType;
 import org.oasis.ebxml.registry.bindings.rim.QueryDefinitionType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.SlotType;
 import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
+import org.oasis.ebxml.registry.bindings.rim.StringValueType;
+import org.oasis.ebxml.registry.bindings.rim.ValueType;
+import org.oasis.ebxml.registry.bindings.rim.VocabularyTermValueType;
 
 import de.kp.registry.server.neo4j.read.ReadManager;
 
@@ -267,10 +281,71 @@ public class QueryRequestContext extends RequestContext {
 		// * A server MUST NOT treat the order of parameters as significant.	
 		
 		List<SlotType> queryParameters = query.getSlot();
+		if (queryParameters == null) return queryExpression;
+
+		for (SlotType queryParameter:queryParameters) {
+
+			// the parameter within a query expression is described by $parameterName
+			String parameterName  = "$" + queryParameter.getName();
+			String parameterValue = getParameterValue(queryParameter);
+			
+			if (parameterValue != null) queryExpression.replace(parameterName, parameterValue);
+			
+		}
 		
-		// TODO
+		return queryExpression;
+		
+	}
+	
+	private String getParameterValue(SlotType parameter) {
+		
+		ValueType valueHolder = parameter.getSlotValue();
+		if (valueHolder == null) return null;
+		
+		if (valueHolder instanceof StringValueType) {
+			return ((StringValueType)valueHolder).getValue();						
+
+		} else if (valueHolder instanceof DateTimeValueType) {
+			
+			XMLGregorianCalendar value = ((DateTimeValueType)valueHolder).getValue();
+			return value.toString();
+			
+		} else if (valueHolder instanceof VocabularyTermValueType) {
+			// NOT SUPPORTED
+			
+		} else if (valueHolder instanceof IntegerValueType) {
+			
+			BigInteger value = ((IntegerValueType)valueHolder).getValue();
+			return value.toString();
+
+		} else if (valueHolder instanceof AnyValueType) {
+			// NOT SUPPORTED
+
+		} else if (valueHolder instanceof BooleanValueType) {
+			
+			Boolean value = ((BooleanValueType)valueHolder).isValue();
+			return new Boolean(value).toString();
+
+		} else if (valueHolder instanceof FloatValueType) {
+			
+			Float value = ((FloatValueType)valueHolder).getValue();
+			return Float.toString(value);
+			
+		} else if (valueHolder instanceof MapValueType) {
+			// NOT SUPPORTED
+			
+		} else if (valueHolder instanceof DurationValueType) {
+			
+			Duration value = ((DurationValueType)valueHolder).getValue();
+			return value.toString();
+
+		} else if (valueHolder instanceof CollectionValueType) {
+			// NOT SUPPORTED
+
+		}
 		
 		return null;
+
 	}
 	
 }

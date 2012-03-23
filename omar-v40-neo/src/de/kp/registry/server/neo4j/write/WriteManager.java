@@ -26,17 +26,6 @@ import de.kp.registry.server.neo4j.service.context.ResponseContext;
 import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
 import de.kp.registry.server.neo4j.service.context.UpdateRequestContext;
 
-// TODO: fillNode mechanism
-// ------------------------
-
-// we have to evaluate whether a certain parameter, not provided
-// with the binding object is present with the respective node
-// this is due to the support of UpdateObjectsRequest and the
-// 'delete' mode described there
-
-// hint: fillNode invokes fillNodeInternal (which is also used
-// by toNode)
-
 public class WriteManager {
 
 	private static WriteManager instance = new WriteManager();
@@ -735,6 +724,23 @@ public class WriteManager {
 		binding = up.updateBinding(binding, checkReference, updateActions);
 
 		// finally fill the node from the modified binding
+
+		// an update request inserts a new value, updates and existing
+		// value or deletes an existing value
+		
+		// - insert or update
+		//
+		// independent of whether the respective parameter
+		// exists in the node, the parameter is set to the
+		// value provided
+
+		// - delete
+		//
+		// 'delete' means that the respective parameter value is
+		// set to null in the binding object; as fill first clears
+		// all node paramaters and then update them from the binding
+		// object, 'delete' is supported this way
+
 		fillNode(graphDB, node, binding, checkReference);
 		
 	}
