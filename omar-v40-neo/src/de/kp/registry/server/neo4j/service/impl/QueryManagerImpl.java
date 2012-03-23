@@ -19,6 +19,7 @@ import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.QueryManager;
 import de.kp.registry.server.neo4j.service.context.QueryRequestContext;
 import de.kp.registry.server.neo4j.service.context.QueryResponseContext;
+import de.kp.registry.server.neo4j.user.UserUtil;
 
 @WebService(name = "QueryManager", serviceName = "QueryManager", portName = "QueryManagerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
 endpointInterface = "de.kp.registry.server.neo4j.service.QueryManager")
@@ -49,7 +50,11 @@ public class QueryManagerImpl implements QueryManager {
 		// add SAML assertion to remove request
 		MessageContext context = wsContext.getMessageContext();
 		queryRequest.setCredentialInfo((CredentialInfo)context.get(CanonicalConstants.CREDENTIAL_INFO));
-
+		
+		// set caller's user to the query request
+		UserUtil.setCallersUser(queryRequest);
+		
+		// build request response
 		QueryResponseContext queryResponse = new QueryResponseContext(request.getId());
 						
 		// Attribute federated – This optional attribute specifies that the server must 

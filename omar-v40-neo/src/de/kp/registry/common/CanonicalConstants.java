@@ -14,8 +14,8 @@ public class CanonicalConstants {
 	public static final String UNAVAILABLE     	= "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Unavailable";
 	
 	// the following canonical values represent the return types of a query request
-	public static final String LEAF_CLASS 	 = "LeafClass";
-	public static final String LEAF_CLASS_RI 	 = "LeafClassWithRepositoryItem";
+	public static final String LEAF_CLASS 	   = "LeafClass";
+	public static final String LEAF_CLASS_RI   = "LeafClassWithRepositoryItem";
 	public static final String OBJECT_REF      = "ObjectRef";
 	public static final String REGISTRY_OBEJCT = "RegistryObject";
 
@@ -23,7 +23,10 @@ public class CanonicalConstants {
 	public static final String CANONICAL_URI_SENDER_CERT = "urn:oasis:names:tc:ebxml-regrep:rs:security:SenderCert";
 	
 	// predefined user unique identifiers
-	public static final  String REGISTRY_OPERATOR = "urn:oasis:names:tc:ebxml-regrep:user:registry:operator";
+	public static final String REGISTRY_GUEST    = "urn:oasis:names:tc:ebxml-regrep:predefinedusers:RegistryGuest";
+	public static final String REGISTRY_OPERATOR = "urn:oasis:names:tc:ebxml-regrep:predefinedusers:RegistryOperator";
+
+	public static final String SAML2_NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";
 
 	public static String MAX_CLOCK_SKEW = "";
 	

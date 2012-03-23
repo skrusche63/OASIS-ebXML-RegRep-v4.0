@@ -1,6 +1,7 @@
 package de.kp.registry.server.neo4j.write;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -229,6 +230,10 @@ public class UpdateHandler {
 		
 	}
 
+	// this method supports the update of a single parameter, either by adding
+	// replacing or deleting the respective value; there is no support for lists
+	// and an update of their individual list items
+	
 	private void updateSingleValue(JXPathContext updateContext, String selector, Boolean checkReference, String mode, Object oldValue, Object newValue) throws RegistryException {
 		
 		// evaluate mode of request
@@ -237,12 +242,25 @@ public class UpdateHandler {
 			// Indicates that the value provided by ValueHolder MUST be added to the target object.
 			//
 			// If the selector targets a repeated element (maxOccurs > 1), the node MUST be 
-			// added at the end. If the selector targets a non-repeated element (maxOccurrs = 1) 
-			// that already exists, the resource MUST generate an InvalidRequestException with a 
-			// fault detail of NodeAlreadyExistsException.
-			//
-			// If the selector targets an existing item of a repeated element, the value provided
-			// by ValueHolder MUST be added before the existing item.
+			// added at the end. If the selector targets an existing item of a repeated element, 
+			// the value provided by ValueHolder MUST be added before the existing item.
+			
+			// __DESIGN__
+			
+			// an update for non-repeated elements other than slots is actually not supported
+			
+			if (oldValue != null) {
+
+				// If the selector targets a non-repeated element (maxOccurrs = 1) 
+				// that already exists, the resource MUST generate an InvalidRequestException with a 
+				// fault detail of NodeAlreadyExistsException.
+			
+				throw new InvalidRequestException("[UpdateObjectsRequest] Value already exists for an 'insert' request.");
+				
+			} else {
+				updateContext.setValue(selector, newValue);
+				
+			}
 
 		} else if (mode.equals("Update")) {
 
@@ -264,33 +282,73 @@ public class UpdateHandler {
 		
 	}
 	
+	// this method supports the update of the slot list of a certain registry objects;
+	// a new slot value may be inserted, updated or 
 	private void updateSlotValue(JXPathContext updateContext, String selector, Boolean checkReference, String mode, List<SlotType> oldValue, SlotType newValue) throws RegistryException {
 
 		// evaluate mode of request
 		if (mode.equals("Insert")) {
 
-			// Indicates that the value provided by ValueHolder MUST be added to the target object.
-			//
-			// If the selector targets a repeated element (maxOccurs > 1), the node MUST be 
-			// added at the end. If the selector targets a non-repeated element (maxOccurrs = 1) 
-			// that already exists, the resource MUST generate an InvalidRequestException with a 
-			// fault detail of NodeAlreadyExistsException.
-			//
-			// If the selector targets an existing item of a repeated element, the value provided
-			// by ValueHolder MUST be added before the existing item.
+			// Indicates that the value provided by ValueHolder MUST be added to the target 
+			// object. As the target is a slot list, the value is added to this list; note,
+			// that we deviate here from the OASIS ebXML RegRep specification, as we cannot
+			// ensure any sequence of slots within this list
+			
+			// the binding object does not have an attached slot list; in this case, the list
+			// must be created, the new value added and the 'oldValue' added to the binding
+			if (oldValue == null) oldValue = new ArrayList<SlotType>();
+
+			oldValue.add(newValue);
+			updateContext.setValue(selector, oldValue);
 
 		} else if (mode.equals("Update")) {
 
 			// Indicates that the node identified by selector MUST be replaced by 
 			// value by the ValueHolder in its place. If the selector resolves to
 			// nothing then there should be no change to the target object.
+			SlotType item = findSlot(oldValue, newValue);
+			if (item != null) {
+				
+				// remove the existing slot and add the new value
+				oldValue.remove(item);
+				oldValue.add(newValue);
+				
+				updateContext.setValue(selector, oldValue);
+				
+			}
 			
 		} else if (mode.equals("Delete")) {
 			
 			// Indicates that the node identified by selector MUST be deleted from 
 			// the target object if it is present.
 
+			SlotType item = findSlot(oldValue, newValue);
+			if (item != null) {
+				
+				// remove the existing slot
+				oldValue.remove(item);
+				updateContext.setValue(selector, oldValue);
+				
+			}
+
 		}
 
+	}
+	
+	// this helper method determines a certain slot in a slot list
+	private SlotType findSlot(List<SlotType> list, SlotType slot) {
+		
+		SlotType match = null;
+
+		for (SlotType item:list) {
+			
+			if (item.getName().equals(slot.getName()) && item.getType().equals(slot.getType())) {
+				match = item;
+				break;
+			}
+		}
+		
+		return match;
+		
 	}
 }
