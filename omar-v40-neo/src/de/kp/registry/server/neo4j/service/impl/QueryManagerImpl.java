@@ -1,5 +1,7 @@
 package de.kp.registry.server.neo4j.service.impl;
 
+import java.util.Set;
+
 import javax.annotation.Resource;
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
@@ -102,8 +104,10 @@ public class QueryManagerImpl implements QueryManager {
 				
 				// this is case, only those registry objects or object refs are
 				// returned to the client, that match the authorization policies
-				
-				// TODO
+				Set<String> deniedResources = authRes.getDenied();
+
+				queryResponse.removeObjectRefAll(deniedResources);
+				queryResponse.removeRegistryObjectAll(deniedResources);
 				
 			} else if (result.equals(AuthorizationConstants.PERMIT_NONE)) {
 				

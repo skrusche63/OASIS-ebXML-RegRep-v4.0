@@ -1,5 +1,7 @@
 package de.kp.registry.server.neo4j.domain.exception;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.oasis.ebxml.registry.bindings.rs.RegistryExceptionType;
 
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
@@ -27,8 +29,19 @@ public class ExceptionManager {
 	}
 
 	public AuthorizationException createAuthException(AuthorizationResult authRes) {
-		// TODO
-		return null;
+		
+		List<String> deniedResources = new ArrayList<String>(authRes.getDenied());
+
+		// __ DESIGN__
+		
+		// the exception references the first id of the denied resources
+		
+		String message = "[" + authRes.getRequestType() + "] You are not authorized to perform this request on the following resource: " +
+		"" + deniedResources.get(0);
+
+		
+		AuthorizationException authException = new AuthorizationException(message);
+		return authException;
 	}
 	
 	public RegistryExceptionType toBinding(Object exception) {

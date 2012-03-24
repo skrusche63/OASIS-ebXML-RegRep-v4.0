@@ -1,6 +1,9 @@
 package de.kp.registry.server.neo4j.service.context;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
@@ -58,10 +61,72 @@ public class QueryResponseContext {
 		this.response.getRegistryObjectList().getRegistryObject().add(registryObject);
 	}
 
+	public void removeRegistryObject(String id) {
+		
+		RegistryObjectType removable = null;
+		
+		List<RegistryObjectType> registryObjects = this.response.getRegistryObjectList().getRegistryObject();
+		for (RegistryObjectType registryObject:registryObjects) {
+			if (registryObject.getId().equals(id)) {
+				removable = registryObject;
+				break;
+			}
+		}
+		
+		if (removable != null) registryObjects.remove(removable);
+		
+	}
+
+	public void removeRegistryObjectAll(Set<String> ids) {
+		
+		List<RegistryObjectType> removables = new ArrayList<RegistryObjectType>();
+		
+		List<RegistryObjectType> registryObjects = this.response.getRegistryObjectList().getRegistryObject();
+		for (RegistryObjectType registryObject:registryObjects) {
+
+			if (ids.contains(registryObject.getId())) removables.add(registryObject);
+
+		}
+		
+		registryObjects.removeAll(removables);
+		
+	}
+
 	public void addObjectRef(ObjectRefType objectRef) {
 		this.response.getObjectRefList().getObjectRef().add(objectRef);
 	}
 
+	public void removeObjectRef(String id) {
+		
+		ObjectRefType removable = null;
+		
+		List<ObjectRefType> objectRefs = this.response.getObjectRefList().getObjectRef();
+		for (ObjectRefType objectRef:objectRefs) {
+			if (objectRef.getId().equals(id)) {
+				removable = objectRef;
+				break;
+			}
+		}
+		
+		if (removable != null) objectRefs.remove(removable);
+		
+	}
+
+	public void removeObjectRefAll(Set<String> ids) {
+		
+		List<ObjectRefType> removables = new ArrayList<ObjectRefType>();
+		
+		List<ObjectRefType> objectRefs = this.response.getObjectRefList().getObjectRef();
+		for (ObjectRefType objectRef:objectRefs) {
+
+			if (ids.contains(objectRef.getId())) removables.add(objectRef);
+
+		}
+		
+		objectRefs.removeAll(removables);
+		
+	}
+	
 	public void addException(Exception exception) {
 		
 		ExceptionManager em = ExceptionManager.getInstance();
