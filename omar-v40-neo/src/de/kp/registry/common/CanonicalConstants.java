@@ -25,6 +25,24 @@ public class CanonicalConstants {
 
 	public static final String SAML2_NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";
 
+	/************************************************************************
+	 * 
+	 * PREDEFINED QUERY DEFINITIONS    PREDEFINED QUERY DEFINITIONS    PREDEFINED
+	 * 
+	 ***********************************************************************/
+	
+	// this is the unique identifier of a parameterized query ($userId) to retrieve
+	// a certain user by his unique identifier; the respective query request is used
+	// in the context of the UserProvider, that queries a remote User Registry to
+	// retrieve sufficient user data
+	
+	public static final String QUERY_GetUserById = "urn:oasis:names:tc:ebxml-regrep:QueryDefinitionType:GetUserById";
+	
+	// this is a query parameter to indicate the user identifier, e.g. in
+	// a parameterized GetUserById query request
+	
+	public static final String QUERY_PARAM_USER_ID = "userId";
+	
 	public static String MAX_CLOCK_SKEW = "";
 	
 	public static String KEYSTORE_FILE = "";

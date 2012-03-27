@@ -8,8 +8,11 @@ import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.rim.PersonType;
+import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
+import org.oasis.ebxml.registry.bindings.rim.SlotType;
+import org.oasis.ebxml.registry.bindings.rim.StringValueType;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.NameID;
 
@@ -124,9 +127,22 @@ public class UserProvider {
 		
 		// - Query
 		
-		// This element identifies a parameterized query and supplies values for its parameters.
+		// This element identifies a parameterized query and supplies values for its 
+		// parameters. To describe the parameter, a SlotType instance is used; not, 
+		// that this SlotType has no type description assigned.
 		
-		// TODO
+		QueryType query = ebRIMFactory.createQueryType();
+		query.setQueryDefinition(CanonicalConstants.QUERY_GetUserById);
+
+		// create query parameter
+		SlotType queryParam = ebRIMFactory.createSlotType();
+		queryParam.setName(CanonicalConstants.QUERY_PARAM_USER_ID);
+		
+		StringValueType queryParamValue = ebRIMFactory.createStringValueType();
+		queryParamValue.setValue(user);
+		
+		query.getSlot().add(queryParam);
+		queryRequest.setQuery(query);
 		
 		// - depth
 
