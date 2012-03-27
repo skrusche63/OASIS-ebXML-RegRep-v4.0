@@ -28,6 +28,7 @@ public class NEOBase {
 	public static String OASIS_RIM_ID          = "id";
 	public static String OASIS_RIM_LID         = "lid";
 	public static String OASIS_RIM_MIMETYPE    = "mimetype";
+	public static String OASIS_RIM_NAME        = "name";
 	public static String OASIS_RIM_OWNER       = "owner";
 	public static String OASIS_RIM_PATH        = "path";
 	public static String OASIS_RIM_STATUS      = "status";

@@ -1,14 +1,20 @@
 package de.kp.registry.server.neo4j.auditing;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.oasis.ebxml.registry.bindings.rim.ActionType;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
+import org.oasis.ebxml.registry.bindings.rim.CommentType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
+import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
 import de.kp.registry.common.CanonicalConstants;
+import de.kp.registry.server.neo4j.domain.DomainUtil;
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.service.context.RequestContext;
 import de.kp.registry.server.neo4j.service.context.ResponseContext;
 import de.kp.registry.server.neo4j.util.CalendarUtil;
@@ -58,7 +64,7 @@ public class AuditContext {
 		return (this.response.getCreated() != null);
 	}
 
-	public AuditableEventType getAuditableEvent(String event) {
+	public AuditableEventType getAuditableEventType(String event) {
 		
 		AuditableEventType auditableEvent = ebRIMFactory.createAuditableEventType();
 		
@@ -94,10 +100,49 @@ public class AuditContext {
 		
 		// finally RegistryObjectTye specific parameters have to
 		// be added to the AuditableEventType
+
+		Map<String,Object> properties = new HashMap<String,Object>();
+		auditableEvent = (AuditableEventType)fillBinding(auditableEvent, properties);
 		
-		auditableEvent = fillBinding(auditableEvent);
 		return auditableEvent;
 
+	}
+	
+	public CommentType getCommentType() {
+		
+		if (this.comment == null) return null;
+		
+		// the comment type is derived from an extrinsic object,
+		// and the respective comment value is assigned to the
+		// description parameter of the registry object
+		
+		CommentType comment = ebRIMFactory.createCommentType();
+		
+		// - CONTENT VERSION INFO (0..1)
+		
+		// NOT USED FOR SERVER GENERATED COMMENT
+
+		
+		// - MIME TYPE (0..1)
+		
+		// NOT USED FOR SERVER GENERATED COMMENT
+
+		
+		// - REPOSITORY ITEM (0..1)
+		
+		// NOT USED FOR SERVER GENERATED COMMENT
+
+		
+		// - REPOSITORY ITEM REF (0..1)
+		
+		// NOT USED FOR SERVER GENERATED COMMENT
+
+		Map<String, Object> properties = new HashMap<String,Object>();
+		properties.put(NEOBase.OASIS_RIM_DESCRIPTION, this.comment);
+		
+		comment = (CommentType)fillBinding(comment, properties);
+		return comment;
+		
 	}
 	
 	private ActionType createAction(String event) {
@@ -138,14 +183,13 @@ public class AuditContext {
 		
 	}
 	
-	private AuditableEventType fillBinding(AuditableEventType auditableEvent) {
+	private Object fillBinding(Object binding, Map<String,Object> properties) {
 		
 		// Note that the inherited attribute owner SHOULD be set by a server to an 
 		// internal system user since it is the server and not the user associated 
 		// with the request
+		
+		return DomainUtil.fillRegistryObjectType((RegistryObjectType)binding, properties);
 
-		// TODO
-
-		return null;
 	}
 }

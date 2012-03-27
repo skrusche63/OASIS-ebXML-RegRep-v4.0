@@ -2,16 +2,13 @@ package de.kp.registry.common;
 
 public class CanonicalConstants {
 
+	public static String DEFAULT_LANGUAGE = "en-US";
+	
 	// The following canonical values are defined for the EventType ClassificationScheme
 	public static final String CREATED 		 	= "urn:oasis:names:tc:ebxml-regrep:EventType:Created";
 	public static final String UPDATED       	= "urn:oasis:names:tc:ebxml-regrep:EventType:Updated";
 	public static final String DELETED 			= "urn:oasis:names:tc:ebxml-regrep:EventType:Deleted";
 
-	// The following canonical values are defined for the ResponseStatusType ClassificationScheme
-	public static final String FAILURE 		 	= "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Failure";
-	public static final String PARTIAL_SUCCESS 	= "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:PartialSuccess";
-	public static final String SUCCESS 		 	= "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
-	public static final String UNAVAILABLE     	= "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Unavailable";
 	
 	// the following canonical values represent the return types of a query request
 	public static final String LEAF_CLASS 	   = "LeafClass";

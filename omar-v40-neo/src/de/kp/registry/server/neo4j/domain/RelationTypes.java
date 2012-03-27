@@ -10,6 +10,7 @@ public enum RelationTypes implements RelationshipType {
 	hasAuditableEvent,
 	hasChild,
 	hasClassification,
+	hasComment,
 	hasContentVersion,
 	hasDeliveryInfo,
 	hasDescription,

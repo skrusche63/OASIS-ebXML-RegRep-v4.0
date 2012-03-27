@@ -11,7 +11,7 @@ import org.oasis.ebxml.registry.bindings.lcm.UpdateActionType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
-import de.kp.registry.common.CanonicalConstants;
+import de.kp.registry.common.CanonicalSchemes;
 import de.kp.registry.server.neo4j.auditing.AuditContext;
 import de.kp.registry.server.neo4j.auditing.AuditHandler;
 import de.kp.registry.server.neo4j.database.Database;
@@ -133,7 +133,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				response.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
 			
 			}
 
@@ -159,7 +159,7 @@ public class WriteManager {
 			 * return an InvalidRequestException
 			 */
 			
-			response.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 
 			InvalidRequestException exception = new InvalidRequestException("[UpdatetObjectsRequest] The mode '" + modeValue + "' is not allowed.");
 			response.addException(exception);
@@ -220,7 +220,7 @@ public class WriteManager {
 					// If an object already exists, the server MUST return an 
 					// ObjectExistsException fault message
 				
-					response.setStatus(CanonicalConstants.FAILURE);
+					response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 
 					ObjectExistsException exception = new ObjectExistsException("[SubmitObjectsRequest] RegistryObjectType node with id '" + nid + "' already exist.");
 					response.addException(exception);
@@ -243,7 +243,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				response.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
 			
 			}
 			
@@ -306,7 +306,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				response.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
 			
 			}
 			
@@ -372,7 +372,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				response.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
 			
 			}			
 			
@@ -410,7 +410,7 @@ public class WriteManager {
 			
 		} catch (Exception e) {
 									
-			response.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 			response.addException(e);
 		
 		}
@@ -431,7 +431,7 @@ public class WriteManager {
 			
 		} catch (Exception e) {
 			
-			response.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 			response.addException(e);
 			
 		}
@@ -453,7 +453,7 @@ public class WriteManager {
 			
 		} catch (Exception e) {
 									
-			response.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 			response.addException(e);
 
 		}
@@ -475,7 +475,7 @@ public class WriteManager {
 			
 		} catch (Exception e) {
 			
-			response.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 			response.addException(e);
 
 		}
@@ -495,7 +495,7 @@ public class WriteManager {
 			
 		} catch (Exception e) {
 			
-			response.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 			response.addException(e);
 
 		}
@@ -516,7 +516,7 @@ public class WriteManager {
 			
 		} catch (Exception e) {
 			
-			response.setStatus(CanonicalConstants.FAILURE);
+			response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 			response.addException(e);
 
 		}
@@ -559,7 +559,7 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node == null) {
 				
-					response.setStatus(CanonicalConstants.FAILURE);
+					response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 
 					ObjectNotFoundException exception = new ObjectNotFoundException("[UpdateObjectsRequest] ObjectRefType node with id '" + nid + "' does not exist.");
 					response.addException(exception);
@@ -582,7 +582,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				response.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
 			
 			}
 			
@@ -633,7 +633,7 @@ public class WriteManager {
 				node = rm.findNodeByID(nid);
 				if (node == null) {
 				
-					response.setStatus(CanonicalConstants.FAILURE);
+					response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
 
 					ObjectNotFoundException exception = new ObjectNotFoundException("[UpdateObjectsRequest] ObjectRefType node with id '" + nid + "' does not exist.");
 					response.addException(exception);
@@ -657,7 +657,7 @@ public class WriteManager {
 				tx.success();
 
 				// this is a successful request, we therefore indicate this status in the registry's response
-				response.setStatus(CanonicalConstants.SUCCESS);
+				response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
 			
 			}
 			

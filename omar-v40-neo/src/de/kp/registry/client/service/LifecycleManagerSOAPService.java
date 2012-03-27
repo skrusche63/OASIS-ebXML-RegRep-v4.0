@@ -32,7 +32,7 @@ wsdlLocation = "WEB-INF/wsdl/regrep-server-service.wsdl")
 
 public class LifecycleManagerSOAPService extends Service {
 
-    private final static URL LIFECYCLEMANAGERSOAPSERVICE_WSDL_LOCATION;
+    private final static URL WS_WSDL_LOCATION;
     private final static Logger logger = Logger.getLogger(de.kp.registry.client.service.LifecycleManagerSOAPService.class.getName());
 
     private final static String TARGET_NAMESPACE = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0";
@@ -52,7 +52,7 @@ public class LifecycleManagerSOAPService extends Service {
         
         }
         
-        LIFECYCLEMANAGERSOAPSERVICE_WSDL_LOCATION = url;
+        WS_WSDL_LOCATION = url;
     }
 
     public LifecycleManagerSOAPService(URL wsdlLocation, QName serviceName) {
@@ -74,7 +74,7 @@ public class LifecycleManagerSOAPService extends Service {
     }
 
     public LifecycleManagerSOAPService() {
-        super(LIFECYCLEMANAGERSOAPSERVICE_WSDL_LOCATION, new QName(TARGET_NAMESPACE, "LifecycleManagerSOAPService"));
+        super(WS_WSDL_LOCATION, new QName(TARGET_NAMESPACE, "LifecycleManagerSOAPService"));
     }
 
     /**

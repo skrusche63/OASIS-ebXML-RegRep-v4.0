@@ -12,6 +12,7 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.ActionType;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 
+import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
@@ -79,7 +80,13 @@ public class AuditableEventTypeNEO extends RegistryObjectTypeNEO {
 
 		// - USER (1..1)
 		node.removeProperty(OASIS_RIM_USER);
-		
+
+		// - COMMENT (0..1)
+
+		// an auditable event may have assigned a comment instance in case
+		// of a server generated auditable evenet		
+		node = NEOBase.clearRelationship(node, RelationTypes.hasComment, true);
+
 		return node;
 		
 	}

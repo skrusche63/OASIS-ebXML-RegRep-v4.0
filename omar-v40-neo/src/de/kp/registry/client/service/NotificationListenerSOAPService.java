@@ -29,7 +29,7 @@ wsdlLocation = "WEB-INF/wsdl/regrep-server-service.wsdl")
 
 public class NotificationListenerSOAPService extends Service {
 
-    private final static URL NOTIFICATIONLISTENERSOAPSERVICE_WSDL_LOCATION;
+    private final static URL WS_WSDL_LOCATION;
     private final static Logger logger = Logger.getLogger(de.kp.registry.client.service.NotificationListenerSOAPService.class.getName());
 
     private final static String TARGET_NAMESPACE = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0";
@@ -48,7 +48,7 @@ public class NotificationListenerSOAPService extends Service {
             logger.warning(e.getMessage());
         }
         
-        NOTIFICATIONLISTENERSOAPSERVICE_WSDL_LOCATION = url;
+        WS_WSDL_LOCATION = url;
     
     }
 
@@ -71,7 +71,7 @@ public class NotificationListenerSOAPService extends Service {
     }
 
     public NotificationListenerSOAPService() {
-        super(NOTIFICATIONLISTENERSOAPSERVICE_WSDL_LOCATION, new QName(TARGET_NAMESPACE, "NotificationListenerSOAPService"));
+        super(WS_WSDL_LOCATION, new QName(TARGET_NAMESPACE, "NotificationListenerSOAPService"));
     }
 
     /**

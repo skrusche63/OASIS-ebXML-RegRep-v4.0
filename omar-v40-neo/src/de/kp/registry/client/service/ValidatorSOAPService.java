@@ -33,7 +33,7 @@ wsdlLocation = "WEB-INF/wsdl/regrep-server-service.wsdl")
 
 public class ValidatorSOAPService extends Service {
 
-    private final static URL VALIDATORSOAPSERVICE_WSDL_LOCATION;
+    private final static URL WS_WSDL_LOCATION;
     private final static Logger logger = Logger.getLogger(de.kp.registry.client.service.ValidatorSOAPService.class.getName());
 
     private final static String TARGET_NAMESPACE = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0";
@@ -52,7 +52,7 @@ public class ValidatorSOAPService extends Service {
             logger.warning(e.getMessage());
         }
         
-        VALIDATORSOAPSERVICE_WSDL_LOCATION = url;
+        WS_WSDL_LOCATION = url;
     
     }
 
@@ -75,7 +75,7 @@ public class ValidatorSOAPService extends Service {
     }
 
     public ValidatorSOAPService() {
-        super(VALIDATORSOAPSERVICE_WSDL_LOCATION, new QName(TARGET_NAMESPACE, "ValidatorSOAPService"));
+        super(WS_WSDL_LOCATION, new QName(TARGET_NAMESPACE, "ValidatorSOAPService"));
     }
 
     /**
