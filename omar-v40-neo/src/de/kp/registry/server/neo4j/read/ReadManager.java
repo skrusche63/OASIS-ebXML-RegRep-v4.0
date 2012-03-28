@@ -2,16 +2,34 @@ package de.kp.registry.server.neo4j.read;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+import org.oasis.ebxml.registry.bindings.rim.AnyValueType;
+import org.oasis.ebxml.registry.bindings.rim.BooleanValueType;
+import org.oasis.ebxml.registry.bindings.rim.CollectionValueType;
+import org.oasis.ebxml.registry.bindings.rim.DateTimeValueType;
+import org.oasis.ebxml.registry.bindings.rim.DurationValueType;
+import org.oasis.ebxml.registry.bindings.rim.FloatValueType;
+import org.oasis.ebxml.registry.bindings.rim.IntegerValueType;
+import org.oasis.ebxml.registry.bindings.rim.MapValueType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
+import org.oasis.ebxml.registry.bindings.rim.QueryDefinitionType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
+import org.oasis.ebxml.registry.bindings.rim.SlotType;
+import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
+import org.oasis.ebxml.registry.bindings.rim.StringValueType;
+import org.oasis.ebxml.registry.bindings.rim.ValueType;
+import org.oasis.ebxml.registry.bindings.rim.VocabularyTermValueType;
 
 import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.database.Database;
@@ -42,9 +60,39 @@ public class ReadManager {
 		return instance;
 	}
 
+	// this method retrieves a list of object references from
+	// a certain registered query definition (addressed by a
+	// query type instance)
+	
 	public List<ObjectRefType> getObjectRefsByQuery(QueryType query) {
-		// TODO
-		return null;
+		
+		List<ObjectRefType> objectRefs = null;
+		
+		try {
+
+			String cypherQuery = getCypherQuery(query);
+			if (cypherQuery == null) return objectRefs;
+			
+			objectRefs = new ArrayList<ObjectRefType>();
+			Iterator<Node> nodes = executeCypherQuery(cypherQuery);
+			while (nodes.hasNext()) {
+
+				Node node = nodes.next();			
+				String id = (String)node.getProperty(NEOBase.OASIS_RIM_ID);
+				
+				ObjectRefType objectRef = ebRIMFactory.createObjectRefType();
+				objectRef.setId(id);
+				
+				objectRefs.add(objectRef);
+
+			}
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return objectRefs;
+	
 	}
 	
 	// this is a common method to retrieve a certain node
@@ -132,7 +180,111 @@ public class ReadManager {
  	
  	}
 
+	// this helper method retrieves the cypher language statement
+	// that represents a certain query request
+	public String getCypherQuery(QueryType query) throws Exception {
 		
+		// Attribute queryDefinition – References the parameterized query 
+		// to be invoked by the server. The value of this attribute MUST 
+		// be a reference to a QueryDefinitionType instance that is supported
+		// by the server.
+
+		String queryDefinition = query.getQueryDefinition();
+		
+		// retrieve the referenced query definition type
+		Node node = findNodeByID(queryDefinition);
+		if (node == null) return null;
+		
+		// __DESIGN__
+		
+		// in order to process a query request, we use the respective 
+		// binding of the QueryDefinitionType node
+		
+		QueryDefinitionType queryDefinitionType = (QueryDefinitionType)toBinding(node, null);		
+		StringQueryExpressionType queryExpressionType = (StringQueryExpressionType)queryDefinitionType.getQueryExpression(); 
+
+		if ("CYPHER".equals(queryExpressionType.getQueryLanguage()) == false) return null;
+		String queryExpression = queryExpressionType.getValue();
+		
+		// Element Slot (Inherited) - Each Slot element specifies a parameter 
+		// value for a parameter supported by the QueryDefinitionType instance.
+		
+		// * The slot name MUST match a parameterName attribute within a Parameter's 
+		//   definition within the QueryDefinitionType instance.
+		
+		// * The slot value's type MUST match the dataType attribute for the Parameter's 
+		// definition within the QueryDefinitionType instance.
+		
+		// * A server MUST NOT treat the order of parameters as significant.	
+		
+		List<SlotType> queryParameters = query.getSlot();
+		if (queryParameters == null) return queryExpression;
+
+		for (SlotType queryParameter:queryParameters) {
+
+			// the parameter within a query expression is described by $parameterName
+			String parameterName  = "$" + queryParameter.getName();
+			String parameterValue = getParameterValue(queryParameter);
+			
+			if (parameterValue != null) queryExpression.replace(parameterName, parameterValue);
+			
+		}
+		
+		return queryExpression;
+		
+	}
+	
+	private String getParameterValue(SlotType parameter) {
+		
+		ValueType valueHolder = parameter.getSlotValue();
+		if (valueHolder == null) return null;
+		
+		if (valueHolder instanceof StringValueType) {
+			return ((StringValueType)valueHolder).getValue();						
+
+		} else if (valueHolder instanceof DateTimeValueType) {
+			
+			XMLGregorianCalendar value = ((DateTimeValueType)valueHolder).getValue();
+			return value.toString();
+			
+		} else if (valueHolder instanceof VocabularyTermValueType) {
+			// NOT SUPPORTED
+			
+		} else if (valueHolder instanceof IntegerValueType) {
+			
+			BigInteger value = ((IntegerValueType)valueHolder).getValue();
+			return value.toString();
+
+		} else if (valueHolder instanceof AnyValueType) {
+			// NOT SUPPORTED
+
+		} else if (valueHolder instanceof BooleanValueType) {
+			
+			Boolean value = ((BooleanValueType)valueHolder).isValue();
+			return new Boolean(value).toString();
+
+		} else if (valueHolder instanceof FloatValueType) {
+			
+			Float value = ((FloatValueType)valueHolder).getValue();
+			return Float.toString(value);
+			
+		} else if (valueHolder instanceof MapValueType) {
+			// NOT SUPPORTED
+			
+		} else if (valueHolder instanceof DurationValueType) {
+			
+			Duration value = ((DurationValueType)valueHolder).getValue();
+			return value.toString();
+
+		} else if (valueHolder instanceof CollectionValueType) {
+			// NOT SUPPORTED
+
+		}
+		
+		return null;
+
+	}
+			
 	// This option specifies that the QueryResponse MUST contain a collection of
 	// <rim:RegistryObjectList> element containing <rim:RegistryObject> elements 
 	// that have an xsi:type attribute that corresponds to leaf classes as defined 

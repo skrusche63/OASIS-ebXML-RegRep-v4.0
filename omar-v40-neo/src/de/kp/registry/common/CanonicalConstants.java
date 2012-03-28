@@ -92,6 +92,11 @@ public class CanonicalConstants {
 	
 	public static String FEDERATION_REGISTRY_URL = "";
 	
+	// this is the path to the root of a filesystem
+	// based repository associated with this server
+	
+	public static String REPOSITORY_ROOT = "";
+	
 	private static boolean initialized = false;
 	
     static {

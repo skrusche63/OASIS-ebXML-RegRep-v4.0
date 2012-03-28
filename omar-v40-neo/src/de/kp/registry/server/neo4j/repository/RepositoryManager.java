@@ -4,28 +4,16 @@ import javax.activation.DataHandler;
 
 import org.neo4j.graphdb.Node;
 
-/*
- * This class is responsible for managing repository items
- * that appear with a certain extrinsic object
- */
-public class RepositoryManager {
+import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 
-	private static RepositoryManager instance = new RepositoryManager();
-	
-	private RepositoryManager() {		
-	}
-	
-	public static RepositoryManager getInstance() {
-		if (instance == null) instance = new RepositoryManager();
-		return instance;
-	}
-	
-	public void setItem(Node node, DataHandler repositoryItem) {
-		// TODO
-	}
+public interface RepositoryManager {
 
-	public void clearItem(Node node) {
-		// TODO
-	}
+	public DataHandler getItem(Node node) throws RegistryException;
+	
+	public void setItem(Node node, DataHandler repositoryItem) throws RegistryException;
 
+	public void clearItem(Node node) throws RegistryException;
+
+	public boolean isExists(Node node);
+	
 }

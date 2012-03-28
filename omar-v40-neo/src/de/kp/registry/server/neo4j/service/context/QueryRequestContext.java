@@ -1,30 +1,9 @@
 package de.kp.registry.server.neo4j.service.context;
 
 import java.math.BigInteger;
-import java.util.List;
-
-import javax.xml.datatype.Duration;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.neo4j.graphdb.Node;
 import org.oasis.ebxml.registry.bindings.query.QueryRequest;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
-import org.oasis.ebxml.registry.bindings.rim.AnyValueType;
-import org.oasis.ebxml.registry.bindings.rim.BooleanValueType;
-import org.oasis.ebxml.registry.bindings.rim.CollectionValueType;
-import org.oasis.ebxml.registry.bindings.rim.DateTimeValueType;
-import org.oasis.ebxml.registry.bindings.rim.DurationValueType;
-import org.oasis.ebxml.registry.bindings.rim.FloatValueType;
-import org.oasis.ebxml.registry.bindings.rim.IntegerValueType;
-import org.oasis.ebxml.registry.bindings.rim.MapValueType;
-import org.oasis.ebxml.registry.bindings.rim.QueryDefinitionType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
-import org.oasis.ebxml.registry.bindings.rim.SlotType;
-import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
-import org.oasis.ebxml.registry.bindings.rim.StringValueType;
-import org.oasis.ebxml.registry.bindings.rim.ValueType;
-import org.oasis.ebxml.registry.bindings.rim.VocabularyTermValueType;
-
 import de.kp.registry.server.neo4j.read.ReadManager;
 
 public class QueryRequestContext extends RequestContext {
@@ -253,107 +232,9 @@ public class QueryRequestContext extends RequestContext {
 	
 	// this helper method retrieves the cypher language statement
 	// that represents a certain query request
-	public String getCypherQuery() throws Exception {
-		
-		// Attribute queryDefinition – References the parameterized query 
-		// to be invoked by the server. The value of this attribute MUST 
-		// be a reference to a QueryDefinitionType instance that is supported
-		// by the server.
-
-		String queryDefinition = this.query.getQueryDefinition();
-		
-		// retrieve the referenced query definition type
-		Node node = rm.findNodeByID(queryDefinition);
-		if (node == null) return null;
-		
-		// __DESIGN__
-		
-		// in order to process a query request, we use the respective 
-		// binding of the QueryDefinitionType node
-		
-		QueryDefinitionType queryDefinitionType = (QueryDefinitionType)rm.toBinding(node, null);		
-		StringQueryExpressionType queryExpressionType = (StringQueryExpressionType)queryDefinitionType.getQueryExpression(); 
-
-		if ("CYPHER".equals(queryExpressionType.getQueryLanguage()) == false) return null;
-		String queryExpression = queryExpressionType.getValue();
-		
-		// Element Slot (Inherited) - Each Slot element specifies a parameter 
-		// value for a parameter supported by the QueryDefinitionType instance.
-		
-		// * The slot name MUST match a parameterName attribute within a Parameter's 
-		//   definition within the QueryDefinitionType instance.
-		
-		// * The slot value's type MUST match the dataType attribute for the Parameter's 
-		// definition within the QueryDefinitionType instance.
-		
-		// * A server MUST NOT treat the order of parameters as significant.	
-		
-		List<SlotType> queryParameters = query.getSlot();
-		if (queryParameters == null) return queryExpression;
-
-		for (SlotType queryParameter:queryParameters) {
-
-			// the parameter within a query expression is described by $parameterName
-			String parameterName  = "$" + queryParameter.getName();
-			String parameterValue = getParameterValue(queryParameter);
-			
-			if (parameterValue != null) queryExpression.replace(parameterName, parameterValue);
-			
-		}
-		
-		return queryExpression;
-		
-	}
 	
-	private String getParameterValue(SlotType parameter) {
-		
-		ValueType valueHolder = parameter.getSlotValue();
-		if (valueHolder == null) return null;
-		
-		if (valueHolder instanceof StringValueType) {
-			return ((StringValueType)valueHolder).getValue();						
-
-		} else if (valueHolder instanceof DateTimeValueType) {
-			
-			XMLGregorianCalendar value = ((DateTimeValueType)valueHolder).getValue();
-			return value.toString();
-			
-		} else if (valueHolder instanceof VocabularyTermValueType) {
-			// NOT SUPPORTED
-			
-		} else if (valueHolder instanceof IntegerValueType) {
-			
-			BigInteger value = ((IntegerValueType)valueHolder).getValue();
-			return value.toString();
-
-		} else if (valueHolder instanceof AnyValueType) {
-			// NOT SUPPORTED
-
-		} else if (valueHolder instanceof BooleanValueType) {
-			
-			Boolean value = ((BooleanValueType)valueHolder).isValue();
-			return new Boolean(value).toString();
-
-		} else if (valueHolder instanceof FloatValueType) {
-			
-			Float value = ((FloatValueType)valueHolder).getValue();
-			return Float.toString(value);
-			
-		} else if (valueHolder instanceof MapValueType) {
-			// NOT SUPPORTED
-			
-		} else if (valueHolder instanceof DurationValueType) {
-			
-			Duration value = ((DurationValueType)valueHolder).getValue();
-			return value.toString();
-
-		} else if (valueHolder instanceof CollectionValueType) {
-			// NOT SUPPORTED
-
-		}
-		
-		return null;
-
+	public String getCypherQuery() throws Exception {
+		return rm.getCypherQuery(this.query);		
 	}
 	
 }

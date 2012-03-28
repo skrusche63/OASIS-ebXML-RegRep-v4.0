@@ -15,8 +15,11 @@ import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.repository.RepositoryManager;
+import de.kp.registry.server.neo4j.repository.RepositoryManagerFactory;
 
 public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
+
+	public static RepositoryManagerFactory rmFactory = RepositoryManagerFactory.getInstance();
 
 	// this method creates a new ExtrinsicObjectType node within database
 
@@ -126,13 +129,32 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 
 	}
 
+	private static DataHandler getRepositoryItem(Node node) {
+
+		DataHandler repositoryItem = null;
+		
+		RepositoryManager rm = rmFactory.getRepositoryManager();
+		if (rm.isExists(node)) {
+
+			try {
+				repositoryItem = rm.getItem(node);
+
+			} catch (RegistryException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return repositoryItem;
+		
+	}
+	
 	// this is a helper method to assign a repository item to the
 	// respective ExtrinsicObjectType node
 	
-	private static void setRepositoryItem(Node node, DataHandler repositoryItem) {
+	private static void setRepositoryItem(Node node, DataHandler repositoryItem) throws RegistryException {
 
 		// delegate repository item handling to repository manager
-		RepositoryManager rm = RepositoryManager.getInstance();
+		RepositoryManager rm = rmFactory.getRepositoryManager();
 		rm.setItem(node, repositoryItem);
 		
 	}
@@ -144,8 +166,13 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 	private static void clearRepositoryItem(Node node) {
 
 		// delegate repository item handling to repository manager
-		RepositoryManager rm = RepositoryManager.getInstance();
-		rm.clearItem(node);
+		RepositoryManager rm = rmFactory.getRepositoryManager();
+		try {
+			rm.clearItem(node);
+
+		} catch (RegistryException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -184,6 +211,8 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 		if (node.hasProperty(OASIS_RIM_MIMETYPE)) extrinsicObjectType.setMimeType((String)node.getProperty(OASIS_RIM_MIMETYPE));
 		
 		// - REPOSITORY-ITEM (0..1)
+		DataHandler repositoryItem = getRepositoryItem(node);
+		if (repositoryItem != null) extrinsicObjectType.setRepositoryItem(repositoryItem);
 		
 		// - REPOSITORY-ITEM-REF (0..1)
 		if (node.hasProperty(OASIS_RIM_URI)) {
