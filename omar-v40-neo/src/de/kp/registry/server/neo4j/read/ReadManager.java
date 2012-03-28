@@ -43,6 +43,7 @@ public class ReadManager {
 	}
 
 	public List<ObjectRefType> getObjectRefsByQuery(QueryType query) {
+		// TODO
 		return null;
 	}
 	
@@ -65,6 +66,14 @@ public class ReadManager {
 		return method.invoke(null, node, language);
 
 	}
+ 	
+ 	public Iterator<Node> executeCypherQuery(String cypherQuery) {
+
+ 		// the name of the request row is uniquely described as "n"
+ 		ExecutionResult result = engine.execute(cypherQuery);
+	 	return result.columnAs("n");
+ 		
+ 	}
  	
  	public QueryResponseContext executeQuery(QueryRequestContext request, QueryResponseContext response) { 		
  		

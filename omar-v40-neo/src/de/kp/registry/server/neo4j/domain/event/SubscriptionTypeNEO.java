@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.domain.event;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.RegistryObjectTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
 import de.kp.registry.server.neo4j.domain.query.QueryTypeNEO;
+import de.kp.registry.server.neo4j.util.CalendarUtil;
 
 public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 
@@ -149,7 +151,11 @@ public class SubscriptionTypeNEO extends RegistryObjectTypeNEO {
 		node.createRelationshipTo(queryTypeNode, RelationTypes.hasSelector);
 
 		// - STARTTIME (0..1)
-		if (starttime != null) node.setProperty(OASIS_RIM_STARTTIME, starttime);
+		
+		// in case of no starttime specified, the server uses the current time
+		// to indicate the starttime of this subscription
+		if (starttime == null) starttime = CalendarUtil.toXMLGregorianCalendar(new Date());
+		node.setProperty(OASIS_RIM_STARTTIME, starttime);
 
 		return node;
 		

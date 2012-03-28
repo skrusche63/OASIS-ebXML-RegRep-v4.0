@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
+import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryType;
 
 import de.kp.registry.server.neo4j.service.context.QueryRequestContext;
@@ -24,16 +25,16 @@ public class FederationProcessor {
 		return instance;
 	}
 	
-	public QueryResponse executeQuery(QueryRequestContext context, QueryResponse response) {
+	public QueryResponse executeQuery(QueryRequestContext request, QueryResponse response) {
 		
 		List<FederationWorker> workers = new ArrayList<FederationWorker>();		
 		ExecutorService executor = Executors.newCachedThreadPool();
 		
 		// retrieve list of federates for this request
-		List<RegistryType> federates = getFederates(context);
+		List<RegistryObjectType> federates = getFederates(request);
 
-		for (RegistryType federate:federates) {
-			workers.add(new FederationWorker(context, federate));			
+		for (RegistryObjectType federate:federates) {
+			workers.add(new FederationWorker(request, (RegistryType)federate));			
 		}
 
 		long timeout = 1000;
@@ -59,7 +60,11 @@ public class FederationProcessor {
 	
 	}
 	
-	private List<RegistryType> getFederates(QueryRequestContext context) {
-		return null;
+	// the list of federates are retrieved from the FederationProvider
+	private List<RegistryObjectType> getFederates(QueryRequestContext request) {
+		
+		FederationProvider fp = new FederationProvider(request);
+		return fp.getFederates();
+		
 	}
 }

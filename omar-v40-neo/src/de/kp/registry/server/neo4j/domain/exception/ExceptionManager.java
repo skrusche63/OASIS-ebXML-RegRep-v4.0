@@ -96,8 +96,12 @@ public class ExceptionManager {
 			UnsupportedCapabilityException e = (UnsupportedCapabilityException)exception;
 			return (RegistryExceptionType)e.toBinding();
 			
+		} else {
+			
+			RegistryException e = (RegistryException)exception;
+			return (RegistryExceptionType)e.toBinding();
+			
 		}
 
-		return null;
 	}
 }

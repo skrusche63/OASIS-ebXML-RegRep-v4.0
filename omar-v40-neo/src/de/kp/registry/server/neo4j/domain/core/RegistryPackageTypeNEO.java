@@ -111,7 +111,8 @@ public class RegistryPackageTypeNEO extends RegistryObjectTypeNEO {
 							registryObjectTypeNode = (Node)method.invoke(null, graphDB, registryObject, checkReference);
 
 						} catch (Exception e) {
-							//TODO
+							e.printStackTrace();
+							throw new RegistryException("[RegistryPackageType] An error occurred while processing RegistryObjectType node with id '" + nid + "'.");
 						} 
 
 					}

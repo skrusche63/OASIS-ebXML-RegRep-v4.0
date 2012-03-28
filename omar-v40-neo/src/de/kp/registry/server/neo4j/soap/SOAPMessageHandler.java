@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.soap;
 
+import java.io.PrintStream;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -21,14 +22,15 @@ import de.kp.registry.common.security.SecurityUtilSAML;
 
 public class SOAPMessageHandler implements SOAPHandler<SOAPMessageContext> {
 
+	// This is called after the completion of message processing by all handlers for each web service 
+	// invocation (after completion of MEP). This can be useful to clean up any resources used during 
+	// processing the message.
+	
 	public void close(MessageContext context) {
-		// TODO
+		// do nothing to clean up
 	}
 
-	public boolean handleFault(SOAPMessageContext context) {
-		// TODO
-		return false;
-	}
+	// This is called for inbound and outbound messages.
 
 	public boolean handleMessage(SOAPMessageContext wsContext) {
 
@@ -107,9 +109,37 @@ public class SOAPMessageHandler implements SOAPHandler<SOAPMessageContext> {
 		return true;
 	}
 
+
+	// This is called instead of handleMessage(), when the message contains a protocol fault.
+	
+	public boolean handleFault(SOAPMessageContext wsContext) {
+		
+		PrintStream outstream = System.out;
+		
+		// indicate that there is a protocol fault for the current 
+		// SOAP message
+
+		outstream.println("[SOAPHandler] Exception in Server-side SOAPHandler: ");
+		SOAPMessage soapMsg = wsContext.getMessage();
+
+		try {
+			
+			outstream.println("--->");
+			soapMsg.writeTo(outstream);
+			
+	        outstream.println("<---");
+	      
+		} catch (Exception e) {
+	         outstream.println("Unable to write exception for protocol fault: " + e.toString());
+		}
+	      
+		return true;
+
+	}
+
 	public Set<QName> getHeaders() {
 		
-		QName securityHeader = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security", "wsse");
+		QName securityHeader = new QName(CanonicalConstants.WSSE_NS, "Security", "wsse");
 			  
 		HashSet<QName> headers = new HashSet<QName>();
 		headers.add(securityHeader);

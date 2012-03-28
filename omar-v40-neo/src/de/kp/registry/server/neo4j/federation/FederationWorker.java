@@ -9,12 +9,12 @@ import de.kp.registry.server.neo4j.service.context.QueryRequestContext;
 
 public class FederationWorker implements Callable<QueryResponse> {
 	
-	private QueryRequestContext context;
+	private QueryRequestContext request;
 	private RegistryType registry;
 	
-	public FederationWorker(QueryRequestContext context, RegistryType registry) {
+	public FederationWorker(QueryRequestContext request, RegistryType registry) {
 
-		this.context  = context;
+		this.request  = request;
 		this.registry = registry;
 	
 	}

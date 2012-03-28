@@ -1,5 +1,9 @@
 package de.kp.registry.server.neo4j.notification;
 
+import java.util.List;
+
+import org.oasis.ebxml.registry.bindings.rim.SubscriptionType;
+
 import de.kp.registry.server.neo4j.service.context.RequestContext;
 import de.kp.registry.server.neo4j.service.context.ResponseContext;
 
@@ -40,6 +44,15 @@ public class NotificationWorker implements Runnable {
 	}
 
 	public void run() {
+		
+		// retrieve list of valid subscriptions, i.e. all registered subscriptions
+		// which have a time window defined (startTime & endTime) that matches the
+		// current time
+		SubscriptionManager sm = SubscriptionManager.getInstance();
+		
+		List<SubscriptionType> subscriptions = sm.getSubscriptions();
+		if (subscriptions == null) return;
+		
 		// TODO Auto-generated method stub		
 	}
 }

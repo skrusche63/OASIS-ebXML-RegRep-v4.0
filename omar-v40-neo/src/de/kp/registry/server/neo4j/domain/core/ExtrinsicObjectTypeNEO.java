@@ -14,6 +14,7 @@ import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.repository.RepositoryManager;
 
 public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 
@@ -129,7 +130,11 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 	// respective ExtrinsicObjectType node
 	
 	private static void setRepositoryItem(Node node, DataHandler repositoryItem) {
-		// TODO
+
+		// delegate repository item handling to repository manager
+		RepositoryManager rm = RepositoryManager.getInstance();
+		rm.setItem(node, repositoryItem);
+		
 	}
 	
 	// this is a helper method to clear a certain repository item
@@ -137,7 +142,11 @@ public class ExtrinsicObjectTypeNEO extends RegistryObjectTypeNEO {
 	// the associated file
 	
 	private static void clearRepositoryItem(Node node) {
-		// TODO
+
+		// delegate repository item handling to repository manager
+		RepositoryManager rm = RepositoryManager.getInstance();
+		rm.clearItem(node);
+		
 	}
 	
 	public static Object toBinding(Node node) {

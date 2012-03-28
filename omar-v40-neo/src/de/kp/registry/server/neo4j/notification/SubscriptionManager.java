@@ -1,15 +1,98 @@
 package de.kp.registry.server.neo4j.notification;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.neo4j.graphdb.Node;
+import org.oasis.ebxml.registry.bindings.rim.QueryDefinitionType;
+import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
+import org.oasis.ebxml.registry.bindings.rim.SubscriptionType;
+
+import de.kp.registry.common.CanonicalConstants;
+import de.kp.registry.server.neo4j.domain.event.SubscriptionTypeNEO;
+import de.kp.registry.server.neo4j.read.ReadManager;
+
 /*
- * Given an AuditableEvent, the SubscriptionFinder retrieves all Subscriptions 
- * that potentially match the AuditableEvent. This avoids having to check every 
- * single subscription and is an important scalability design element.
+ * This class retrieves all submissions that are potentially affected 
+ * by the actual request: Attributes startTime and endTime define the 
+ * time window within which the subscription is valid.
  */
 
-public class SubscriptionFinder {
+public class SubscriptionManager {
 
-	public SubscriptionFinder() {	
+	private ReadManager rm = ReadManager.getInstance();
+
+	private static SubscriptionManager instance = new SubscriptionManager();
+	
+	private SubscriptionManager() {	
 	}
+	
+	public static SubscriptionManager getInstance() {
+		if (instance == null) instance = new SubscriptionManager();
+		return instance;
+	}
+	
+	// this method retrieves all subscriptions registered within the
+	// OASIS ebXML RegRep, which have a time window that matches the
+	// current time
+	
+	public List<SubscriptionType> getSubscriptions() {
+		
+		List<SubscriptionType> subscriptions = null;
+		
+		try {
+			
+			String cypherQuery = getCypherQuery();
+			if (cypherQuery == null) return subscriptions;
+			
+			Iterator<Node> queryResult = rm.executeCypherQuery(cypherQuery);
+			while (queryResult.hasNext()) {
+				
+				Node node = queryResult.next();
+				SubscriptionType subscription = (SubscriptionType)SubscriptionTypeNEO.toBinding(node);
+				
+				if (subscriptions == null) subscriptions = new ArrayList<SubscriptionType>();
+				subscriptions.add(subscription);
+				
+			}
+			
+			
+		} catch (Exception e) {
+			// do nothing
+		}
+		
+		return subscriptions;
+		
+	}
+	
+	// this method retrieves the cipher statement that is used to
+	// determine all subscriptions that match the time conditions
+	// described by startTime and endTime
+	
+	private String getCypherQuery() throws Exception {
+
+		String queryDefinition = CanonicalConstants.QUERY_GetValidSubscriptions;
+		
+		// retrieve the referenced query definition type
+		
+		Node node = rm.findNodeByID(queryDefinition);
+		if (node == null) return null;
+		
+		// __DESIGN__
+		
+		// in order to process a query request, we use the respective 
+		// binding of the QueryDefinitionType node
+		
+		QueryDefinitionType queryDefinitionType = (QueryDefinitionType)rm.toBinding(node, null);		
+		StringQueryExpressionType queryExpressionType = (StringQueryExpressionType)queryDefinitionType.getQueryExpression(); 
+
+		if ("CYPHER".equals(queryExpressionType.getQueryLanguage()) == false) return null;
+		return queryExpressionType.getValue();
+
+	}
+	
+	// OLD STUFF
 	
     /*
      * Gets the Map of Subscriptions that definitely match the specified event.

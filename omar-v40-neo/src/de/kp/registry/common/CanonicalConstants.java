@@ -25,6 +25,9 @@ public class CanonicalConstants {
 
 	public static final String SAML2_NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";
 
+	// namespaces
+	public static final String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
+	
 	/************************************************************************
 	 * 
 	 * PREDEFINED QUERY DEFINITIONS    PREDEFINED QUERY DEFINITIONS    PREDEFINED
@@ -41,8 +44,30 @@ public class CanonicalConstants {
 	// this is a query parameter to indicate the user identifier, e.g. in
 	// a parameterized GetUserById query request
 	
-	public static final String QUERY_PARAM_USER_ID = "userId";
+	public static final String QUERY_PARAM_USER_ID = "user";
 	
+	// this is the unique identifier of a parameterized query to retrieve all
+	// subscriptions that match the time conditions described by startTime 
+	// and endTime, the time window for valid subscriptions
+	
+	public static final String QUERY_GetValidSubscriptions = "urn:oasis:names:tc:ebxml-regrep:QueryDefinitionType:GetValidSubscriptions";
+	
+	// this is the unique identifier of a parameterized query to retrieve all
+	// registry instances that are assigned as federates to a certain federation
+	
+	public static final String QUERY_GetFederates = "urn:oasis:names:tc:ebxml-regrep:QueryDefinitionType:GetFederates";
+
+	// this is a query parameter to indicate the federation identifier, 
+	// e.g. in parameterized GetFederates query request
+	
+	public static final String QUERY_PARAM_FEDERATION_ID = "federation";
+
+	/************************************************************************
+	 * 
+	 * DYNAMICALLY SET GLOBAL CONSTANTS    DYNAMICALLY SET GLOBAL CONSTANTS
+	 * 
+	 ***********************************************************************/
+
 	public static String MAX_CLOCK_SKEW = "";
 	
 	public static String KEYSTORE_FILE = "";
@@ -61,6 +86,11 @@ public class CanonicalConstants {
 	// exist in the database
 	
 	public static String USER_REGISTRY_URL = "";
+	
+	// endpoint of the federation registry used to
+	// retrieve the federates of a certain federation
+	
+	public static String FEDERATION_REGISTRY_URL = "";
 	
 	private static boolean initialized = false;
 	
