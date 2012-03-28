@@ -2,12 +2,14 @@ package de.kp.registry.server.neo4j.service.context;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
+import org.oasis.ebxml.registry.bindings.rs.RegistryExceptionType;
 
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 
@@ -61,6 +63,10 @@ public class QueryResponseContext {
 		this.response.getRegistryObjectList().getRegistryObject().add(registryObject);
 	}
 
+	public void addRegistryObjectAll(Collection<RegistryObjectType> registryObjects) {
+		this.response.getRegistryObjectList().getRegistryObject().addAll(registryObjects);		
+	}
+	
 	public void removeRegistryObject(String id) {
 		
 		RegistryObjectType removable = null;
@@ -96,6 +102,10 @@ public class QueryResponseContext {
 		this.response.getObjectRefList().getObjectRef().add(objectRef);
 	}
 
+	public void addObjectRefAll(Collection<ObjectRefType> objectRefs) {
+		this.response.getObjectRefList().getObjectRef().addAll(objectRefs);		
+	}
+	
 	public void removeObjectRef(String id) {
 		
 		ObjectRefType removable = null;
@@ -134,6 +144,10 @@ public class QueryResponseContext {
 
 	}
 
+	public List<RegistryExceptionType> getExceptions() {
+		return this.response.getException();
+	}
+
 	// this method clears all registry objects from the response
 	public void clearRegistryObject() {
 		this.response.getRegistryObjectList().getRegistryObject().clear();
@@ -142,5 +156,13 @@ public class QueryResponseContext {
 	// this method clears all object refs from the response
 	public void clearObjectRef() {
 		this.response.getObjectRefList().getObjectRef().clear();
+	}
+	
+	public boolean isObjectRef() {
+		return (!this.response.getObjectRefList().getObjectRef().isEmpty());
+	}
+	
+	public boolean isRegistryObject() {
+		return (!this.response.getRegistryObjectList().getRegistryObject().isEmpty());
 	}
 }

@@ -16,9 +16,10 @@ public class FederatedReadManager {
 	}
 	
  	public QueryResponseContext executeQuery(QueryRequestContext queryRequest, QueryResponseContext queryResponse) { 		
- 		
- 		// The FederationManager MUST invoke the OASIS ebXML RegRep v4.0 WS Client functionality
- 		return queryResponse; 		
+
+ 		FederationProcessor fp = FederationProcessor.getInstance();
+ 		return fp.executeQuery(queryRequest, queryResponse);
+
  	}
 
 }

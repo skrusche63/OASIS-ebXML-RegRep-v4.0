@@ -152,6 +152,14 @@ public class QueryRequestContext extends RequestContext {
 
 	}
 
+	public void setQueryRequest(QueryRequest request) {
+		this.request = request;
+	}
+	
+	public QueryRequest getQueryRequest() {
+		return this.request;
+	}
+	
 	public void setFederation(String federation) {
 		this.federation = federation;
 	}
