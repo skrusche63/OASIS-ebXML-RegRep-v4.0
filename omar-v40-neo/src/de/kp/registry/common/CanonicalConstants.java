@@ -62,6 +62,12 @@ public class CanonicalConstants {
 	
 	public static final String QUERY_PARAM_FEDERATION_ID = "federation";
 
+	// this is a unique identifier of a parameterized query to retrieve all
+	// auditable events that match a certain registry object identifier
+	
+	public static final String QUERY_GetAuditableEventsById = "urn:oasis:names:tc:ebxml-regrep:QueryDefinitionType:QUERY_GetAuditableEventsById";
+	
+	
 	/************************************************************************
 	 * 
 	 * DYNAMICALLY SET GLOBAL CONSTANTS    DYNAMICALLY SET GLOBAL CONSTANTS

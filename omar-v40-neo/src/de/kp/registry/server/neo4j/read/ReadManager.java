@@ -122,7 +122,25 @@ public class ReadManager {
 	 	return result.columnAs("n");
  		
  	}
- 	
+
+ 	public Iterator<Node> executeCypherQuery(QueryType query) {
+
+		try {
+
+			String cypherQuery = getCypherQuery(query);
+
+			// the name of the request row is uniquely described as "n"
+	 		ExecutionResult result = engine.execute(cypherQuery);
+		 	return result.columnAs("n");
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+ 		
+ 	}
+
  	public QueryResponseContext executeQuery(QueryRequestContext request, QueryResponseContext response) { 		
  		
  		// retrieve cypher query language statement from the query context

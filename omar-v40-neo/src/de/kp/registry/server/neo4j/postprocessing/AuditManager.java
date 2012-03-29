@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.auditing;
+package de.kp.registry.server.neo4j.postprocessing;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -12,49 +12,60 @@ import de.kp.registry.server.neo4j.domain.RelationTypes;
 import de.kp.registry.server.neo4j.domain.core.CommentTypeNEO;
 import de.kp.registry.server.neo4j.domain.event.AuditableEventTypeNEO;
 import de.kp.registry.server.neo4j.domain.exception.RegistryException;
+import de.kp.registry.server.neo4j.service.context.RequestContext;
+import de.kp.registry.server.neo4j.service.context.ResponseContext;
 
-public class AuditWorker implements Runnable {
+public class AuditManager {
+
+	private static AuditManager instance = new AuditManager();
 	
-	private AuditContext context;
+	private AuditManager() {}
 	
-	public AuditWorker(AuditContext context) {
-		this.context = context;
+	public static AuditManager getInstance() {
+		if (instance == null) instance = new AuditManager();
+		return instance;
 	}
+	
+	public void audit(RequestContext request, ResponseContext response) {
 
-	public void run() {
+		AuditContext auditContext = new AuditContext(request, response);
 		
 		// * If RegistryObjects were created by the request, it contain a single 
 		//   Action sub-element with eventType Created for all the RegistryObjects 
 		//   created during processing of the request
-		if (this.context.isCreated()) {			
-			create(this.context.getAuditableEventType(CanonicalConstants.CREATED));			
+		if (auditContext.isCreated()) {			
+			create(auditContext, CanonicalConstants.CREATED);			
 		}
 		
 		// * If RegistryObjects were updated by the request, it contain a single 
 		//   Action sub-element with eventType Updated for all the RegistryObjects
 		//   updated during processing of the request
-		if (this.context.isUpdated()) {
-			create(this.context.getAuditableEventType(CanonicalConstants.UPDATED));			
+		if (auditContext.isUpdated()) {
+			create(auditContext, CanonicalConstants.UPDATED);			
 		}
 		
 		//	* If RegistryObjects were removed by the request, it contain a single 
 		//    Action sub-element with eventType Deleted for all the RegistryObjects 
 		//    removed during processing of the request		
-		if (this.context.isDeleted()) {
-			create(this.context.getAuditableEventType(CanonicalConstants.DELETED));
+		if (auditContext.isDeleted()) {
+			create(auditContext, CanonicalConstants.DELETED);
 		}
-		
+
 	}
 
-	private void create(AuditableEventType auditableEvent) {
+	private void create(AuditContext auditContext, String eventType) {
+		
+		AuditableEventType auditableEvent = auditContext.getAuditableEventType(eventType);
 		
 		EmbeddedGraphDatabase graphDB = Database.getInstance().getGraphDB();
 		Transaction tx = graphDB.beginTx();
 		
+		Node auditableEventNode = null;
+		
 		try {
 			
 			boolean checkReference = true;
-			Node auditableEventNode = AuditableEventTypeNEO.toNode(graphDB, auditableEvent, checkReference);
+			auditableEventNode = AuditableEventTypeNEO.toNode(graphDB, auditableEvent, checkReference);
 			
 			// - COMMENT
 
@@ -62,7 +73,7 @@ public class AuditWorker implements Runnable {
 			// A server MAY save this comment within a CommentType instance and associate it with
 			// the AuditableEvent(s) for that request as described by [regrep-rim-v4.0].
 			
-			CommentType comment = this.context.getCommentType();
+			CommentType comment = auditContext.getCommentType();
 			if (comment != null) {
 				
 				Node commentNode = CommentTypeNEO.toNode(graphDB, comment, checkReference);
@@ -79,5 +90,10 @@ public class AuditWorker implements Runnable {
 			tx.finish();
 		}
 
+		// finally we have to add the auditableEvent to
+		// the response via the context data structure
+		
+		if (auditableEventNode != null) auditContext.setAuditableEventType(auditableEvent);
+		
 	}
 }

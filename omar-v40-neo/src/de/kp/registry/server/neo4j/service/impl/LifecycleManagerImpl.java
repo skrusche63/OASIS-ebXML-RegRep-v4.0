@@ -16,7 +16,7 @@ import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
-import de.kp.registry.server.neo4j.notification.NotificationProcessor;
+import de.kp.registry.server.neo4j.postprocessing.PostProcessor;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
@@ -75,9 +75,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			WriteManager wm = WriteManager.getInstance();
 			removeResponse = (RemoveResponseContext)wm.removeObjects(removeRequest, removeResponse);
 
-			// notify subscriber
-			NotificationProcessor np = NotificationProcessor.getInstance();				
-			np.notify(removeRequest, removeResponse);
+			// do postprocessing
+			PostProcessor pp = PostProcessor.getInstance();				
+			pp.process(removeRequest, removeResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 
@@ -123,9 +123,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			WriteManager wm = WriteManager.getInstance();
 			submitResponse = (SubmitResponseContext) wm.submitObjects(submitRequest, submitResponse);
 
-			// notify subscriber
-			NotificationProcessor np = NotificationProcessor.getInstance();				
-			np.notify(submitRequest, submitResponse);
+			// do postprocessing
+			PostProcessor pp = PostProcessor.getInstance();				
+			pp.process(submitRequest, submitResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 
@@ -171,9 +171,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			WriteManager wm = WriteManager.getInstance();
 			updateResponse = (UpdateResponseContext) wm.updateObjects(updateRequest, updateResponse);
 
-			// notify subscriber
-			NotificationProcessor np = NotificationProcessor.getInstance();				
-			np.notify(updateRequest, updateResponse);
+			// do postprocessing
+			PostProcessor pp = PostProcessor.getInstance();				
+			pp.process(updateRequest, updateResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
+import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
@@ -24,6 +25,8 @@ public class ResponseContext {
 	private List<ObjectRefType> updated;
 	private List<ObjectRefType> deleted;
 	
+	private List<AuditableEventType> auditableEvents;
+	
 	public ResponseContext() {	
 	}
 	
@@ -34,6 +37,8 @@ public class ResponseContext {
 		
 		updated = new ArrayList<ObjectRefType>();
 		deleted = new ArrayList<ObjectRefType>();
+		
+		this.auditableEvents = new ArrayList<AuditableEventType>();
 		
 		this.response = ebRSFactory.createRegistryResponseType();
 		
@@ -82,6 +87,14 @@ public class ResponseContext {
 		
 	}
 
+	public List<AuditableEventType> getAuditableEvents() {
+		return this.auditableEvents;
+	}
+	
+	public void addAuditableEvent(AuditableEventType auditableEvent) {
+		this.auditableEvents.add(auditableEvent);
+	}
+	
 	public List<ObjectRefType> getCreated() {		
 		return (created.size() == 0) ? null : created;
 	}

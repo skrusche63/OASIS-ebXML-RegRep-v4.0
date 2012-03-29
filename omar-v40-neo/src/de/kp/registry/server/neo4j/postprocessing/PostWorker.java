@@ -1,8 +1,4 @@
-package de.kp.registry.server.neo4j.notification;
-
-import java.util.List;
-
-import org.oasis.ebxml.registry.bindings.rim.SubscriptionType;
+package de.kp.registry.server.neo4j.postprocessing;
 
 import de.kp.registry.server.neo4j.service.context.RequestContext;
 import de.kp.registry.server.neo4j.service.context.ResponseContext;
@@ -31,28 +27,25 @@ import de.kp.registry.server.neo4j.service.context.ResponseContext;
 // the plugin. This specification does not define how a server is 
 // configured for Notification plugins.
 
-public class NotificationWorker implements Runnable {
+public class PostWorker implements Runnable {
 	
 	private RequestContext request;
 	private ResponseContext response;
 	
-	public NotificationWorker(RequestContext request, ResponseContext response) {
-		
-		this.request = request;
-		this.response = response;
-		
+	public PostWorker(RequestContext request, ResponseContext response) {
+		this.request  = request;
+		this.response = response;		
 	}
 
 	public void run() {
+
+		// audit the registry objects
+		AuditManager.getInstance().audit(this.request, this.response);
+
+		// notify subscriber
+		NotificationManager.getInstance().notify(request, response);
 		
-		// retrieve list of valid subscriptions, i.e. all registered subscriptions
-		// which have a time window defined (startTime & endTime) that matches the
-		// current time
-		SubscriptionManager sm = SubscriptionManager.getInstance();
-		
-		List<SubscriptionType> subscriptions = sm.getSubscriptions();
-		if (subscriptions == null) return;
-		
-		// TODO Auto-generated method stub		
 	}
+	
+
 }

@@ -12,8 +12,6 @@ import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
 import de.kp.registry.common.CanonicalSchemes;
-import de.kp.registry.server.neo4j.auditing.AuditContext;
-import de.kp.registry.server.neo4j.auditing.AuditHandler;
 import de.kp.registry.server.neo4j.database.Database;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
@@ -21,7 +19,6 @@ import de.kp.registry.server.neo4j.domain.exception.ObjectExistsException;
 import de.kp.registry.server.neo4j.domain.exception.ObjectNotFoundException;
 import de.kp.registry.server.neo4j.read.ReadManager;
 import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
-import de.kp.registry.server.neo4j.service.context.RequestContext;
 import de.kp.registry.server.neo4j.service.context.ResponseContext;
 import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
 import de.kp.registry.server.neo4j.service.context.UpdateRequestContext;
@@ -140,9 +137,6 @@ public class WriteManager {
 		} finally {
 			tx.finish();
 		}
-
-		// audit the result
-		audit(request, response);
 		
 		// return response
 		return response;
@@ -250,9 +244,6 @@ public class WriteManager {
 		} finally {
 			tx.finish();
 		}
-
-		// audit the result
-		audit(request, response);
 		
 		// return response
 		return response;
@@ -313,9 +304,6 @@ public class WriteManager {
 		} finally {
 			tx.finish();
 		}
-
-		// audit the result
-		audit(request, response);
 		
 		// return response
 		return response;
@@ -379,19 +367,9 @@ public class WriteManager {
 		} finally {
 			tx.finish();
 		}
-
-		// audit the result
-		audit(request, response);
 		
 		// return response
 		return response;
-
-	}
-	
-	private void audit(RequestContext request, ResponseContext response) {
-		
-		AuditContext auditContext = new AuditContext(request, response);
-		AuditHandler.getInstance().audit(auditContext);
 
 	}
 	
@@ -589,9 +567,6 @@ public class WriteManager {
 		} finally {
 			tx.finish();
 		}
-
-		// audit the result
-		audit(request, response);
 		
 		// return response
 		return response;
@@ -664,9 +639,6 @@ public class WriteManager {
 		} finally {
 			tx.finish();
 		}
-
-		// audit the result
-		audit(request, response);
 		
 		// return response
 		return response;

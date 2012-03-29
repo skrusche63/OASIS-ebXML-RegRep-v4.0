@@ -1,4 +1,4 @@
-package de.kp.registry.server.neo4j.auditing;
+package de.kp.registry.server.neo4j.postprocessing;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +64,10 @@ public class AuditContext {
 		return (this.response.getCreated() != null);
 	}
 
+	public void setAuditableEventType(AuditableEventType auditableEvent) {
+		this.response.addAuditableEvent(auditableEvent);
+	}
+	
 	public AuditableEventType getAuditableEventType(String event) {
 		
 		AuditableEventType auditableEvent = ebRIMFactory.createAuditableEventType();
