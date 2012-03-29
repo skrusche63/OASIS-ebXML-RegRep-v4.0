@@ -10,10 +10,6 @@ public class ConnectionImpl {
 	private CredentialInfo credentialInfo;
 	private String registryURL;
 	
-	// postfix of the respective WSDL locations
-	private static String LCM_WSDL 	 = "/lcm?wsdl";
-	private static String QUERY_WSDL = "/query?wsdl";
-	
 	public ConnectionImpl() {
 	}
 	
@@ -31,35 +27,35 @@ public class ConnectionImpl {
 	public void setRegistryUrl(String registryURL) {
 		this.registryURL = registryURL;
 	}
-	
-	public URL getQueryManagerURL() {
-		
-		URL endpoint = null;
-		
-		try {
-			endpoint = new URL(registryURL + QUERY_WSDL);
-		
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
 
-		return endpoint;
-		
+	public URL getCatalogerURL() {
+		return getEndpoint(CanonicalConstants.CATALOG_WSDL);
+	}
+
+	public URL getQueryManagerURL() {
+		return getEndpoint(CanonicalConstants.QUERY_WSDL);
 	}
 
 	public URL getLifecyleManagerURL() {
-		
+		return getEndpoint(CanonicalConstants.LIFECYCLE_WSDL);
+	}
+
+	public URL getNotificationListenerURL() {
+		return getEndpoint(CanonicalConstants.NOTIFICATION_WSDL);
+	}
+
+	private URL getEndpoint(String relativeURL) {
+
 		URL endpoint = null;
 		
 		try {
-			endpoint = new URL(registryURL + LCM_WSDL);
+			endpoint = new URL(registryURL + relativeURL);
 		
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 
 		return endpoint;
-		
-	}
 
+	}
 }

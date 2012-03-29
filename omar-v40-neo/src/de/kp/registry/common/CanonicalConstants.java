@@ -87,6 +87,11 @@ public class CanonicalConstants {
 	public static String IDP_ALIAS   = "";
 	public static String IDP_KEYPASS = "";
 
+	// endpoint of the notification listener service
+	// that is used to manage notifications
+	
+	public static String NOTIFICATION_LISTENER_URL = "";
+	
 	// endpoint of the user registry used to retrieve
 	// user data for registering users that do not yet
 	// exist in the database
@@ -102,6 +107,13 @@ public class CanonicalConstants {
 	// based repository associated with this server
 	
 	public static String REPOSITORY_ROOT = "";
+	
+	// postfix of the respective WSDL locations
+	public static String CATALOG_WSDL      = "";
+	public static String LIFECYCLE_WSDL    = "";
+	public static String QUERY_WSDL        = "";	
+	public static String NOTIFICATION_WSDL = "";
+
 	
 	private static boolean initialized = false;
 	
@@ -133,5 +145,12 @@ public class CanonicalConstants {
 		// SOAP message time skews
 		MAX_CLOCK_SKEW = bundle.getString("max.clock.skew");
 		
+		// WSDL LOCATIONS from settings
+		
+		CATALOG_WSDL      = bundle.getString("wsdl.catalog");
+		LIFECYCLE_WSDL    = bundle.getString("wsdl.lifecycle");
+		NOTIFICATION_WSDL = bundle.getString("wsdl.notification");
+		QUERY_WSDL        = bundle.getString("wsdl.query");
+
 	}
 }

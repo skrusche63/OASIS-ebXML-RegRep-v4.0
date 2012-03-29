@@ -1,6 +1,30 @@
 package de.kp.registry.common;
 
 public class CanonicalSchemes {
+	
+	/************************************************************************
+	 * 
+	 * NOTIFICIATION OPTION    NOTIFICIATION OPTION    NOTIFICIATION OPTION
+	 * 
+	 ***********************************************************************/
+	
+	// Canonical Classification Scheme: NotificationOptionType
+    public static final String CANONICAL_CS_ID_NotificationOptionType  = "urn:oasis:names:tc:ebxml-regrep:NotificationOptionType";
+    public static final String CANONICAL_CS_LID_NotificationOptionType = "urn:oasis:names:tc:ebxml-regrep:NotificationOptionType";
+
+    // Canonical Classification Scheme: NotificationOptionType: IDs
+    public static final String CANONICAL_NOTIFICATION_OPTION_TYPE_ID_Push = "urn:oasis:names:tc:ebxml-regrep:NotificationOptionType:Push";
+    public static final String CANONICAL_NOTIFICATION_OPTION_TYPE_ID_Pull = "urn:oasis:names:tc:ebxml-regrep:NotificationOptionType:Pull";
+
+    // Canonical Classification Scheme: NotificationOptionType: LIDs
+    public static final String CANONICAL_NOTIFICATION_OPTION_TYPE_LID_Push = "urn:oasis:names:tc:ebxml-regrep:NotificationOptionType:Push";
+    public static final String CANONICAL_NOTIFICATION_OPTION_TYPE_LID_Pull = "urn:oasis:names:tc:ebxml-regrep:NotificationOptionType:Pull";
+
+    // Canonical Classification Scheme: NotificationOptionType: Codes
+    public static final String CANONICAL_NOTIFICATION_OPTION_TYPE_CODE_Push = "Push";
+    public static final String CANONICAL_NOTIFICATION_OPTION_TYPE_CODE_Pull = "Pull";
+
+	
 
 	/************************************************************************
 	 * 

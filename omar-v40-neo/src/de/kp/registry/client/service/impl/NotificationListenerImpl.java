@@ -27,7 +27,7 @@ public class NotificationListenerImpl {
 
 		// register connection object
 		this.connection = connection;
-		URL wsdlLocation = this.connection.getLifecyleManagerURL();
+		URL wsdlLocation = this.connection.getNotificationListenerURL();
 		
 		service = new NotificationListenerSOAPService(wsdlLocation, QNAME);
 		port = service.getNotificationListenerPort();
