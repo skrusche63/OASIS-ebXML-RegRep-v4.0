@@ -16,7 +16,7 @@ import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
-import de.kp.registry.server.neo4j.postprocessing.PostProcessor;
+import de.kp.registry.server.neo4j.event.EventProcessor;
 import de.kp.registry.server.neo4j.service.LifecycleManager;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
@@ -76,8 +76,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			removeResponse = (RemoveResponseContext)wm.removeObjects(removeRequest, removeResponse);
 
 			// do postprocessing
-			PostProcessor pp = PostProcessor.getInstance();				
-			pp.process(removeRequest, removeResponse);
+			EventProcessor ep = EventProcessor.getInstance();				
+			ep.process(removeRequest, removeResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 
@@ -124,8 +124,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			submitResponse = (SubmitResponseContext) wm.submitObjects(submitRequest, submitResponse);
 
 			// do postprocessing
-			PostProcessor pp = PostProcessor.getInstance();				
-			pp.process(submitRequest, submitResponse);
+			EventProcessor ep = EventProcessor.getInstance();				
+			ep.process(submitRequest, submitResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 
@@ -172,8 +172,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
 			updateResponse = (UpdateResponseContext) wm.updateObjects(updateRequest, updateResponse);
 
 			// do postprocessing
-			PostProcessor pp = PostProcessor.getInstance();				
-			pp.process(updateRequest, updateResponse);
+			EventProcessor ep = EventProcessor.getInstance();				
+			ep.process(updateRequest, updateResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 

@@ -1,6 +1,35 @@
 package de.kp.registry.common;
 
 public class CanonicalSchemes {
+
+	/************************************************************************
+	 * 
+	 * ENDPOINT TYPE    ENDPOINT TYPE    ENDPOINT TYPE    ENDPOINT TYPE
+	 * 
+	 ***********************************************************************/
+
+    // Canonical Classification Scheme: EndpointType
+    public static final String CANONICAL_CS_ID_EndpointType  = "urn:oasis:names:tc:ebxml-regrep:EndpointType";
+    public static final String CANONICAL_CS_LID_EndpointType = "urn:oasis:names:tc:ebxml-regrep:EndpointType";
+	
+    // Canonical Classification Scheme: EndpointType: IDs
+    public static final String CANONICAL_ENDPOINT_TYPE_ID_Soap 	 = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Soap";
+	public static final String CANONICAL_ENDPOINT_TYPE_ID_Rest   = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Rest";
+	public static final String CANONICAL_ENDPOINT_TYPE_ID_Mail 	 = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Mail";
+	public static final String CANONICAL_ENDPOINT_TYPE_ID_Plugin = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Pligin";
+
+	// Canonical Classification Scheme: EndpointType: LIDs
+    public static final String CANONICAL_ENDPOINT_TYPE_LID_Soap   = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Soap";
+	public static final String CANONICAL_ENDPOINT_TYPE_LID_Rest   = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Rest";
+	public static final String CANONICAL_ENDPOINT_TYPE_LID_Mail   = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Mail";
+	public static final String CANONICAL_ENDPOINT_TYPE_LID_Plugin = "urn:oasis:names:tc:ebxml-regrep:EndpointType:Rest";
+
+	// Canonical Classification Scheme: EndpointType: Codes
+    public static final String CANONICAL_ENDPOINT_TYPE_CODE_Soap   = "Soap";
+	public static final String CANONICAL_ENDPOINT_TYPE_CODE_Rest   = "Rest";
+	public static final String CANONICAL_ENDPOINT_TYPE_CODE_Mail   = "Mail";
+	public static final String CANONICAL_ENDPOINT_TYPE_CODE_Plugin = "Plugin";
+
 	
 	/************************************************************************
 	 * 

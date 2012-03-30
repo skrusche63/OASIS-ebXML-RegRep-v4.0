@@ -27,6 +27,7 @@
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/mail-1.4.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/omar-binding"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

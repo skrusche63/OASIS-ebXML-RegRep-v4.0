@@ -1,5 +1,7 @@
 package de.kp.registry.common;
 
+import javax.xml.namespace.QName;
+
 public class CanonicalConstants {
 
 	public static String DEFAULT_LANGUAGE = "en-US";
@@ -26,7 +28,14 @@ public class CanonicalConstants {
 	public static final String SAML2_NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";
 
 	// namespaces
+	public static final String RIM_NS  = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0";
 	public static final String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
+	
+	// tags
+	public static final String ENDPOINT_TYPE_TAG = "EndpointType";
+
+	// qnames
+	public static final QName ENDPOINT_TYPE_QNAME = new QName(RIM_NS, ENDPOINT_TYPE_TAG);
 	
 	/************************************************************************
 	 * 
@@ -114,6 +123,18 @@ public class CanonicalConstants {
 	public static String QUERY_WSDL        = "";	
 	public static String NOTIFICATION_WSDL = "";
 
+	// the subsequent parameters supports an email
+	// based notification service
+	
+	public static String SMTP_AUTH = "";
+	public static String SMTP_HOST = "";
+	public static String SMTP_PORT = "";
+	
+	// user and password in case of TLS authentication
+	public static String SMTP_USER     = "";
+	public static String SMTP_PASSWORD = "";
+	
+	public static String MAIL_FROM = "";
 	
 	private static boolean initialized = false;
 	
