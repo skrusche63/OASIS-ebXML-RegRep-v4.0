@@ -6,15 +6,15 @@ import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
 import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
 import de.kp.registry.server.neo4j.service.context.UpdateRequestContext;
 
-public class AuthorizationHandler {
+public class AuthorizationManager {
 
-	private static AuthorizationHandler instance = new AuthorizationHandler();
+	private static AuthorizationManager instance = new AuthorizationManager();
 	
-	private AuthorizationHandler() {		
+	private AuthorizationManager() {		
 	}
 	
-	public static AuthorizationHandler getInstance() {
-		if (instance == null) instance = new AuthorizationHandler();
+	public static AuthorizationManager getInstance() {
+		if (instance == null) instance = new AuthorizationManager();
 		return instance;
 	}
 

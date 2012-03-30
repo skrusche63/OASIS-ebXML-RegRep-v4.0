@@ -16,6 +16,20 @@ import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.service.Cataloger;
 import de.kp.registry.server.neo4j.service.MsgRegistryException;
 
+/*
+ * The Cataloger interface allows a client to catalog or index objects 
+ * already in the server. The interface may be used by clients to catalog 
+ * objects already published to the server or may be used by the server to 
+ * catalog objects during the processing of the submitObjects or updateObjects 
+ * protocol.
+ * 
+ * __DESIGN__
+ * 
+ * The CatalogerImpl is actually not used by server and therefore restricted
+ * to client requests only.
+ * 
+ */
+
 public class CatalogerImpl {
 
 	private static QName QNAME = new QName("urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0", "NotificationListener");

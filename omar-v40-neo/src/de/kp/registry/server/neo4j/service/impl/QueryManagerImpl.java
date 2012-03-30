@@ -13,7 +13,7 @@ import org.oasis.ebxml.registry.bindings.query.QueryResponse;
 import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
-import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
+import de.kp.registry.server.neo4j.authorization.AuthorizationManager;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.federation.FederatedReadManager;
 import de.kp.registry.server.neo4j.read.ReadManager;
@@ -40,7 +40,7 @@ public class QueryManagerImpl implements QueryManager {
 	public static org.oasis.ebxml.registry.bindings.rim.ObjectFactory ebRIMFactory = new org.oasis.ebxml.registry.bindings.rim.ObjectFactory();
 
 	// reference to authorization handler
-	private static AuthorizationHandler ah = AuthorizationHandler.getInstance();
+	private static AuthorizationManager ah = AuthorizationManager.getInstance();
 
 	public QueryManagerImpl() {
 	}

@@ -12,7 +12,7 @@ import org.oasis.ebxml.registry.bindings.spi.CatalogObjectsResponse;
 import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
-import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
+import de.kp.registry.server.neo4j.authorization.AuthorizationManager;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.service.Cataloger;
@@ -20,18 +20,26 @@ import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.context.CatalogRequestContext;
 import de.kp.registry.server.neo4j.service.context.CatalogResponseContext;
 import de.kp.registry.server.neo4j.user.UserUtil;
-import de.kp.registry.server.neo4j.write.CatalogManager;
+import de.kp.registry.server.neo4j.write.CatalogerManager;
 
 @WebService(name = "Cataloger", serviceName = "Cataloger", portName = "CatalogerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
 endpointInterface = "de.kp.registry.server.neo4j.service.Cataloger")
 
 @HandlerChain(file="handler-chain.xml")
 
-// The Cataloger interface allows a client to catalog or index objects 
-// already in the server. The interface may be used by clients to catalog 
-// objects already published to the server or may be used by the server to
-// catalog objects during the processing of the submitObjects or updateObjects
-// protocol.
+/*
+ * The Cataloger interface allows a client to catalog or index objects 
+ * already in the server. The interface may be used by clients to catalog 
+ * objects already published to the server or may be used by the server to
+ * catalog objects during the processing of the submitObjects or updateObjects
+ * protocol.
+ * 
+ * __DESIGN__
+ * 
+ * The CatalogerImpl is actually not used by server and therefore restricted
+ * to client requests only.
+ *
+ */
 
 public class CatalogerImpl implements Cataloger {
 
@@ -39,7 +47,7 @@ public class CatalogerImpl implements Cataloger {
 	WebServiceContext wsContext;
 
 	// reference to authorization handler
-	private static AuthorizationHandler ah = AuthorizationHandler.getInstance();
+	private static AuthorizationManager ah = AuthorizationManager.getInstance();
 
 	public CatalogerImpl() {
 	}
@@ -69,10 +77,8 @@ public class CatalogerImpl implements Cataloger {
 		
 		if (result.equals(AuthorizationConstants.PERMIT_ALL)) {			
 
-			CatalogManager cm = CatalogManager.getInstance();
+			CatalogerManager cm = CatalogerManager.getInstance();
 			catalogResponse = (CatalogResponseContext)cm.catalogObjects(catalogRequest, catalogResponse);
-			
-			// TODO: notification?
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 

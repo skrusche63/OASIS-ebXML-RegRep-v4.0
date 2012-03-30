@@ -13,7 +13,7 @@ import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.CredentialInfo;
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
-import de.kp.registry.server.neo4j.authorization.AuthorizationHandler;
+import de.kp.registry.server.neo4j.authorization.AuthorizationManager;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 import de.kp.registry.server.neo4j.event.EventProcessor;
@@ -42,7 +42,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
 	public static org.oasis.ebxml.registry.bindings.rs.ObjectFactory ebRSFactory = new org.oasis.ebxml.registry.bindings.rs.ObjectFactory();
 
 	// reference to authorization handler
-	private static AuthorizationHandler ah = AuthorizationHandler.getInstance();
+	private static AuthorizationManager ah = AuthorizationManager.getInstance();
 	
 	public LifecycleManagerImpl() {		
 	}
