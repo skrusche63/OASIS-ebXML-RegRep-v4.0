@@ -104,6 +104,24 @@ public class ReadManager {
  		return Database.getInstance().getNodeIndex().get(NEOBase.OASIS_RIM_ID, id).getSingle();		
 	}
  
+ 	public Object getRegistryObject(String id) {
+
+ 		Node node = findNodeByID(id);
+ 		if (node == null) return null;
+ 		
+ 		Object binding = null; 		
+ 		try {
+ 	 		String language = null;
+			binding = toBinding(node, language);
+		
+ 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+ 		
+ 		return binding;
+ 		
+ 	}
+ 	
  	public Object toBinding(Node node, String language) throws Exception {
 
 		String rimClassName = (String) node.getProperty(NEOBase.NEO4J_TYPE);

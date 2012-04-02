@@ -55,7 +55,12 @@ public class ExceptionManager {
 			
 			AuthorizationException e = (AuthorizationException)exception;
 			return (RegistryExceptionType)e.toBinding();
+
+		} else if (exception instanceof CatalogingException) {
 			
+			CatalogingException e = (CatalogingException)exception;
+			return (RegistryExceptionType)e.toBinding();
+
 		} else if (exception instanceof InvalidRequestException) {
 			
 			InvalidRequestException e = (InvalidRequestException)exception;

@@ -4,7 +4,9 @@ import javax.xml.namespace.QName;
 
 public class CanonicalConstants {
 
-	public static String DEFAULT_LANGUAGE = "en-US";
+	public static String DEFAULT_LANGUAGE  = "en-US";
+	public static String DEFAULT_NS_PREFIX = "urn:org:acme";
+
 	
 	// The following canonical values are defined for the EventType ClassificationScheme
 	public static final String CREATED 		 	= "urn:oasis:names:tc:ebxml-regrep:EventType:Created";
@@ -37,6 +39,31 @@ public class CanonicalConstants {
 	// qnames
 	public static final QName ENDPOINT_TYPE_QNAME = new QName(RIM_NS, ENDPOINT_TYPE_TAG);
 	
+	// canonical object types
+	public static final String CANONICAL_CS_ID_ObjectType = "urn:oasis:names:tc:ebxml-regrep:ObjectType";
+	
+	public static final String CANONICAL_OBJECT_TYPE_ID_WSDL      = CANONICAL_CS_ID_ObjectType + ":RegistryObjectType:ExtrinsicObjectType:WSDL";
+	public static final String CANONICAL_OBJECT_TYPE_ID_XML       = CANONICAL_CS_ID_ObjectType + ":RegistryObjectType:ExtrinsicObjectType:XML";
+    public static final String CANONICAL_OBJECT_TYPE_ID_XMLSchema = CANONICAL_CS_ID_ObjectType + ":RegistryObjectType:ExtrinsicObjectType:XMLSchema";
+
+    // canonical Slot names
+    public final static String CANONICAL_SLOT_WSDL_PROFILE_REFERENCED_NAMESPACES = "urn:oasis:names:tc:ebxml-regrep:profile:ws:wsdl:referencedNamespaces";
+    public final static String CANONICAL_SLOT_WSDL_PROFILE_TARGET_NAMESPACE 	 = "urn:oasis:names:tc:ebxml-regrep:profile:ws:wsdl:targetNamespace";
+        
+    public static final String CANONICAL_SLOT_CONTENT_LOCATOR = "urn:oasis:names:tc:ebxml-regrep:SlotName:contentLocator";
+    public static final String CANONICAL_SLOT_LOCATOR 		  = "urn:oasis:names:tc:ebxml-regrep:SlotName:locator";
+
+    public static final String CANONICAL_PROTOCOL_TYPE_ID_SOAP  = "urn:oasis:names:tc:ebxml-regrep:profile:ws:ProtocolType:SOAP";         
+    public static final String CANONICAL_TRANSPORT_TYPE_ID_HTTP = "urn:oasis:names:tc:ebxml-regrep:profile:ws:TransportType:HTTP";
+         
+    public static final String CANONICAL_SOAP_STYLE_TYPE_ID_RPC 	 = "urn:oasis:names:tc:ebxml-regrep:profile:ws:SOAPStyleType:RPC";
+    public static final String CANONICAL_SOAP_STYLE_TYPE_ID_DOCUMENT = "urn:oasis:names:tc:ebxml-regrep:profile:ws:SOAPStyleType:Document";
+   
+    public static final String CANONICAL_OBJECT_TYPE_ID_WSDL_SERVICE 	= CANONICAL_OBJECT_TYPE_ID_WSDL + ":Service";
+    public static final String CANONICAL_OBJECT_TYPE_ID_WSDL_PORT 		= CANONICAL_OBJECT_TYPE_ID_WSDL + ":Port";
+    public static final String CANONICAL_OBJECT_TYPE_ID_WSDL_BINDING 	= CANONICAL_OBJECT_TYPE_ID_WSDL + ":Binding";
+    public static final String CANONICAL_OBJECT_TYPE_ID_WSDL_PORT_TYPE 	= CANONICAL_OBJECT_TYPE_ID_WSDL + ":PortType";
+    
 	/************************************************************************
 	 * 
 	 * PREDEFINED QUERY DEFINITIONS    PREDEFINED QUERY DEFINITIONS    PREDEFINED

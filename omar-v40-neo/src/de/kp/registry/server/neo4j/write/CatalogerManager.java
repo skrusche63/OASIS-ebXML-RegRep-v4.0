@@ -14,6 +14,7 @@ import de.kp.registry.server.neo4j.read.ReadManager;
 import de.kp.registry.server.neo4j.service.context.CatalogRequestContext;
 import de.kp.registry.server.neo4j.service.context.CatalogResponseContext;
 import de.kp.registry.server.neo4j.service.context.ResponseContext;
+import de.kp.registry.server.neo4j.write.plugin.CatalogerPlugin;
 
 public class CatalogerManager {
 

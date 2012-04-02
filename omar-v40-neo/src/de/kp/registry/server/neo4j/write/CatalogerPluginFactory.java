@@ -1,5 +1,7 @@
 package de.kp.registry.server.neo4j.write;
 
+import de.kp.registry.server.neo4j.write.plugin.CatalogerPlugin;
+
 public class CatalogerPluginFactory {
 
 	private static CatalogerPluginFactory instance = new CatalogerPluginFactory();
