@@ -8,6 +8,7 @@ import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 
+import de.kp.registry.common.CanonicalSchemes;
 import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.ExceptionManager;
 
@@ -53,6 +54,10 @@ public class ResponseContext {
 		
 		if (this.response.getObjectRefList() == null) this.response.setObjectRefList(ebRIMFactory.createObjectRefListType());
 
+		// - STATUS
+
+		this.response.setStatus(CanonicalSchemes.CANONICAL_RESPONSE_STATUS_TYPE_ID_Failure);
+		
 	}
 	
 	public void setRegistryResponse(RegistryResponseType response) {

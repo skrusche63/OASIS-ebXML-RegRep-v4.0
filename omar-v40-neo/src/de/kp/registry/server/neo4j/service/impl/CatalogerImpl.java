@@ -20,7 +20,7 @@ import de.kp.registry.server.neo4j.service.MsgRegistryException;
 import de.kp.registry.server.neo4j.service.context.CatalogRequestContext;
 import de.kp.registry.server.neo4j.service.context.CatalogResponseContext;
 import de.kp.registry.server.neo4j.user.UserUtil;
-import de.kp.registry.server.neo4j.write.CatalogerManager;
+import de.kp.registry.server.neo4j.write.WriteManager;
 
 @WebService(name = "Cataloger", serviceName = "Cataloger", portName = "CatalogerPort", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:services:4.0",
 endpointInterface = "de.kp.registry.server.neo4j.service.Cataloger")
@@ -77,8 +77,8 @@ public class CatalogerImpl implements Cataloger {
 		
 		if (result.equals(AuthorizationConstants.PERMIT_ALL)) {			
 
-			CatalogerManager cm = CatalogerManager.getInstance();
-			catalogResponse = (CatalogResponseContext)cm.catalogObjects(catalogRequest, catalogResponse);
+			WriteManager wm = WriteManager.getInstance();
+			catalogResponse = (CatalogResponseContext)wm.catalogObjects(catalogRequest, catalogResponse);
 
 		} else if (result.equals(AuthorizationConstants.PERMIT_SOME)) {
 
