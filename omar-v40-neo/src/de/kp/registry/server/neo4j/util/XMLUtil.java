@@ -1,5 +1,6 @@
 package de.kp.registry.server.neo4j.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import javax.xml.parsers.DocumentBuilder;
@@ -104,7 +105,17 @@ public class XMLUtil {
 	}
 
 	public static Document parse(InputSource source) throws ParserConfigurationException, SAXException, IOException {
-            
+        DocumentBuilder builder = createDocumentBuilder();
+        return builder.parse(source); 
+	}
+
+	public static Document parse(String fileName) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder = createDocumentBuilder();
+        return builder.parse(new File(fileName)); 
+	}
+	
+	public static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
+
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         
 		factory.setNamespaceAware(true);
@@ -127,9 +138,8 @@ public class XMLUtil {
                 // do nothing
             }
         });
-
-        return builder.parse(source);
- 
+		
+        return builder;
+        
 	}
-
 }

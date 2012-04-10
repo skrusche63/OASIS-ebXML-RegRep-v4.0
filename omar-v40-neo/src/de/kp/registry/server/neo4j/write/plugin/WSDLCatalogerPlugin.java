@@ -992,9 +992,13 @@ public class WSDLCatalogerPlugin extends CatalogerPluginImpl {
 
     private RegistryObjectType catalogImportStatement(RegistryObjectType registryObject, String importedNamespace, String location) throws CatalogingException {
 
-    	// TODO: handle cases when xsd:include and xsd:redefine are used and
-    	// there is no namespace attribute. Use the targetNamespace attribute
-    	// of the <schema> element in the <>.xsd file.
+    	// __DESIGN__
+    	
+    	// cases when xsd:include and xsd:redefine are used and there is no 
+    	// namespace attribute are not taken into account. 
+    	//
+    	// Use the targetNamespace attribute of the <schema> element in the 
+    	// <>.xsd file.
 
     	if ((importedNamespace == null) && (location == null)) {
     		// Ignore these cases: <xsd:import/>

@@ -16,6 +16,9 @@ public class AuthorizationResult {
 	private Set<String> deniedResources;
 	
 	private String requestType;
+	private String result;
+	
+	private String user;
 	
 	public AuthorizationResult(String requestType) {
 		
@@ -26,7 +29,16 @@ public class AuthorizationResult {
 		
 	}
 	
+	public void setResult(String result) {
+		this.result = result;
+	}
+	
 	public String getResult() {
+		
+		if (this.result != null) return this.result;
+		
+		// compute authorization result from the list of 
+		// resources that have been authorized or even not
 		
 		if (this.deniedResources.isEmpty()) return AuthorizationConstants.PERMIT_ALL;
 		
@@ -34,6 +46,14 @@ public class AuthorizationResult {
 		if (this.authorizedResources.isEmpty()) return AuthorizationConstants.PERMIT_NONE;
 		
 		return AuthorizationConstants.PERMIT_SOME;
+	}
+	
+	public void setUser(String user) {
+		this.user = user;
+	}
+	
+	public String getUser() {
+		return this.user;
 	}
 	
 	public Set<String> getAuthorized() {
@@ -46,5 +66,13 @@ public class AuthorizationResult {
 	
 	public String getRequestType() {
 		return this.requestType;
+	}
+	
+	public void addAuthorized(String resource) {
+		this.authorizedResources.add(resource);
+	}
+	
+	public void addDenied(String resource) {
+		this.deniedResources.add(resource);
 	}
 }

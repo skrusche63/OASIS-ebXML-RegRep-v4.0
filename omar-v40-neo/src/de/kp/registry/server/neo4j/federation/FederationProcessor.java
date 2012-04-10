@@ -76,8 +76,10 @@ public class FederationProcessor {
 
                 }
 
-                // TODO: there is an open issue on how to handle duplicate
-                //       objectRefs or registryObjects from different federates
+                // __DESIGN__
+                
+                // there is actually no functionality implemented that handles
+                // duplicate objectRefs or registryObjects from different federates
                 
                 List<ObjectRefType> remoteObjectRefs = remoteResponse.getObjectRefList().getObjectRef();
                 if (remoteObjectRefs.isEmpty() == false) {

@@ -70,6 +70,8 @@ public class CanonicalConstants {
 	 * 
 	 ***********************************************************************/
 	
+    public static final String CYPHER_LANGUAGE = "urn:oasis:names:tc:ebxml-regrep:QueryLanguage:Cypher";
+    
 	// this is the unique identifier of a parameterized query ($userId) to retrieve
 	// a certain user by his unique identifier; the respective query request is used
 	// in the context of the UserProvider, that queries a remote User Registry to

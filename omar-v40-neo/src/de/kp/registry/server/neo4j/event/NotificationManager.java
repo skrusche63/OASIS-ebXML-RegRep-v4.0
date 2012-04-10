@@ -395,7 +395,7 @@ public class NotificationManager {
 		QueryDefinitionType queryDefinitionType = (QueryDefinitionType)rm.toBinding(node, null);		
 		StringQueryExpressionType queryExpressionType = (StringQueryExpressionType)queryDefinitionType.getQueryExpression(); 
 
-		if ("CYPHER".equals(queryExpressionType.getQueryLanguage()) == false) return null;
+		if (CanonicalConstants.CYPHER_LANGUAGE.equals(queryExpressionType.getQueryLanguage()) == false) return null;
 		return queryExpressionType.getValue();
 
 	}

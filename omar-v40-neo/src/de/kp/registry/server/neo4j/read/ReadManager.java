@@ -3,9 +3,13 @@ package de.kp.registry.server.neo4j.read;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.activation.DataHandler;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -15,16 +19,23 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.AnyValueType;
 import org.oasis.ebxml.registry.bindings.rim.BooleanValueType;
+import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
+import org.oasis.ebxml.registry.bindings.rim.ClassificationSchemeType;
 import org.oasis.ebxml.registry.bindings.rim.CollectionValueType;
+import org.oasis.ebxml.registry.bindings.rim.CommentType;
 import org.oasis.ebxml.registry.bindings.rim.DateTimeValueType;
 import org.oasis.ebxml.registry.bindings.rim.DurationValueType;
+import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
+import org.oasis.ebxml.registry.bindings.rim.FederationType;
 import org.oasis.ebxml.registry.bindings.rim.FloatValueType;
 import org.oasis.ebxml.registry.bindings.rim.IntegerValueType;
 import org.oasis.ebxml.registry.bindings.rim.MapValueType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
+import org.oasis.ebxml.registry.bindings.rim.OrganizationType;
 import org.oasis.ebxml.registry.bindings.rim.QueryDefinitionType;
 import org.oasis.ebxml.registry.bindings.rim.QueryType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
+import org.oasis.ebxml.registry.bindings.rim.RegistryPackageType;
 import org.oasis.ebxml.registry.bindings.rim.SlotType;
 import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
 import org.oasis.ebxml.registry.bindings.rim.StringValueType;
@@ -37,6 +48,7 @@ import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.domain.exception.InvalidRequestException;
 import de.kp.registry.server.neo4j.service.context.QueryRequestContext;
 import de.kp.registry.server.neo4j.service.context.QueryResponseContext;
+import de.kp.registry.server.neo4j.write.VersionHandler;
 
 public class ReadManager {
 
@@ -174,6 +186,8 @@ public class ReadManager {
  	 		ExecutionResult result = engine.execute(cypherQuery);
  	 		Iterator<Node> nodes = result.columnAs("n");
 
+ 	 		if (request.getMatchOlderVersions() == false) nodes = getLatestVersions(nodes);
+ 	 		
  	 		// the result depends on the response option and the 
  	 		// return type defined there
  	 		String returnType = request.getReturnType();
@@ -239,7 +253,7 @@ public class ReadManager {
 		QueryDefinitionType queryDefinitionType = (QueryDefinitionType)toBinding(node, null);		
 		StringQueryExpressionType queryExpressionType = (StringQueryExpressionType)queryDefinitionType.getQueryExpression(); 
 
-		if ("CYPHER".equals(queryExpressionType.getQueryLanguage()) == false) return null;
+		if (CanonicalConstants.CYPHER_LANGUAGE.equals(queryExpressionType.getQueryLanguage()) == false) return null;
 		String queryExpression = queryExpressionType.getValue();
 		
 		// Element Slot (Inherited) - Each Slot element specifies a parameter 
@@ -326,8 +340,6 @@ public class ReadManager {
 	// that have an xsi:type attribute that corresponds to leaf classes as defined 
 	// in [regrep-xsd-v4.0]. No RepositoryItems SHOULD be included for any 
 	// rim:ExtrinsicObjectType instance in the <rim:Registry-ObjectList> element.
-
- 	// TODO: matchOlderVersions
  	
  	private void addLeafClassToResponse(QueryRequestContext request, Iterator<Node> nodes, QueryResponseContext response) {
 
@@ -344,9 +356,23 @@ public class ReadManager {
 	 			Node node = nodes.next();
 	 			RegistryObjectType binding = (RegistryObjectType)toBinding(node, language);
 
-	 			// TODO
+	 			// make sure that only leaf classes are added
+	 			// to the query response
+	 			if (isLeafClass(binding) == false) continue;
 	 			
-	 			response.addRegistryObject(binding);
+	 			// No RepositoryItems SHOULD be included for any rim:ExtrinsicObjectType 
+	 			// instance in the <rim:Registry-ObjectList> element.	 			
+
+	 			if ((binding instanceof CommentType) || (binding instanceof ExtrinsicObjectType)) {
+	 				
+	 				ExtrinsicObjectType eo = (ExtrinsicObjectType)binding;
+	 				
+	 				DataHandler repositoryItem = null;
+	 				eo.setRepositoryItem(repositoryItem);
+	 				
+	 			}
+	 			
+ 				response.addRegistryObject(binding);
 	
 	 		}
 
@@ -361,6 +387,11 @@ public class ReadManager {
  		response.setTotalResultCount(new BigInteger(String.valueOf(totalResultCount)));
  			
  	}
+
+	// This option is the same as the LeafClass option with the additional
+	// requirement that the response include the RepositoryItems, if any, 
+	// for every rim:ExtrinsicObjectType instance in the <rim:RegistryObjectList> 
+	// element.
 
  	private void addLeafClassRIToResponse(QueryRequestContext request, Iterator<Node> nodes, QueryResponseContext response) {
 
@@ -378,7 +409,9 @@ public class ReadManager {
 	 			Node node = nodes.next();
 	 			RegistryObjectType binding = (RegistryObjectType)toBinding(node, language);
 
-	 			// TODO
+	 			// make sure that only leaf classes are added
+	 			// to the query response
+	 			if (isLeafClass(binding) == false) continue;
 	 				 			
 	 			response.addRegistryObject(binding);
 
@@ -450,4 +483,147 @@ public class ReadManager {
  			
  	}
 
+ 	private boolean isLeafClass(RegistryObjectType registryObject) {
+ 		
+ 		boolean isLeaf = true;
+ 		if (registryObject instanceof ClassificationNodeType) {
+ 			
+ 			ClassificationNodeType cn = (ClassificationNodeType)registryObject;
+ 			return (cn.getClassificationNode().size() == 0) ? true : false;
+ 
+ 		} else if (registryObject instanceof ClassificationSchemeType)
+ 			return false;
+ 
+ 		else if (registryObject instanceof FederationType)
+ 			return false;
+
+ 		else if (registryObject instanceof OrganizationType) {
+ 			
+ 			OrganizationType org = (OrganizationType)registryObject;
+ 			return (org.getOrganization().size() == 0) ? true : false;
+ 			
+ 		} else if (registryObject instanceof RegistryPackageType)
+ 			return false;
+
+ 		return isLeaf;
+ 		
+ 	}
+
+ 	/*
+ 	 * Attribute matchOlderVersions – This optional attribute specifies the behavior 
+ 	 * when multiple versions of the same object are matched by a query. When the value 
+ 	 * of this attribute is specified as false (the default) then a server MUST only return 
+ 	 * the latest matched version for any object and MUST not return older versions of such 
+ 	 * objects even though they may match the query. 
+ 	 * 
+ 	 * When the value of this attribute is specified as true then a server MUST return all 
+ 	 * matched versions of all objects.
+ 	 */
+
+ 	private Iterator<Node> getLatestVersions(Iterator<Node> nodes) {
+ 		
+ 		// as a first step, we have to distinguish the nodes
+ 		// due to their logical identifier
+ 		
+ 		Map<String,ArrayList<Node>> versionedNodes = new HashMap<String, ArrayList<Node>>();
+ 		
+ 		while (nodes.hasNext()) {
+ 			Node node = nodes.next();
+
+ 			String lid = node.hasProperty(NEOBase.OASIS_RIM_LID) ? (String)node.getProperty(NEOBase.OASIS_RIM_LID) : null;
+ 			if (lid == null) continue;
+ 			
+ 			if (versionedNodes.get(lid) == null) versionedNodes.put(lid, new ArrayList<Node>());
+ 			versionedNodes.get(lid).add(node);
+ 			
+ 		}
+ 		
+ 		ArrayList<Node> latestNodes = new ArrayList<Node>();
+ 		
+ 		Set<String> lids = versionedNodes.keySet();
+ 		for (String lid:lids) {
+ 			
+ 			ArrayList<Node> nodeGroup = versionedNodes.get(lid);
+ 			Node latestNode = getLatestVersion(nodeGroup);
+ 			
+ 			latestNodes.add(latestNode);
+ 		}
+ 		
+ 			
+		return latestNodes.iterator();
+ 		
+ 	}
+ 	
+ 	private Node getLatestVersion(ArrayList<Node> nodes) {
+
+		VersionHandler vh = VersionHandler.getInstance();
+ 		
+		Node latestNode = null;
+ 		String latestVersion = null;
+ 		
+ 		for (Node node:nodes) {
+ 			
+ 			Node versionInfo = vh.getVersion(node);
+ 		
+ 			String nodeVersion = versionInfo.hasProperty(NEOBase.OASIS_RIM_VERSION_NAME) ? (String)versionInfo.getProperty(NEOBase.OASIS_RIM_VERSION_NAME) : null; 
+ 			if (nodeVersion == null) continue;
+ 				
+			// compare with last version
+			if (compareVersions(nodeVersion, latestVersion) > 0) {
+
+				latestNode    = node;
+ 				latestVersion = nodeVersion;
+				
+			}
+ 				
+ 		}
+ 		
+ 		return latestNode;
+
+ 	}
+
+    /*
+     * Compares 2 version Strings, with major/minor versions separated by '.'
+     * Example: "1.10"
+	 *
+     * return int = 0 if params are equal; 
+     * 		  int > 0 if 1st is greater than 2nd;
+     *        int < 0 if 2st is greater than 1nd.
+	 */
+ 	
+ 	private int compareVersions(String version1, String version2) {
+ 		
+ 		if (version2 == null) return 1;
+ 		
+        String parts1 [] = version1.split("\\.", 2);
+        String parts2 [] = version2.split("\\.", 2);
+        
+        int compare = Integer.parseInt(parts1[0]) - Integer.parseInt(parts2[0]);
+        if (compare == 0) {
+
+        	// equal.. try subversions
+            if (parts1.length == 1 && parts2.length == 1) {
+                // really equal
+                return 0;
+            
+            } else if (parts1.length == 1) {
+                // other is bigger (v2)
+                return -1;
+            
+            } else if (parts2.length == 1) {
+                // other is bigger (v1)
+                return +1;
+            
+            } else {
+                // try subversions
+                return compareVersions(parts1[1], parts2[1]);
+            }
+
+        } else {
+            return compare;
+
+        }
+ 		
+ 	}
+ 	
 }

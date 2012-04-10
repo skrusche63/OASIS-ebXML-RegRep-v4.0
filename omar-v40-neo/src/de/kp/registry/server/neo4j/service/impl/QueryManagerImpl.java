@@ -83,7 +83,7 @@ public class QueryManagerImpl implements QueryManager {
 			queryResponse = rm.executeQuery(queryRequest, queryResponse);
 
 			// Authorization of QueryResponse
-			AuthorizationResult authRes = ah.authorizeQueryResponse(queryResponse);
+			AuthorizationResult authRes = ah.authorizeQueryResponse(queryRequest, queryResponse);
 			String result = authRes.getResult();
 			
 			//__DESIGN__
