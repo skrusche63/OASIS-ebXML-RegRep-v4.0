@@ -22,10 +22,6 @@ public class CanonicalConstants {
 
 	public static final String CREDENTIAL_INFO = "urn:oasis:names:tc:ebxml-regrep:credential:info";
 	public static final String CANONICAL_URI_SENDER_CERT = "urn:oasis:names:tc:ebxml-regrep:rs:security:SenderCert";
-	
-	// predefined user unique identifiers
-	public static final String REGISTRY_GUEST    = "urn:oasis:names:tc:ebxml-regrep:predefinedusers:RegistryGuest";
-	public static final String REGISTRY_OPERATOR = "urn:oasis:names:tc:ebxml-regrep:predefinedusers:RegistryOperator";
 
 	public static final String SAML2_NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";
 
@@ -105,6 +101,14 @@ public class CanonicalConstants {
 	
 	public static final String QUERY_GetAuditableEventsById = "urn:oasis:names:tc:ebxml-regrep:QueryDefinitionType:QUERY_GetAuditableEventsById";
 	
+	/************************************************************************
+	 * 
+	 * PREDEFINED USERS    PREDEFINED USERS    PREDEFINED USERS    PREDEFINED
+	 * 
+	 ***********************************************************************/
+	
+	public static final String REGISTRY_GUEST    = "urn:oasis:names:tc:ebxml-regrep:predefinedusers:RegistryGuest";
+	public static final String REGISTRY_OPERATOR = "urn:oasis:names:tc:ebxml-regrep:predefinedusers:RegistryOperator";
 	
 	/************************************************************************
 	 * 
@@ -181,22 +185,56 @@ public class CanonicalConstants {
 		
 		Bundle bundle = Bundle.getInstance();
 		
-		// dynamic fill of keystore properties
-		KEYSTORE_FILE = bundle.getString("keystore.file");
-		KEYSTORE_PASS = bundle.getString("keystore.pass");
-		KEYSTORE_TYPE = bundle.getString("keystore.type");
-		
-		// dynamic fill of idp crypto properties
+		/********************************************************************
+		 * CRYPTO & KEYSTORE PROPERTIES
+		 *******************************************************************/
 		
 		IDP_CRYPTO  = bundle.getString("idp.crypto.file");
 		IDP_ALIAS   = bundle.getString("idp.crypto.alias");
 		IDP_KEYPASS = bundle.getString("idp.crypto.keypass");
+
+		KEYSTORE_FILE = bundle.getString("keystore.file");
+		KEYSTORE_PASS = bundle.getString("keystore.pass");
+		KEYSTORE_TYPE = bundle.getString("keystore.type");
+
+		/********************************************************************
+		 * EMAIL SERVICE PROPERTIES
+		 *******************************************************************/
 		
-		// SOAP message time skews
+		MAIL_FROM = bundle.getString("mail.from");
+
+		SMTP_AUTH = bundle.getString("smtp.auth");
+		SMTP_HOST = bundle.getString("smtp.host");
+		SMTP_PORT = bundle.getString("smtp.port");
+		
+		SMTP_USER     = bundle.getString("smtp.user");
+		SMTP_PASSWORD = bundle.getString("smtp.password");
+
+		/********************************************************************
+		 * REPOSITORIES PROPERTIES
+		 *******************************************************************/
+		
+		REPOSITORY_ROOT = bundle.getString("repository.root");
+
+		/********************************************************************
+		 * SERVICE PROPERTIES
+		 *******************************************************************/
+		
+		NOTIFICATION_LISTENER_URL = bundle.getString("notification.listener.url");
+		
+		USER_REGISTRY_URL 		  = bundle.getString("user.registry.url");
+		FEDERATION_REGISTRY_URL   = bundle.getString("federation.registry.url");
+
+		/********************************************************************
+		 * SOAP MESSAGE PROPERTIES
+		 *******************************************************************/
+
 		MAX_CLOCK_SKEW = bundle.getString("max.clock.skew");
-		
-		// WSDL LOCATIONS from settings
-		
+
+		/********************************************************************
+		 * WSDL LOCATION PROPERTIES
+		 *******************************************************************/
+
 		CATALOG_WSDL      = bundle.getString("wsdl.catalog");
 		LIFECYCLE_WSDL    = bundle.getString("wsdl.lifecycle");
 		NOTIFICATION_WSDL = bundle.getString("wsdl.notification");

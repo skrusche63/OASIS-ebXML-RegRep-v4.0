@@ -15,4 +15,8 @@ public class PolicyDecisionPoint {
 	public void init() {
 		// TODO
 	}
+	
+	public void evaluate() {
+		// TODO
+	}
 }

@@ -55,7 +55,7 @@ public class UpdateRequestContext extends RequestContext {
 		
 		// __DESIGN__
 		
-		// in order to remove registry objects, we first have to merge the objects
+		// in order to update registry objects, we first have to merge the objects
 		// stemming from the provided query, and those described by the reference list
 		if (query != null) {
 		

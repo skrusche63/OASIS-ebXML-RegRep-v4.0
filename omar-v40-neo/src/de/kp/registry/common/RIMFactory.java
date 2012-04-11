@@ -3,6 +3,9 @@ package de.kp.registry.common;
 import java.util.UUID;
 
 import org.oasis.ebxml.registry.bindings.rim.ClassificationType;
+import org.oasis.ebxml.registry.bindings.rim.EmailAddressType;
+import org.oasis.ebxml.registry.bindings.rim.PersonNameType;
+import org.oasis.ebxml.registry.bindings.rim.PersonType;
 import org.oasis.ebxml.registry.bindings.rim.QueryDefinitionType;
 import org.oasis.ebxml.registry.bindings.rim.StringQueryExpressionType;
 
@@ -27,6 +30,30 @@ public class RIMFactory {
 		
 	}
 
+	public static EmailAddressType createEmailAddress() {
+		return ebRIMFactory.createEmailAddressType();
+	}
+	
+	public static PersonType createPerson() {
+		String uid = "urn:uuid:" + UUID.randomUUID().toString();
+		return createPerson(uid);		
+	}
+
+	public static PersonType createPerson(String uid) {
+		
+		PersonType person = ebRIMFactory.createPersonType();
+		
+		person.setId(uid);
+		person.setLid(uid);
+		
+		return person;
+		
+	}
+
+	public static PersonNameType createPersonName() {
+		return ebRIMFactory.createPersonNameType();
+	}
+	
 	public static QueryDefinitionType createQueryDefinition() {
 		String uid = "urn:uuid:" + UUID.randomUUID().toString();
 		return createQueryDefinition(uid);		

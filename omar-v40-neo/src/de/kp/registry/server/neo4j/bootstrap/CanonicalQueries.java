@@ -1,10 +1,8 @@
 package de.kp.registry.server.neo4j.bootstrap;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.oasis.ebxml.registry.bindings.rim.QueryDefinitionType;
@@ -18,16 +16,16 @@ import de.kp.registry.common.Bundle;
 import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.common.RIMFactory;
 import de.kp.registry.server.neo4j.database.Database;
-import de.kp.registry.server.neo4j.domain.NEOBase;
 import de.kp.registry.server.neo4j.util.XMLUtil;
 
-public class CanonicalQueries {
+public class CanonicalQueries extends Bootstrap {
 
 	private Document xmlDoc;
 	
     private static final String CANON_QUERY_NS  = "http://www.dr-kruscheundpartner.com/canoncical-queries";
     private static final String CANON_QUERY_TAG = "CanonQuery";
 
+    // attributes
     private static final String CANON_QUERY_ID  = "Id";
 
 	public CanonicalQueries() {
@@ -112,14 +110,6 @@ public class CanonicalQueries {
 		return queryDefinition;
 		
 	}
-	
-	private Node toNode(EmbeddedGraphDatabase graphDB, Object binding, Boolean checkReference) throws Exception {
 
-		Class<?> clazz = NEOBase.getClassNEO(binding);
-
-	    Method method = clazz.getMethod("toNode", graphDB.getClass(), Object.class, Boolean.class);
-	    return (Node) method.invoke(null, graphDB, binding, checkReference);
-    	
-	}
 
 }

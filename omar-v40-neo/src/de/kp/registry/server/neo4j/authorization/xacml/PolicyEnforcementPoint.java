@@ -9,10 +9,12 @@ import de.kp.registry.common.CanonicalConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationConstants;
 import de.kp.registry.server.neo4j.authorization.AuthorizationContext;
 import de.kp.registry.server.neo4j.authorization.AuthorizationResult;
+import de.kp.registry.server.neo4j.service.context.CatalogRequestContext;
 import de.kp.registry.server.neo4j.service.context.QueryResponseContext;
 import de.kp.registry.server.neo4j.service.context.RemoveRequestContext;
 import de.kp.registry.server.neo4j.service.context.RequestContext;
 import de.kp.registry.server.neo4j.service.context.SubmitRequestContext;
+import de.kp.registry.server.neo4j.service.context.UpdateRequestContext;
 
 public class PolicyEnforcementPoint {
 
@@ -49,6 +51,7 @@ public class PolicyEnforcementPoint {
 		if (requestType.equals(AuthorizationConstants.SUBMIT_REQUEST)) {
 			
 			AuthorizationContext authCtx = createAuthContext(AuthorizationConstants.SUBMIT_REQUEST);
+			authCtx.setSubject(user);
 			
 			SubmitRequestContext submitRequest = (SubmitRequestContext)request;
 			List<RegistryObjectType> registryObjects = submitRequest.getList();
@@ -70,11 +73,31 @@ public class PolicyEnforcementPoint {
 			
 		} else if (requestType.equals(AuthorizationConstants.UPDATE_REQUEST)) {
 			
-			// TODO
+			AuthorizationContext authCtx = createAuthContext(AuthorizationConstants.UPDATE_REQUEST);
+			authCtx.setSubject(user);
+			
+			UpdateRequestContext updateRequest = (UpdateRequestContext)request;
+			List<ObjectRefType> objectRefs = updateRequest.getList();
+
+			for (ObjectRefType objectRef:objectRefs) {
+				
+				String resource = objectRef.getId();
+				boolean authorized = authorizeResource(resource, authCtx);
+				
+				if (authorized == true) {
+					authRes.addAuthorized(resource);
+					
+				} else {
+					authRes.addDenied(resource);
+					
+				}
+				
+			}
 			
 		} else if (requestType.equals(AuthorizationConstants.REMOVE_REQUEST)) {
 			
 			AuthorizationContext authCtx = createAuthContext(AuthorizationConstants.REMOVE_REQUEST);
+			authCtx.setSubject(user);
 			
 			RemoveRequestContext removeRequest = (RemoveRequestContext)request;
 			List<ObjectRefType> objectRefs = removeRequest.getList();
@@ -96,6 +119,27 @@ public class PolicyEnforcementPoint {
 
 		} else if (requestType.equals(AuthorizationConstants.CATALOG_REQUEST)) {
 			
+			AuthorizationContext authCtx = createAuthContext(AuthorizationConstants.CATALOG_REQUEST);
+			authCtx.setSubject(user);
+			
+			CatalogRequestContext catalogRequest = (CatalogRequestContext)request;
+			List<ObjectRefType> objectRefs = catalogRequest.getObjectRefs();
+
+			for (ObjectRefType objectRef:objectRefs) {
+				
+				String resource = objectRef.getId();
+				boolean authorized = authorizeResource(resource, authCtx);
+				
+				if (authorized == true) {
+					authRes.addAuthorized(resource);
+					
+				} else {
+					authRes.addDenied(resource);
+					
+				}
+				
+			}
+			
 		}
 		
 		return authRes;
@@ -114,8 +158,28 @@ public class PolicyEnforcementPoint {
 			return authRes;
 		}
 
-		// TODO
+		AuthorizationContext authCtx = createAuthContext(AuthorizationConstants.QUERY_REQUEST);
+		authCtx.setSubject(user);
+
+		List<RegistryObjectType> registryObjects = response.getRegistryObject();
+		
+		for (RegistryObjectType registryObject:registryObjects) {
+			
+			String resource = registryObject.getId();
+			boolean authorized = authorizeResource(resource, authCtx);
+			
+			if (authorized == true) {
+				authRes.addAuthorized(resource);
+				
+			} else {
+				authRes.addDenied(resource);
+				
+			}
+			
+		}
+		
 		return authRes;
+	
 	}
 	
 	// this method invokes the olicy decision point to
@@ -130,4 +194,5 @@ public class PolicyEnforcementPoint {
 		// TODO
 		return new AuthorizationContext(requestType);
 	}
+		
 }

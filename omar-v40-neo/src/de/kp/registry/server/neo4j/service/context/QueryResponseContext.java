@@ -83,6 +83,10 @@ public class QueryResponseContext {
 		
 	}
 
+	public List<RegistryObjectType> getRegistryObject() {
+		return this.response.getRegistryObjectList().getRegistryObject();
+	}
+	
 	public void removeRegistryObjectAll(Set<String> ids) {
 		
 		List<RegistryObjectType> removables = new ArrayList<RegistryObjectType>();
