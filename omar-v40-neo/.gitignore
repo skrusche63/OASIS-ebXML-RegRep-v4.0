@@ -1,9 +1,0 @@
-# Can ignore specific files
-.classpath
-
-# Use wildcards as well
-#*~
-#*.swp
-
-# Can also ignore all directories and files in a directory.
-#testdb.neo4j/**/* 
